@@ -7,11 +7,17 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.ilk
+*.pdb
+*.res
+*.idb
+*.log
+*.tlog
+*.ipch
 
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod

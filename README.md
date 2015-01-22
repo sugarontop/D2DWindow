@@ -1,4 +1,4 @@
-d2dwindow
+D2Dwindow
 =========
 
 test

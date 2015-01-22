@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright 2015, admin@sugarontop.net
-//
+//	MIT LICENCE
 ///////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -17,6 +17,9 @@ using namespace D2D1;
 #define D2RGBA(r,g,b,a) ColorF(r/255.0f, g/255.0f, b/255.0f, a/255.0f ) //  ”–‚¢(0) <- A <- ”Z‚¢(255)
 #define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
 
+//
+// D2DMisc.h helper library
+// 2009.10.04
 
 namespace V4 
 {
@@ -389,6 +392,13 @@ class FRectF : public D2D1_RECT_F
 			// faster than "rc_.ZeroRect().PtInRect( pt ) ".
 
 			return ( pt.x < (right-left) && pt.y < (bottom-top) && 0 < pt.x && 0 < pt.y );
+		}
+		void Clear()
+		{
+			left=0;
+			right=0;
+			bottom=0;
+			top=0;
 		}
 };
 

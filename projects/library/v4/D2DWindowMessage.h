@@ -1,0 +1,49 @@
+#define WM_UI_FIRE				(WM_USER+1)
+#define WM_D2D_NCLBUTTONDOWN	(WM_USER+2)
+// #define WM_D2D_CREATE			(WM_USER+3) --> virtual void OnCreate()�ֈڍs
+#define WM_D2D_UNACTIVE			(WM_USER+4)
+
+#define WM_D2D_BUTTON_CLICK						(WM_USER+8)
+#define WM_D2D_TEXTBOX_SETTEXT					(WM_USER+9)
+#define WM_D2D_TEXTBOX_GETTEXT					(WM_USER+10)
+
+#define WM_D2D_MENU_SELECT						(WM_USER+11)
+#define WM_D2D_PAINT							(WM_USER+12) // WM_D2D_PAINT_CAPTURE
+#define WM_D2D_GET_CONTROLS						(WM_USER+13)
+#define WM_D2D_CREATE_CONTROLS					(WM_USER+14)
+
+#define WM_D2D_TEST								(WM_USER+15)
+
+#define WM_D2D_IDLE								(WM_USER+16)
+#define WM_D2D_DROPOBJECT_SEARCH_ACCEPTOR		(WM_USER+17)
+#define WM_D2D_DROPOBJECT_FOUND_ACCEPTOR		(WM_USER+18)
+#define WM_D2D_OBJECT_UPDATE					(WM_USER+19)
+#define WM_D2D_OBJECT_SUICIDE					(WM_USER+20)
+
+#define WM_D2D_MESSAGEBOX_CLOSED				(WM_USER+21)
+#define WM_D2D_INTERNET_GET_COMPLETED			(WM_USER+22)
+
+#define WM_D2D_TAB_ACTIVE						(WM_USER+23)
+#define WM_D2D_COMMAND							(WM_USER+24) // WM_COMMAND wparam, lparam. Lparam is security id.
+
+#define WM_D2D_SETCAPTURE						(WM_USER+25)
+
+#define WM_D2D_GRIDCONTROL						(WM_USER+26) // wparam:0 is add msg.
+
+#define WM_D2D_EV_FIRST							(WM_USER+100)
+
+#define WM_D2D_EVTEXTBOX_SINGLELINE_PUSHKEY		(WM_USER+101)
+#define WM_D2D_EVTEXTBOX_CHAR					(WM_USER+102)
+#define WM_D2D_EVSELECT_CHEANGED				(WM_USER+103)
+#define WM_D2D_EVSLIDER_CHEANGED				(WM_USER+104)
+
+#define WM_D2D_JS_FIRST							(WM_USER+500)
+#define WM_D2D_JS_SETTEXT						WM_D2D_JS_FIRST
+#define WM_D2D_JS_ENABLE						(WM_USER+501)
+#define WM_D2D_JS_ERROR							(WM_USER+502)
+
+
+
+// WM_MOUSEMOVE : wParam
+#define MK_F_MOUSE_ENTER						0x100
+#define MK_F_MOUSE_LEAVE						0x200

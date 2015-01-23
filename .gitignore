@@ -15,6 +15,7 @@
 *.tlog
 *.ipch
 *.sdf
+*.suo
 
 # Compiled Dynamic libraries
 *.so

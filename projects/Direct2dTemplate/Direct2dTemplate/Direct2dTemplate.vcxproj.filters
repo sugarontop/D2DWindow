@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\D2DWindow">
+      <UniqueIdentifier>{a82a7405-3830-4ed9-b37b-ca5e16b8efaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\TSF">
+      <UniqueIdentifier>{d4c5e8f9-9850-4c81-a207-9edf2eb6c8be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -35,7 +41,19 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Direct2dTemplate.cpp">
+    <ClCompile Include="MainFrame.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\v4\D2DWindow.cpp">
+      <Filter>ソース ファイル\D2DWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\D2DContextEx.cpp">
+      <Filter>ソース ファイル\D2DWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\D2DWindowControl.cpp">
+      <Filter>ソース ファイル\D2DWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DApi.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

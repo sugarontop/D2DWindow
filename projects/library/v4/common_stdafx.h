@@ -1,4 +1,7 @@
 
+#undef DrawText
+#undef DrawRect
+#undef FillRect
 
 #include <atlbase.h>
 #include <atlcom.h>
@@ -32,6 +35,10 @@ using namespace std::placeholders;
 
 #define DEFAULTFONT_JP	L"ÉÅÉCÉäÉI"
 #define DEFAULTFONT_HEIGHT_JP	32
+
+
+#define DEFAULTFONT			DEFAULTFONT_JP
+#define DEFAULTFONT_HEIGHT	DEFAULTFONT_HEIGHT_JP
 
 #define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
 

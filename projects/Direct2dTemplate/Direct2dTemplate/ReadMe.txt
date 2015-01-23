@@ -1,3 +1,19 @@
 ﻿
+Pass route
+	.\; ->
+	.\v4; ->
+	..\..\library\v4;
 
-aaaaa
+
+
+SourceFile
+
+	stdafx.cpp
+		link library.
+
+	*** D2DWindow
+		Window libraray.
+
+	*** TSF
+		TextServicesFramework, IME. not implement.
+

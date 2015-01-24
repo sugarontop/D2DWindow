@@ -16,6 +16,7 @@
 *.ipch
 *.sdf
 *.suo
+*.v12.suo
 
 # Compiled Dynamic libraries
 *.so

@@ -1,5 +1,5 @@
 // Direct2dTemplate.cpp : アプリケーションのエントリ ポイントを定義します。
-//
+// 
 
 #include "stdafx.h"
 #include "Direct2dTemplate.h"

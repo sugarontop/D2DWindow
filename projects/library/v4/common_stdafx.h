@@ -40,7 +40,6 @@ using namespace std::placeholders;
 #define DEFAULTFONT			DEFAULTFONT_JP
 #define DEFAULTFONT_HEIGHT	DEFAULTFONT_HEIGHT_JP
 
-#define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
 
 #include "D2DMisc.h"
 

@@ -22,14 +22,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{									
 			CREATESTRUCT* st = (CREATESTRUCT*)lParam;
 			
-			::SetWindowLongPtr( hWnd, GWL_USERDATA,(LONG) st->lpCreateParams ); // GWL_USERDATA must be set here.
-
-
+			::SetWindowLongPtr( hWnd, GWL_USERDATA,(LONG) st->lpCreateParams ); 
 			SetFocus(hWnd);
-
-			
-
-			return 0; // DefWindowProc(hWnd, message, wParam, lParam);
+			return 0;
 		}		
 		break;
 		case WM_DISPLAYCHANGE:
@@ -44,21 +39,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			cxt->BeginDraw();
 			D2D1_MATRIX_3X2_F mat = Matrix3x2F::Identity();
 
-			//mat._11 = mat._11*2.3; 
-			//mat._22 = mat._22*2.3;
-
 			cxt->SetTransform(mat);
 			cxt->Clear(ColorF(ColorF::White));
 
-			//auto cxt1 = d->cxt_;
-			
-
 			d->WndProc( message, wParam, lParam ); // All objects is drawned.
 
-			
-			//D2DImage img;
-			//img.id = 0;
-			//DrawBitmap( d->cxt_.cxt, img, FRectF(100+0,100+0,100+48,100+48));
 
 			// CAPTURE OBJECT‚ÍÅŒã‚É•\Ž¦ 
 			// Comobox“à‚ÌListbox‚È‚Ç
@@ -71,42 +56,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					p[i]->WndProc( d, WM_D2D_PAINT, wParam, lParam );
 				}
 			}
-
-
-
-#ifdef BOXMODELTEST
-{
-	auto cxttemp = d->cxt_;
-	FRectFBoxModel rcx(200,200,FSizeF(100,100));
-
-	rcx.Margin_.Set(10);
-	rcx.BoderWidth_ = 10;
-	rcx.Padding_.Set(0); 
-
-	{
-		auto rc1 = rcx.GetBorderRect();
-	
-		D2DRectFilter filter(d->cxt_, rc1 );
-
-		auto rcb = rcx.GetBorderRect();
-
-		auto rcc = rcx.GetContentRect();
-
-		d->cxt_.cxt->FillRectangle( rcc, cxttemp.ltgray );	
-		d->cxt_.cxt->DrawRectangle( rcb, cxttemp.black, 1 );
-	}
-
-	{
-		
-		auto rc1 = rcx.GetMarginRect();
-		D2DRectFilter filter(d->cxt_, rc1 );
-	
-		d->cxt_.cxt->FillRectangle( rc1, cxttemp.transparent );	
-		d->cxt_.cxt->DrawRectangle( rc1, cxttemp.black, 1 );
-	}
-}
-#endif
-
 			if (d->redraw_)
 			{
 				InvalidateRect(hWnd, NULL, FALSE);
@@ -299,7 +248,6 @@ HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE
 	hMainFrame_ = h2;
 	
 	hWnd_ =  ::CreateWindowExW( dwWSEXSTYLE, CLASSNAME, L"", dwWSSTYLE, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, parent, NULL, ::GetModuleHandle(0), this ); 	
-	//::SetWindowLongPtr( hWnd_, GWL_USERDATA,(LONG_PTR)this ); WIN8‚Å‚Í‚±‚±‚Å‚Í’x‚¢‚ç‚µ‚¢
 
 	cxt_.Init( SingletonD2DInstance::Init(), hWnd_ );
 

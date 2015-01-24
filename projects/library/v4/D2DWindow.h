@@ -24,9 +24,6 @@ class LayoutLineInfo;
 
 namespace V4 {
 
-// DISABLE:表示はされる、マウス等はうけつけない 
-// DEATH:表示されない、すべてのメッセージは無視される
-// DEAD:死体、参照カウンタの影響でメモリ上では生きでも、Controlとしては死体を意味する
 enum STAT{ VISIBLE=0x1,MOUSEMOVE=0x2,CLICK=0x4,CAPTURED=0x8,SELECTED=0x10, DISABLE=0x20,READONLY=0x40, DROPACCEPTOR=0x80, DROPPING=0x100,BORDER=0x200, ALWAYSDRAW=0x400, DEAD=0x800, FOCUS=0x1000, DEBUG1=0x2000 };
 
 

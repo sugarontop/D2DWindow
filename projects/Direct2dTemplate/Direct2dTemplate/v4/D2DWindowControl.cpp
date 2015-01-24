@@ -383,20 +383,6 @@ std::shared_ptr<D2DControl> D2DControls::Detach(D2DControl* target)
 	return NULL;
 }
 
-
-//void D2DControls::MeToOrg()
-//{	
-//	std::vector<std::shared_ptr<D2DControl>>& ls = this->parent_control_->controls_;
-//
-//	auto a1 = ls[vector_idx.second];
-//	auto pos = ls.begin()+vector_idx.second;
-//	ls.erase(pos);
-//	
-//	pos = ls.begin()+vector_idx.first;
-//	ls.insert( pos, a1);
-//
-//}
-
 void D2DControls::MeToLast()
 {
 	std::vector<std::shared_ptr<D2DControl>>& ls = this->parent_control_->controls_;
@@ -460,31 +446,7 @@ LRESULT D2DControls::KeyProc(D2DControl* sender, UINT message, WPARAM wParam, LP
 							it->StatActive(false);
 							bl = true;
 						}
-						else if ( bl )
-						{
-							// messageをitへ集中させる
-
-				
-							/*if ( !dynamic_cast<D2DStatic*>( it.get()) )
-							{
-								parent_->SetCapture(it.get());	
-								
-								
-
-								TRACE( L"ACTIVE %s \n", (LPCWSTR)nm );
-
-								if ( nm == L"btn" )
-								{
-										int a = 0;
-								}
-
-																			
-								it->StatActive(true);
-								ret = 1;
-								return ret;						
-							}*/
-						}
-
+						
 						j++;
 					}
 				}
@@ -753,9 +715,6 @@ FRectF D2DTopControls::CalcAutoSize( const GDI32::FSize& sz )
 	return rc;
 }
 
-//void DrawSkyBlueGrid( ID2D1RenderTarget* cxt, FSizeF sz, float duration )
-
-
 LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT ret = 0;
@@ -773,7 +732,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 	
 	mat.SetTransform();
 
-	mat_ = mat; // 自座標のマット
+	mat_ = mat; 
 
 	FPointF pt21 = mat.DPtoLP( FPointF(lParam));
 
@@ -796,23 +755,8 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 #endif
 			
 			// DrawDebugCross(d->cxt_, d->cxt_.black );
-
-			
-
-
 			SendMessageReverseAll(d,message,wParam,lParam);	
 
-		/*	#ifdef _DEBUG
-				IDWriteTextFormat* fm = cxt.text;
-				V4::DrawText( cxt, fm, L"D2DControlsMove", d->cxt_.red, FRectF(10,rc_.bottom-50,1000,rc_.bottom));
-				
-				V4::DrawText( cxt, fm, d->appinfo_.c_str(), d->cxt_.halftone, FRectF(10,rc_.bottom-20,1000,rc_.bottom));
-
-				
-				V4::DrawText( cxt, fm, error_msg_.c_str(), d->cxt_.halftoneRed, FRectF(0,0,1000,rc_.bottom));
-			#endif*/
-
-			
 		}
 		break;	
 		case WM_D2D_JS_ERROR:
@@ -829,7 +773,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{
 			if (ENABLE(stat_))
 			{
-				if ( rc_.ZeroPtInRect(pt21)) //if ( rc_.ZeroRect().PtInRect( pt21 ))
+				if ( rc_.ZeroPtInRect(pt21))
 					SendMessageAll(d,message,wParam,lParam);
 				else
 					SendMessageAll(d,WM_D2D_NCLBUTTONDOWN,wParam,lParam);
@@ -840,7 +784,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{
 			if (ENABLE(stat_))
 			{
-				if ( rc_.ZeroPtInRect(pt21)) //if ( rc_.ZeroRect().PtInRect( pt21 ))
+				if ( rc_.ZeroPtInRect(pt21))
 					SendMessageAll(d,message,wParam,lParam);
 			}
 		}
@@ -851,7 +795,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{
 			if (ENABLE(stat_))
 			{
-				if ( rc_.ZeroPtInRect(pt21)) //if ( rc_.ZeroRect().PtInRect( pt21 ))
+				if ( rc_.ZeroPtInRect(pt21))
 					SendMessageAll(d,message,wParam,lParam);
 			}
 		}
@@ -860,8 +804,6 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{
 			if (ENABLE(stat_))
 			{
-				//if ( rc_.ZeroRect().PtInRect( pt21 ))
-
 				if ( rc_.ZeroPtInRect(pt21))
 				{
 					if ( !mouse_enter_ )

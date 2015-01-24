@@ -201,10 +201,10 @@ namespace V4
 			D2DMatrix& Offset( float cx, float cy )
 			{
 				// _31,_32に小数点を付けない。96DPI時に線が太くなる場合があるため。
-				float cx1 = static_cast<int>(cx);
-				float cy1 = static_cast<int>(cy);
+				int cx1 = static_cast<int>(cx);
+				int cy1 = static_cast<int>(cy);
 								
-				D2DMat::Offset(cx1,cy1);
+				D2DMat::Offset((float)cx1,(float)cy1);
 				g_->SetTransform( *this );
 				return *this;
 			}
@@ -242,107 +242,4 @@ namespace V4
 			ID2D1RenderTarget* g_;
 	};
 };
-/*
-namespace V4
-{
-	// 均等配置をサポートする
-	class NBunkatu
-	{
-		public :
-			NBunkatu( const FRectF& rc, int Ny, int Nx=1 ):rc_(rc),Ny_(Ny),Nx_(Nx)
-			{
-				xassert( Ny_ >= 1 );
-				xassert( Nx_ >= 1 );
-			}
-			// outerの中にセンター配置のinnerを計算
-			void CalcPosition( int posY, int posX, const FSizeF& innerSize, FRectF& outer, FRectF& inner )
-			{
-				CalcPosition(posY,posX,innerSize,1,outer,inner ); // 横：センター配置
-			}
-			void CalcPosition( int posY, int posX, const FSizeF& innerSize,int align, FRectF& outer, FRectF& inner )
-			{
-				xassert( 0 <=posY && posY < Ny_ );
-				xassert( 0 <=posX && posX < Nx_ );
-								
-						
-				float height = rc_.Height();
-				float width = rc_.Width();
-				
-				outer.top = rc_.top + height / Ny_ * posY;
-				outer.bottom = outer.top + height/Ny_;
-
-				outer.left = rc_.left + width / Nx_ * posX;
-				outer.right = outer.left + width / Nx_;
-
-				float offx=0;
-
-				float offy = (height / Ny_ - innerSize.height) / 2.0f;
-
-				if ( align == 1 )
-				{					
-					offx = (width / Nx_ - innerSize.width) / 2.0f;
-				}
-				else if ( align == 2 )
-				{
-					offx = (width / Nx_ - innerSize.width);
-				}
-
-				inner.top = outer.top + offy;
-				inner.bottom = inner.top + innerSize.height;
-				inner.left = outer.left + offx;
-				inner.right = inner.left + innerSize.width;
-			}
-			static FRectF Inner( const FSizeF& innerSize, const FRectF& outer )
-			{
-				float offy = (outer.Height() - innerSize.height) / 2.0f;
-				float offx = (outer.Width() - innerSize.width) / 2.0f;
-				return FRectF( outer.left + offx, outer.top + offy, innerSize );
-			}
-		private :
-			FRectF rc_;
-			int Ny_;	// 縦にN分割
-			int Nx_;	// 横にN分割
-
-	};
-	
-	//
-	// 境界線を多用する場合に1:1の条件下でaliasを自動で切る
-	//
-	class D2DAntialias
-	{
-		public :
-		D2DAntialias( D2DContext& c ):cxt(c),bl(false)
-		{
-			D2DMat mat;
-			cxt.cxt->GetTransform(&mat);
-			
-			if ( mat._11 == 1 && mat._22 == 1 )
-			{
-				bl = true;
-				cxt.SetAntiAlias(false);
-			}
-		}
-		~D2DAntialias()
-		{
-			if ( bl )
-				cxt.SetAntiAlias(true);
-
-		}
-		void AliasOff()
-		{
-			if ( !bl )
-			{
-				bl = true;
-				cxt.SetAntiAlias(false);
-			}
-		}
-
-		private :
-			bool bl;
-			D2DContext& cxt;
-	};
-};
-
-*/
-
 	

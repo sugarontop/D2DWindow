@@ -428,15 +428,6 @@ D2DCaptureObject* D2DWindow::ReleaseCapture()
 
 	return p;
 }
-
-//void V4::SetCursor( HCURSOR h )
-//{
-//	if ( h != ::GetCursor() )
-//	{	
-//		::SetCursor( h );
-//	}
-//}
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 CHDL ControlHandle::handle_ = 800; // initial value
 

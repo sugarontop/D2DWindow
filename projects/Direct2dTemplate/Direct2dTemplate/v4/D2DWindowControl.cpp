@@ -5,7 +5,7 @@
 #include "D2DContextNew.h"
 //#include "MoveTarget.h"
 
-#define CLASSNAME L"D2DWindow"
+
 using namespace V4;
 
 #pragma comment(lib,"dwrite.lib") 

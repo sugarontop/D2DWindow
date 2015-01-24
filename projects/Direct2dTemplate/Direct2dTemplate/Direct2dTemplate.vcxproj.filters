@@ -56,6 +56,9 @@
     <ClCompile Include="D2DApi.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="D2DFrameWindowControl.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct2dTemplate.rc">

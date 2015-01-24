@@ -6,11 +6,6 @@
 #include "D2DWindow.h"
 #include "D2DWindowControl.h"
 #include "gdi32.h"
-//#include "InvokeHelper.h"
-//#include "d2dcontextnew.h"
-//#include "tsf\TextEditor.h"
-//#include "Selection.h"
-//#include "D2DWindowDataGrid.h"
 using namespace GDI32;
 
 
@@ -37,29 +32,6 @@ void CreateChild(V4::D2DWindow* parent);
 
 
 
-// TSF-----------------------------------------------
-//#pragma region TSF
-//	TSF::CTextEditorCtrl *g_pTextInputCtrl;
-//	ITfThreadMgr *g_pThreadMgr			= NULL;
-//	TfClientId g_TfClientId				= TF_CLIENTID_NULL;
-//	ITfKeystrokeMgr *g_pKeystrokeMgr	= NULL;
-//	HRESULT InitDisplayAttrbute();
-//	HRESULT UninitDisplayAttrbute();
-//#pragma endregion
-//
-//namespace TSF {
-//
-//CTextEditorCtrl* GetTextEditorCtrl()
-//{
-//	return g_pTextInputCtrl;
-//}
-//
-//}
-//
-//namespace V4 {
-//Selection g_selection;
-//
-//};
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -152,12 +124,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	//g_pTextInputCtrl = new TSF::CTextEditorCtrl();
 
-	//if (FAILED(CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER,IID_ITfThreadMgr, (void**)&g_pThreadMgr))) goto Exit;    
-	//if (FAILED(g_pThreadMgr->Activate(&g_TfClientId)))  goto Exit;    
-	//if (FAILED(g_pThreadMgr->QueryInterface(IID_ITfKeystrokeMgr, (void **)&g_pKeystrokeMgr)))  goto Exit;
-	//if ( FAILED(InitDisplayAttrbute()))	goto Exit;
 
    __hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
@@ -174,49 +141,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    return TRUE;
 
-Exit:
-   return FALSE;
 }
 void ExitInstance()
 {
-	/*UninitDisplayAttrbute();
-	delete g_pTextInputCtrl;
-
-
-	if ( g_pThreadMgr )
-	{
-		g_pThreadMgr->Deactivate();
-		g_pThreadMgr->Release();
-	}
-
-	if ( g_pKeystrokeMgr )
-		g_pKeystrokeMgr->Release();*/
-
 	CoUninitialize();
-
-}
-
-
-
-void CreateChild(V4::D2DWindow* parent)
-{
-	D2DTopControls* cs = new D2DTopControls();
-
-	FRectF rc2;
-	cs->CreateWindow(parent, NULL, rc2, VISIBLE, L"1 layer");
-
-
-	FRectF rcbutton(10,10,FSizeF(200,60));
-	D2DButton* btn = new D2DButton();
-	btn->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"btn1" );
-
-
-	btn->OnClick_ = [](D2DButton* btn)
-	{
-		::MessageBox( btn->parent_->hWnd_, L"Hello world", L"msg", MB_OK );
-
-
-	};
 }
 
 // バージョン情報ボックスのメッセージ ハンドラーです。
@@ -240,11 +168,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-
-
-#ifdef LIGHTWINDOW
-
-#pragma region MAINFRAME
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -314,9 +237,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
-#pragma endregion //MAINFRAME and WndProc
 
-#endif
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+void CreateChild(V4::D2DWindow* parent)
+{
+	D2DTopControls* cs = new D2DTopControls();
+
+	FRectF rc2;
+	cs->CreateWindow(parent, NULL, rc2, VISIBLE, L"1 layer");
+
+
+	FRectF rcbutton(10,10,FSizeF(200,60));
+	D2DButton* btn = new D2DButton();
+	btn->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"btn1" );
+
+
+	btn->OnClick_ = [cs](D2DButton* btn)
+	{
+		//::MessageBox( btn->parent_->hWnd_, L"Hello world", L"msg", MB_OK );
+
+		D2DFrameWindowControl* x = new D2DFrameWindowControl();
+
+		FRectF rc(100,100,FSizeF(500,300));
+
+		x->CreateWindow( btn->parent_, cs, rc, VISIBLE|BORDER, L"NONAME" );
+
+
+	};
+}

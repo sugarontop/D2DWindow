@@ -142,12 +142,12 @@ class D2DTopControls : public D2DControls
 		D2DTopControls(){}		
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual void CreateWindow(D2DWindow* parent, D2DControls* must_be_null, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1  );
-		void CreateWindow(D2DWindow* d, int stat, LPCWSTR name, int id=-1 );
-		// virtual void OnCreate();
 
 		std::function<FRectF(FRectF, GDI32::FSize)> calc_auto_size_;
 		
 	protected :
+		void CreateWindow(D2DWindow* d, int stat, LPCWSTR name, int id=-1 );
+
 		FRectF CalcAutoSize( const GDI32::FSize& sz );
 
 		FString error_msg_;
@@ -163,13 +163,28 @@ class D2DButton : public D2DControl
 
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1 );
-
+	
+	protected :
 		static void DrawContent( D2DContext& cxt, const FRectFBoxModel& rc, int stat, const FString& s );
 		void OnDraw( D2DContext& cxt );
-		
-		std::function<void (D2DButton*)> OnClick_;
 		std::function<void (D2DContext&, const FRectFBoxModel&, int, const FString& s)> ondraw_;
+
+	public :
+		std::function<void (D2DButton*)> OnClick_;
+		
 };
+
+
+class D2DFrameWindowControl : public D2DControls
+{
+	public :
+		D2DFrameWindowControl(){}
+		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
+		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1 );
+	protected :
+		
+};
+
 
 
 void DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br, float width );

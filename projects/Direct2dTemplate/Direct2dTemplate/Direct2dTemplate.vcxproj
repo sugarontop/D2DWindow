@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\library\v4\D2DWindow.cpp" />
     <ClCompile Include="D2DApi.cpp" />
+    <ClCompile Include="D2DFrameWindowControl.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

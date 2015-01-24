@@ -143,6 +143,10 @@ struct D2DRectFilter
 		D2DContext& cxt;
 		int cnt;
 };
+
+void DrawCenterText( D2DContextText& cxt, ID2D1Brush* clr, FRectF& rc, LPCWSTR str, int len,int align  );
+
+
 /*
 struct D2DRectFilterType1
 {
@@ -178,7 +182,7 @@ FPointF FPointFV( _variant_t& cx,_variant_t& cy );
 FString FStringV( _variant_t& s );
 
 
-void DrawCenterText( D2DContextText& cxt, ID2D1Brush* clr, FRectF& rc, LPCWSTR str, int len,int align  );
+
 void DrawFillRect( D2DContext& cxt,const D2D1_RECT_F& rc, ID2D1Brush* wakuclr,ID2D1Brush* fillclr, float width );
 void DrawFillRectTypeS( D2DContext& cxt, const D2D1_RECT_F& rc, ID2D1Brush* fillclr );
 

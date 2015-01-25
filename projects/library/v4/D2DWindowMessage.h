@@ -1,4 +1,4 @@
-#define WM_UI_FIRE				(WM_USER+1)
+#define WM_UI_FIRE				(WM_USER+1) 
 #define WM_D2D_NCLBUTTONDOWN	(WM_USER+2)
 // #define WM_D2D_CREATE			(WM_USER+3) --> virtual void OnCreate()�ֈڍs
 #define WM_D2D_UNACTIVE			(WM_USER+4)

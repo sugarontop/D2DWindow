@@ -4,7 +4,7 @@
 #include "gdi32.h"
 #include <random>
 #define CLASSNAME L"D2DWindow"
-
+ 
 using namespace V4;
 using namespace GDI32;
 

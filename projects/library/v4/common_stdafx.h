@@ -18,7 +18,7 @@
 #include <dispex.h>
 #include <limits.h>
 #include <functional>
-#include <memory>
+#include <memory> 
 #include <type_traits>
 
 using namespace std::placeholders;

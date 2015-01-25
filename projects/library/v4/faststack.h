@@ -5,7 +5,7 @@ namespace V4 {
 template <typename T>
 class faststack
 {
-	public :
+	public : 
 		faststack( int maxcnt )
 		{
 			head_ = new T[maxcnt];

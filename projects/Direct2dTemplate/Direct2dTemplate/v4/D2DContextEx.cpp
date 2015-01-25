@@ -5,7 +5,7 @@
 
 static LARGE_INTEGER __s_frequency_;
 
-
+ 
 namespace V4{
 
 SingletonD2DInstance& SingletonD2DInstance::Init()

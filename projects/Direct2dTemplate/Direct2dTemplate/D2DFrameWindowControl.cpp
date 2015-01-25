@@ -4,7 +4,7 @@
 #include "gdi32.h"
 #include "D2DContextNew.h"
 
-using namespace V4;
+using namespace V4; 
 
 LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {

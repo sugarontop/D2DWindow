@@ -3,7 +3,7 @@
 
 
 
-namespace V4 {
+namespace V4 { 
 
 void CreateVerticalGradation(ID2D1RenderTarget* target, const D2D1_SIZE_F& sz, D2D1_COLOR_F& clr1, D2D1_COLOR_F& clr2, ID2D1LinearGradientBrush** br )
 {

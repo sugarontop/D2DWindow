@@ -1,4 +1,4 @@
-#pragma once
+#pragma once 
 
 #include "D2DContextEx.h"
 #include "D2Dcontextnew.h"

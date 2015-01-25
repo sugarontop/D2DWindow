@@ -4,7 +4,7 @@
 #include "gdi32.h"
 #include "D2DContextNew.h"
 //#include "MoveTarget.h"
-
+ 
 
 using namespace V4;
 

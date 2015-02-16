@@ -1,4 +1,6 @@
 ﻿* VisualStudio2013 C++
+* WIN7 SP1以降
+
 
 * Path route
 	.\; ->
@@ -18,3 +20,6 @@
 
 * note
 	ボタンを押すとWindowControlが作成表示されます。赤いキャプションで移動できます。
+
+* ID2D1HwndRenderTarget->ID2D1DeviceContext
+	RenderTargetの種類を変更しました。

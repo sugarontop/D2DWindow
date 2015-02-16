@@ -6,9 +6,10 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
-#include <d2d1.h>
-#include <dwrite.h>
-#include <d2d1helper.h>
+#include <d2d1_1.h>
+#include <dwrite_1.h>
+#include <d2d1_1helper.h>
+#include <d3d11_1.h>
 
 #include <string>
 #include <stack>

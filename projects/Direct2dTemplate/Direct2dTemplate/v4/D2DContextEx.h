@@ -14,10 +14,11 @@ struct D2DContextBase
 
 
 // SingletonD2DInstanceは独立した存在なので、HWNDに関わるリソースはもたない。
+// RenderTargetのrestructの影響を受けない
 struct SingletonD2DInstance
 {
-	CComPtr<IDWriteFactory> wrfactory;
-	CComPtr<ID2D1Factory>  factory;
+	CComPtr<IDWriteFactory1> wrfactory;
+	CComPtr<ID2D1Factory1>  factory;
 	CComPtr<IDWriteTextFormat> text;
 
 	static SingletonD2DInstance& Init();
@@ -59,6 +60,8 @@ struct D2DContext : public D2DContextBase
 	
 	operator ID2D1RenderTarget*() const{ return cxt.p; } 
 
+	CComPtr<IDXGISwapChain1> dxgiSwapChain;
+
 	CComPtr<ID2D1SolidColorBrush> ltgray;
 	CComPtr<ID2D1SolidColorBrush> black;
 	CComPtr<ID2D1SolidColorBrush> white;
@@ -72,15 +75,23 @@ struct D2DContext : public D2DContextBase
 	CComPtr<ID2D1StrokeStyle> dot4_;
 	CComPtr<ID2D1StrokeStyle> dot2_;
 
-	CComPtr<ID2D1Factory> factory(){ return insins->factory; }
+	CComPtr<ID2D1Factory1> factory(){ return insins->factory; }
 	D2DContextText cxtt;
-
-	IUnknown* stock[STOCKSIZE];
 
 	LPVOID free_space;
 
-	void Init(SingletonD2DInstance& ins, HWND hWnd );
-	void Destroy();
+	//void Init(SingletonD2DInstance& ins, HWND hWnd );
+	void Init(SingletonD2DInstance& ins);
+
+
+	void CreateHwndRenderTarget( HWND hWnd );
+	void CreateDeviceContextRenderTarget( HWND hWnd );
+	void CreateResourceOpt();
+
+	void CreateRenderTargetResource( ID2D1RenderTarget* t );
+	void DestroyRenderTargetResource();
+
+	void DestroyAll();
 
 	void SetAntiAlias(bool bl){ cxt->SetAntialiasMode( bl ? D2D1_ANTIALIAS_MODE_PER_PRIMITIVE:D2D1_ANTIALIAS_MODE_ALIASED);} 
 

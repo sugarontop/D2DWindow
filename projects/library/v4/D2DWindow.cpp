@@ -34,7 +34,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			HDC hdc = BeginPaint(hWnd, &ps);					
 			ID2D1RenderTarget* cxt = d->cxt_.cxt;			
 			
-			//SelectResource( d->res_ );
 
 			cxt->BeginDraw();
 			D2D1_MATRIX_3X2_F mat = Matrix3x2F::Identity();
@@ -46,7 +45,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 
 			// CAPTURE OBJECTは最後に表示 
-			// Comobox内のListboxなど
 			int cap_cnt = d->capture_obj_.size();
 			if ( cap_cnt )
 			{
@@ -56,21 +54,36 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					p[i]->WndProc( d, WM_D2D_PAINT, wParam, lParam );
 				}
 			}
+			
 			if (d->redraw_)
 			{
 				InvalidateRect(hWnd, NULL, FALSE);
 				d->redraw_ = 0;
 			}
 
-			if ( D2DERR_RECREATE_TARGET == cxt->EndDraw())
+
+			auto hr = cxt->EndDraw();
+			if ( D2DERR_RECREATE_TARGET == hr )
 			{
 				// ディスプレイの解像度を変更したり、ディスプレイ アダプターを取り外したりすると、デバイスが消失する可能性があります
-				//D2R.Restruct(hWnd);
+				d->cxt_.DestroyRenderTargetResource();
+				d->cxt_.CreateDeviceContextRenderTarget( hWnd );
+				d->cxt_.CreateRenderTargetResource( d->cxt_.cxt );
 
-				//TRACE( L"D2DERR_RECREATE_TARGET\n" );
-				//InvalidateRect(hWnd, NULL, FALSE);
+				InvalidateRect(hWnd, NULL, FALSE);
 			}
+			else if ( hr != S_OK )
+			{
+				// ERROR
+
+			}
+
+
 			EndPaint(hWnd, &ps);
+
+
+			d->cxt_.dxgiSwapChain->Present(1, 0);
+
 
 			return 0;
 		}
@@ -80,17 +93,23 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		break;
 		case WM_SIZE :
 		{		
-			auto cxt = d->cxt_.cxt;		
-			if ( cxt )
+			bool bl = ( d->cxt_.cxt != nullptr );		
+			if ( bl )
 			{
-				CComPtr<ID2D1HwndRenderTarget> trgt;
-				auto hr = cxt->QueryInterface( &trgt );												
-				_ASSERT(HR(hr));
+				/*CComPtr<ID2D1HwndRenderTarget> trgt;
+				auto hr = d->cxt_.cxt->QueryInterface( &trgt );												
+				if( HR(hr) )
+					trgt->Resize( D2D1::SizeU( LOWORD(lParam), HIWORD(lParam) ));*/
 
-				trgt->Resize( D2D1::SizeU( LOWORD(lParam), HIWORD(lParam) ));
-
-				d->WndProc( message, wParam,lParam );
+				d->cxt_.DestroyRenderTargetResource();
+				d->cxt_.CreateDeviceContextRenderTarget( hWnd );
+				d->cxt_.CreateRenderTargetResource( d->cxt_.cxt );
 			}
+
+
+
+			d->WndProc( message, wParam,lParam );
+			
 					
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -249,7 +268,12 @@ HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE
 	
 	hWnd_ =  ::CreateWindowExW( dwWSEXSTYLE, CLASSNAME, L"", dwWSSTYLE, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, parent, NULL, ::GetModuleHandle(0), this ); 	
 
-	cxt_.Init( SingletonD2DInstance::Init(), hWnd_ );
+
+	// RenderTargetの作成
+	cxt_.Init( SingletonD2DInstance::Init() );
+	cxt_.CreateDeviceContextRenderTarget( hWnd_ );
+	cxt_.CreateRenderTargetResource( cxt_.cxt );
+	cxt_.CreateResourceOpt();
 
 	cxt_.cxtt.Init( cxt_,DEFAULTFONT_HEIGHT_JP, DEFAULTFONT_JP ); // default font, default font size
 
@@ -340,7 +364,7 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 		{
 			children_ = NULL;
-			cxt_.Destroy();
+			cxt_.DestroyAll();
 			//ResourceRelease( res_ );
 		}
 		break;

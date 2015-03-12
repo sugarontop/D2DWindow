@@ -197,17 +197,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	{
 		FRect rc;
+		::GetClientRect(hWnd,&rc);
 		window.OnCreate = CreateChild;
-		HWND hwnd = window.CreateD2DWindow( 0, hWnd, WS_CHILD|WS_VISIBLE, rc );
-
-		/*
-		auto IdleMessage = [](HWND hwnd, UINT msg, UINT_PTR id, DWORD time )
-		{
-			if ( IDLE_TIMER_ID == id )
-				SendMessage(hwnd, WM_D2D_IDLE, 0, 0);
-		};
-		
-		::SetTimer( hWnd, IDLE_TIMER_ID, IDLE_TIME, IdleMessage );*/
+		HWND hwnd2 = window.CreateD2DWindow( 0, hWnd, WS_CHILD|WS_VISIBLE, rc );		
 	}
 	break;
 	case WM_SIZE:
@@ -227,7 +219,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_ERASEBKGND :
 	{			
-		//InvalidateRect(window.hWnd_,NULL,FALSE); 
 		return 1;
 	}
 	break;
@@ -251,19 +242,30 @@ void CreateChild(V4::D2DWindow* parent)
 
 	FRectF rcbutton(10,10,FSizeF(200,60));
 	D2DButton* btn = new D2DButton();
-	btn->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"btn1" );
+	btn->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"create" );
 
 
 	btn->OnClick_ = [cs](D2DButton* btn)
 	{
-		//::MessageBox( btn->parent_->hWnd_, L"Hello world", L"msg", MB_OK );
-
 		D2DFrameWindowControl* x = new D2DFrameWindowControl();
 
 		FRectF rc(100,100,FSizeF(500,300));
 
+		float off = 20.0f * cs->controls_.size();
+		rc.Offset(off,off);
+
 		x->CreateWindow( btn->parent_, cs, rc, VISIBLE|BORDER, L"NONAME" );
 
-
 	};
+
+
+	// k¬ƒ{ƒ^ƒ“
+	rcbutton.SetRect(10,80,FSizeF(200,60));
+	D2DButton* btn2 = new D2DButton();
+	btn2->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"small" );
+	btn2->OnClick_ = [cs](D2DButton* btn)
+	{
+		cs->Zoom(0.7f);
+	};
+
 }

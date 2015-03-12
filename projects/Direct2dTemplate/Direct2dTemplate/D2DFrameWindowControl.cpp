@@ -49,12 +49,15 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 			FPointF pt = mat_.DPtoLP(FPointF(lParam));
 			if ( rc_.PtInRect(pt))
 			{
+				MeToLast(); // order‚ð•ÏX
+
+				ret = 1;
+				d->redraw_ =1 ;
 				FRectF rctitle = rc_.GetBorderRect();
 				rctitle.SetHeight( 30.0f );
 				if ( rctitle.PtInRect(pt))
 				{
-					d->SetCapture(this, &pt);
-					ret = 1;
+					d->SetCapture(this, &pt);					
 				}
 			}
 		}
@@ -65,14 +68,9 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 			{
 				FPointF pt = mat_.DPtoLP(FPointF(lParam));
 				FPointF ptprv = d->CapturePoint(pt);
-
 				rc_.Offset( pt.x- ptprv.x, pt.y-ptprv.y );
-
 				d->redraw_ =1 ;
-
-
 			}
-
 		}
 		break;
 		case WM_LBUTTONUP:

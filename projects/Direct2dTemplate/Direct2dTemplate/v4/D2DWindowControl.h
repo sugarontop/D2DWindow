@@ -144,6 +144,8 @@ class D2DTopControls : public D2DControls
 		virtual void CreateWindow(D2DWindow* parent, D2DControls* must_be_null, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1  );
 
 		std::function<FRectF(FRectF, GDI32::FSize)> calc_auto_size_;
+
+		void Zoom( float rto){ zoom_ = max(0.1f, min(1.0f, rto)); }
 		
 	protected :
 		void CreateWindow(D2DWindow* d, int stat, LPCWSTR name, int id=-1 );

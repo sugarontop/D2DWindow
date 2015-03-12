@@ -16,10 +16,11 @@
 		Window libraray.
 
 	*** /TSF
-		TextServicesFramework, IME. no implement.
+		TextServicesFramework, IME. not implement.
 
 * note
-	ボタンを押すとWindowControlが作成表示されます。赤いキャプションで移動できます。
+	Createボタン: WindowControlが作成表示されます。赤いキャプションで移動できます。
+	Smallボタン : 全体が70%縮小
 
 * ID2D1HwndRenderTarget->ID2D1DeviceContext
 	RenderTargetの種類を変更しました。

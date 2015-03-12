@@ -30,6 +30,10 @@
 
 #define WM_D2D_GRIDCONTROL						(WM_USER+26) // wparam:0 is add msg.
 
+#define WM_D2D_RESTRUCT_RENDERTARGET			(WM_USER+29)
+#define WM_D2D_CLOSE_CONTROL					(WM_USER+30)	// wp:none, lp:none
+#define WM_D2D_DESTROY_CONTROL					(WM_USER+31)	// wp:none, lp:D2DControl* target
+
 #define WM_D2D_EV_FIRST							(WM_USER+100)
 
 #define WM_D2D_EVTEXTBOX_SINGLELINE_PUSHKEY		(WM_USER+101)

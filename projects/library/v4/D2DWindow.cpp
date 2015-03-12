@@ -158,9 +158,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
-		case WM_KILLFOCUS: // 0x8
-		case WM_KEYDOWN: // 0x100
-		case WM_KEYUP: //0x101
+		case WM_KILLFOCUS:
+		case WM_KEYDOWN:
+		case WM_KEYUP:
 		{
 			d->WndProc( message, wParam,lParam );
 
@@ -277,13 +277,12 @@ HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE
 
 	cxt_.cxtt.Init( cxt_,DEFAULTFONT_HEIGHT_JP, DEFAULTFONT_JP ); // default font, default font size
 
-	//res_ = ResourceAllocate( cxt_.cxt, SingletonD2DInstance::Init().wrfactory, hWnd_ );
 	redraw_ = 0;
-	
-	//SelectResource( res_ );
 	
 	if ( OnCreate )
 		OnCreate( this );
+
+	SendMessage(hWnd_, WM_SIZE,0,MAKELPARAM(rc.right-rc.left,rc.bottom-rc.top));
 
 	return hWnd_;
 
@@ -363,6 +362,8 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		case WM_DESTROY:
 		{
+			children_->DestroyWindow();
+
 			children_ = NULL;
 			cxt_.DestroyAll();
 			//ResourceRelease( res_ );
@@ -376,42 +377,10 @@ void D2DWindow::SetCapture(D2DCaptureObject* p,  FPointF* pt )
 {
 	if ( capture_obj_.empty())
 	{
-		::SetCapture( hWnd_ );
-		
+		::SetCapture( hWnd_ );		
 	}
+	
 	::SetFocus( hWnd_ );
-	
-
-	#ifdef _DEBUG
-	{
-		/*V2::File cf;
-		int a = cf.OpenWrite( L"capture_reki.txt", false, V2::File::TYP::ASCII );
-		cf.SeekToEnd();
-	
-
-		if ( dynamic_cast<D2DControl*>(p) )
-		{
-			FString s = FString::Format(L"SetCapture %x %s", p, ((D2DControl*) p)->name_.c_str());
-			cf.WriteString( s, true );
-			ATLTRACE( L"%s\n", s.c_str() );
-		}
-		else 	
-		{
-			FString s = FString::Format(L"SetCapture %x %s", p, L"---" );
-			cf.WriteString(s, true);
-			ATLTRACE(L"%s\n", s.c_str());
-		}
-
-		if (!capture_obj_.empty() && p == capture_obj_.top())
-		{
-			cf.WriteString(L"‹p‰º", true);
-			ATLTRACE(L"%s\n", L"‹p‰º");
-		}
-
-
-		cf.Close();*/
-	}
-	#endif
 
 	if (capture_obj_.empty() )
 		capture_obj_.push(p);

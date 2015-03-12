@@ -1,11 +1,8 @@
 #include "stdafx.h"
 #include "D2DContextEx.h"
 
-//#pragma comment(lib,"D2DApi.lib")
-
 static LARGE_INTEGER __s_frequency_;
 
- 
 namespace V4{
 
 SingletonD2DInstance& SingletonD2DInstance::Init()

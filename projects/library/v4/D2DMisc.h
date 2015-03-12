@@ -424,11 +424,23 @@ class FRectFBoxModel : public FRectF
 		{
 			BoderWidth_ = 0;
 		}
-		FRectFBoxModel(FRectFBoxModel&& rc)
+		FRectFBoxModel(const FRectFBoxModel& rc)
 		{
-			*this = std::move(rc);
+			*this = rc;
 		}
 		FRectFBoxModel& operator=(FRectFBoxModel&& rc )
+		{
+			left = rc.left;
+			right = rc.right;
+			top = rc.top;
+			bottom = rc.bottom;
+			Padding_ = rc.Padding_;
+			Margin_ = rc.Margin_;
+			BoderWidth_ = rc.BoderWidth_;
+			
+			return *this;
+		}
+		FRectFBoxModel& operator=(const FRectFBoxModel& rc )
 		{
 			if ( this != &rc )
 			{
@@ -442,7 +454,6 @@ class FRectFBoxModel : public FRectF
 			}
 			return *this;
 		}
-
 		void SetFRectF(const FRectF& rc )
 		{
 			left = rc.left;

@@ -146,7 +146,7 @@ class D2DTopControls : public D2DControls
 		std::function<FRectF(FRectF, GDI32::FSize)> calc_auto_size_;
 
 		void Zoom( float rto){ zoom_ = max(0.1f, min(1.0f, rto)); }
-		
+		float GetZoom(){ return zoom_; }
 	protected :
 		void CreateWindow(D2DWindow* d, int stat, LPCWSTR name, int id=-1 );
 

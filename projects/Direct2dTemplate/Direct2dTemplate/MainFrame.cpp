@@ -265,7 +265,12 @@ void CreateChild(V4::D2DWindow* parent)
 	btn2->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"small" );
 	btn2->OnClick_ = [cs](D2DButton* btn)
 	{
-		cs->Zoom(0.7f);
+		float rto = cs->GetZoom();
+
+		if ( rto < 0.4f )
+			cs->Zoom( 1.0f );
+		else
+			cs->Zoom( rto*0.9f );
 	};
 
 }

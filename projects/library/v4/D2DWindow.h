@@ -4,10 +4,8 @@
 #include "D2Dcontextnew.h"
 #include "faststack.h"
 #include "D2DWindowMessage.h"
-//#include "D2DWindowMessageStruct.h"
 #include "gdi32.h"
 #include "ControlHandle.h"
-//#include "msxmlex6.h"
 #undef CreateWindow
 
 #define LRESULT_SEND_MESSAGE_TO_OTHER_OBJECTS 100

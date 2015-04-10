@@ -59,6 +59,27 @@
     <ClCompile Include="D2DFrameWindowControl.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="v4\TSF\DisplayAttribute.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\TSF\TextContainer.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\TSF\TextEditor.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\TSF\TextLayout.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\TSF\TextStoreACP.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\TSF\undo.cpp">
+      <Filter>ソース ファイル\TSF</Filter>
+    </ClCompile>
+    <ClCompile Include="v4\D2DWindowTextbox.cpp">
+      <Filter>ソース ファイル\D2DWindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct2dTemplate.rc">

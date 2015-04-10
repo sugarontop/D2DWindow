@@ -460,3 +460,10 @@ D2DControl* ControlHandle::GetFromControlName(LPCWSTR nm )
 	return NULL;
 }
 
+void V4::SetCursor( HCURSOR h )
+{
+	if ( h != ::GetCursor() )
+	{	
+		::SetCursor( h );
+	}
+}

@@ -865,4 +865,38 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 
 
 
- 
+namespace V4{ 
+void DrawFillRect( ID2D1RenderTarget* cxt_, const D2D1_RECT_F& rc, ID2D1Brush* wakuclr,ID2D1Brush* fillclr, float width )
+{
+	
+	
+	_ASSERT( width > 0 );
+
+	// Line is FillRectangle.
+
+	FRectF yrc( rc.left + width,rc.top + width,rc.right - width,rc.bottom - width );
+
+	// Draw fill
+	cxt_->FillRectangle( yrc, fillclr );	
+
+
+	// Draw side
+	FRectF trc( rc.left, rc.top, rc.right, yrc.top );
+	cxt_->FillRectangle( trc, wakuclr );				
+	trc.top = yrc.bottom;
+	trc.bottom = rc.bottom;
+	cxt_->FillRectangle( trc, wakuclr );				
+	trc.right = yrc.left;
+	trc.top = rc.top;
+	cxt_->FillRectangle( trc, wakuclr );				
+	trc.left = yrc.right;
+	trc.right = rc.right;
+	cxt_->FillRectangle( trc, wakuclr );				
+	
+	
+
+//  ‚±‚ÌŠÖ”‚ÍDrawFillWaku‚Æ“¯‚¶‚É‚È‚é
+} 
+
+
+}

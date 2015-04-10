@@ -38,10 +38,10 @@ void D2DContext::CreateHwndRenderTarget( HWND hWnd )
 	CComPtr<ID2D1HwndRenderTarget> temp;
 
 	auto hr = factory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(), D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(1, 1), D2D1_PRESENT_OPTIONS_NONE), &temp);
-	xassert(HR(hr));
+	_ASSERT(HR(hr));
 	
 	hr= temp.QueryInterface( &cxt );
-	xassert(HR(hr));
+	_ASSERT(HR(hr));
 }
 void D2DContext::CreateRenderTargetResource( ID2D1RenderTarget* rt )
 {
@@ -69,7 +69,7 @@ void D2DContext::CreateResourceOpt()
 	
 	float dashes[] = {2.0f};
 
-	factory->CreateStrokeStyle(
+	auto hr = factory->CreateStrokeStyle(
 	D2D1::StrokeStyleProperties(
 		D2D1_CAP_STYLE_FLAT, D2D1_CAP_STYLE_FLAT, D2D1_CAP_STYLE_ROUND, D2D1_LINE_JOIN_MITER,
 		10.0f,
@@ -79,8 +79,10 @@ void D2DContext::CreateResourceOpt()
 		&dot2_
 	);
 
+	_ASSERT(HR(hr));
+
 	float dashes2[] = {4.0f};
-	factory->CreateStrokeStyle(
+	hr = factory->CreateStrokeStyle(
 	D2D1::StrokeStyleProperties(
 		D2D1_CAP_STYLE_FLAT, D2D1_CAP_STYLE_FLAT, D2D1_CAP_STYLE_ROUND, D2D1_LINE_JOIN_MITER,
 		10.0f,
@@ -89,6 +91,8 @@ void D2DContext::CreateResourceOpt()
 		dashes2, ARRAYSIZE(dashes2),
 		&dot4_
 	);
+
+	_ASSERT(HR(hr));
 
 	text = insins->text.p;
 	wfactory = insins->wrfactory.p;
@@ -140,13 +144,6 @@ void D2DContextText::Init(D2DContext& inshw, float height, LPCWSTR fontname )
 		tl->HitTestTextPosition( 0, true,&xoff,&y,&mt );
 
 		line_height = mt.height;
-
-
-		/*DWRITE_TEXT_METRICS tm;
-		GetLineMetric( FSizeF(1000,1000), L"T", 1, tm );
-
-		temp_font_height_ = tm.height;*/
-
 	}
 }
 UINT D2DContextText::GetLineMetrics( const D2D1_SIZE_F& sz,  LPCWSTR str, int len, DWRITE_TEXT_METRICS& textMetrics, std::vector<DWRITE_LINE_METRICS>& lineMetrics )
@@ -332,5 +329,47 @@ void DrawFillRectTypeS( D2DContext& cxt, const D2D1_RECT_F& rc, ID2D1Brush* fill
 
 
 
+void InvertRect(D2DContext& cxt, FRectF* rc )
+{
+	//static bool bl = false;
+	FRectF rcf(*rc);
+
+	CComPtr<ID2D1SolidColorBrush> br;
+	cxt.cxt->CreateSolidColorBrush( D2RGBA(255,200,0,100), &br );
+
+	cxt.cxt->FillRectangle( rcf, br );
+}
+
+bool DrawCaret(D2DContext& cxt, const FRectF& rc )
+{
+	static bool bl = false;
+	static LARGE_INTEGER gtm,pregtm;
+	
+	QueryPerformanceCounter(&gtm);
+						
+	float zfps =((float)__s_frequency_.QuadPart)/ ((float)(gtm.QuadPart-pregtm.QuadPart));
+
+
+	if  ( 1.0/zfps  > 0.4f )
+	{
+		pregtm = gtm;
+		bl = !bl;
+	}
+	else
+	{
+	
+		cxt.cxt->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+		cxt.cxt->FillRectangle( rc, ( bl ? cxt.black : cxt.white ));
+		cxt.cxt->SetAntialiasMode( D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	}
+
+	return true;
+}
+CComPtr<ID2D1SolidColorBrush> CreateBrush( D2DContext& cxt, D2D1_COLOR_F color )
+{
+	CComPtr<ID2D1SolidColorBrush> br;
+	cxt.cxt->CreateSolidColorBrush( color, &br);
+	return br;
+}
 
 };

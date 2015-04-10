@@ -6,6 +6,9 @@
 #include "D2DWindowMessage.h"
 #include "gdi32.h"
 #include "ControlHandle.h"
+#include "tsf\TextContainer.h"	// CTextContainer
+#include "tsf\IBridgeTSFInterface.h"
+
 #undef CreateWindow
 
 #define LRESULT_SEND_MESSAGE_TO_OTHER_OBJECTS 100

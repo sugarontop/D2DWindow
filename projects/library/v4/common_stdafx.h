@@ -22,6 +22,9 @@
 #include <memory> 
 #include <type_traits>
 
+#include <imm.h>
+#include <msctf.h>
+
 using namespace std::placeholders;
 //typedef _bstr_t bstring;
 
@@ -35,7 +38,7 @@ using namespace std::placeholders;
 #define HR(hr)	(hr == S_OK)
 
 #define DEFAULTFONT_JP	L"ÉÅÉCÉäÉI"
-#define DEFAULTFONT_HEIGHT_JP	32
+#define DEFAULTFONT_HEIGHT_JP	12
 
 
 #define DEFAULTFONT			DEFAULTFONT_JP

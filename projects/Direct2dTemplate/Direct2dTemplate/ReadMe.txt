@@ -12,11 +12,11 @@
 	stdafx.cpp
 		link library.
 
-	*** /D2DWindow
+	./D2DWindow
 		Window libraray.
 
-	*** /TSF
-		TextServicesFramework, IME. not implement.
+	./TSF
+		TextServicesFramework, IME. implement.
 
 * note
 	Createボタン: WindowControlが作成表示されます。赤いキャプションで移動できます。
@@ -24,3 +24,6 @@
 
 * ID2D1HwndRenderTarget->ID2D1DeviceContext
 	RenderTargetの種類を変更しました。
+
+* D2DTextbox
+	SingleLineのTextbox。

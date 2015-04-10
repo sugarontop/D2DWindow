@@ -3,14 +3,10 @@
 #include "D2DContextEx.h"
 #include "D2Dcontextnew.h"
 #include "D2DWindow.h"
-//#include "ItemLoopArray.h"
 #include "D2DWindowMessage.h"
-//#include "D2DWindowMessageStruct.h"
-//#include "tsf\TextContainer.h"	// CTextContainer
-//#include "tsf\IBridgeTSFInterface.h"
+#include "tsf\TextContainer.h"
+#include "tsf\IBridgeTSFInterface.h"
 #include "gdi32.h"
-//#include "ControlHandle.h"
-//#include "msxmlex6.h"
 #include "faststack.h"
 
 #undef CreateWindow
@@ -30,6 +26,7 @@ class D2DControls;
 class D2DWindow;
 class D2DScrollbar;
 class D2DControls;
+
 class D2DControl : public D2DCaptureObject
 {
 	public :
@@ -131,11 +128,6 @@ class D2DControls : public D2DControl
 		
 };
 
-/////////////////////////////////////////////////////////////
-//
-// ControlsÇÃêeã ÅAD2DWindowÇÃëÊàÍControls
-//
-/////////////////////////////////////////////////////////////
 class D2DTopControls : public D2DControls
 {
 	public :
@@ -183,16 +175,72 @@ class D2DFrameWindowControl : public D2DControls
 		D2DFrameWindowControl(){}
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1 );
+
+		virtual void OnCreate();
 	protected :
 		
+};
+void SetCursor( HCURSOR h );
+class D2DTextbox : public D2DControl, public IBridgeTSFInterface
+{
+	public :
+		static bool AppTSFInit();
+		static void AppTSFExit();
+		static void CreateInputControl(D2DWindow* parent);
+
+
+		enum TYP { SINGLELINE=0x1, MULTILINE=0x2, PASSWORD=0x4, RIGHT=0x8, CENTER=0x10,VCENTER=0x20 };
+
+		D2DTextbox(TSF::CTextEditorCtrl* ctrl);
+		D2DTextbox(TSF::CTextEditorCtrl* ctrl, TYP typ);
+
+		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1 );
+
+		// IBridgeInterface///////////////////////////////////////////
+		virtual FRectF GetClientRect();
+		virtual IDWriteTextFormat* GetFormat();
+		virtual FRectFBoxModel GetClientRectEx();
+
+		// functions ////////////////////////////////////////
+		FString GetText();
+		int InsertText( LPCWSTR str, int pos=-1, int strlen=-1 );
+		void CalcRender(bool bLayoutUpdate);
+
+		int OnKeyDown(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam);
+		void SetText(LPCWSTR str1);
+		void StatActive( bool bActive );
+		std::wstring FilterInputString( LPCWSTR s, UINT len );
+		BOOL Clipboard( HWND hwnd, TCHAR ch );
+	protected :
+		ColorF brush_fore_;
+		ColorF brush_back_;
+		ColorF brush_border_;
+		ColorF brush_active_border_;
+
+		CComPtr<IDWriteTextFormat> fmt_;
+		CComPtr<IDWriteTextLayout> text_layout_;
+		D2DMat matEx_; 
+		FPointF offpt_;
+		TYP typ_;
+		bool bActive_;
+		TSF::CTextEditorCtrl* ctrl_;
+		TSF::CTextContainer ct_;
+		float temp_font_height_;
 };
 
 
 
-void DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br, float width );
 
+
+
+void DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br, float width );
 void DrawButton( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, FString str, ID2D1Brush* br1 );
 
 
+void DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc1,ID2D1Brush* br );
+
+
+void DrawFillRect( ID2D1RenderTarget* cxt_, const D2D1_RECT_F& rc, ID2D1Brush* wakuclr,ID2D1Brush* fillclr, float width );
 
 };

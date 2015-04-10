@@ -4,7 +4,14 @@
 #include "gdi32.h"
 #include "D2DContextNew.h"
 
+
+
 using namespace V4; 
+
+namespace TSF {
+CTextEditorCtrl* GetTextEditorCtrl();
+};
+
 
 LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -40,24 +47,32 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 
 				FString str = L"D2DFrameWindowControl";
 				DrawCenterText( cxt.cxtt, cxt.black, rc, str.c_str(), str.length(), 1 );
+
+				
+				SendMessageReverseAll( d,message,wParam,lParam);
 			}
 			mat.PopTransform();
+			return 0;
 		}
 		break;
 		case WM_LBUTTONDOWN:
 		{
 			FPointF pt = mat_.DPtoLP(FPointF(lParam));
-			if ( rc_.PtInRect(pt))
+			FRectF rctitle = rc_;
+			rctitle.SetHeight( 30.0f );
+
+			if ( rctitle.PtInRect(pt))
 			{
 				MeToLast(); // order‚ð•ÏX
 
-				ret = 1;
+				
 				d->redraw_ =1 ;
 				FRectF rctitle = rc_.GetBorderRect();
 				rctitle.SetHeight( 30.0f );
 				if ( rctitle.PtInRect(pt))
 				{
-					d->SetCapture(this, &pt);					
+					d->SetCapture(this, &pt);	
+					ret = 1;				
 				}
 			}
 		}
@@ -70,6 +85,8 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 				FPointF ptprv = d->CapturePoint(pt);
 				rc_.Offset( pt.x- ptprv.x, pt.y-ptprv.y );
 				d->redraw_ =1 ;
+
+				ret = 1;
 			}
 		}
 		break;
@@ -84,6 +101,8 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 		break;
 	}
 
+	if ( ret == 0 )
+		ret = D2DControls::WndProc( d,message,wParam,lParam);
 
 	return ret;
 }
@@ -91,7 +110,13 @@ LRESULT D2DFrameWindowControl::WndProc(D2DWindow* d, UINT message, WPARAM wParam
 
 void D2DFrameWindowControl::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
 {	
-	D2DControls::CreateWindow(parent,pacontrol,rc,stat,name,id );
+	D2DControls::CreateWindow(parent,pacontrol,rc,stat,name,id );	
+}
 
-
+void D2DFrameWindowControl::OnCreate()
+{
+	FRectF rctxt( 10, 50,FSizeF(200,26));
+	D2DTextbox* tx = new D2DTextbox(TSF::GetTextEditorCtrl());
+	tx->CreateWindow( parent_, this, rctxt, VISIBLE|BORDER, L"NONAME" );
+	tx->SetText( L"hello world" );
 }

@@ -53,7 +53,11 @@ void DrawCenterText( ID2D1RenderTarget* cxt, ID2D1Brush* clr, const D2D1_RECT_F&
 
 	cxt->DrawText( str, len, fmt, rcX, clr, D2D1_DRAW_TEXT_OPTIONS::D2D1_DRAW_TEXT_OPTIONS_CLIP );
 }
-
+void DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br )
+{
+	cxt->FillRectangle( rc,br );
+	
+}
 
 void DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br, float width )
 {

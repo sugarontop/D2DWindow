@@ -97,6 +97,13 @@
     </ClCompile>
     <ClCompile Include="v4\D2DContextEx.cpp" />
     <ClCompile Include="v4\D2DWindowControl.cpp" />
+    <ClCompile Include="v4\D2DWindowTextbox.cpp" />
+    <ClCompile Include="v4\TSF\DisplayAttribute.cpp" />
+    <ClCompile Include="v4\TSF\TextContainer.cpp" />
+    <ClCompile Include="v4\TSF\TextEditor.cpp" />
+    <ClCompile Include="v4\TSF\TextLayout.cpp" />
+    <ClCompile Include="v4\TSF\TextStoreACP.cpp" />
+    <ClCompile Include="v4\TSF\undo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Direct2dTemplate.rc" />

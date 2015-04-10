@@ -26,6 +26,12 @@ using namespace V4;
 D2DWindow window; 
 
 
+
+namespace TSF {
+CTextEditorCtrl* GetTextEditorCtrl();
+};
+
+
 //☆☆☆////////////////////////////////////////////////
 void CreateChild(V4::D2DWindow* parent);
 //☆☆☆///////////////////////////////////////////////
@@ -55,6 +61,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_tsetlocale ( 0, _T("japanese") ); 	 
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
+	
+
 	// グローバル文字列を初期化しています。
 	LoadString(hInstance, IDS_APP_TITLE, __szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_DIRECT2DTEMPLATE, __szWindowClass, MAX_LOADSTRING);
@@ -68,6 +76,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DIRECT2DTEMPLATE));
 
+
+	
+
+
+
 	// メイン メッセージ ループ:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -79,6 +92,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 
 //Exit:
+	
+
 	ExitInstance();
 	return (int) msg.wParam;
 }
@@ -124,7 +139,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-
+	D2DTextbox::AppTSFInit();
 
    __hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
@@ -144,6 +159,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 void ExitInstance()
 {
+	D2DTextbox::AppTSFExit();
+
 	CoUninitialize();
 }
 
@@ -234,6 +251,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void CreateChild(V4::D2DWindow* parent)
 {
+	D2DTextbox::CreateInputControl(parent);	
+
 	D2DTopControls* cs = new D2DTopControls();
 
 	FRectF rc2;
@@ -259,7 +278,7 @@ void CreateChild(V4::D2DWindow* parent)
 	};
 
 
-	// 縮小ボタン
+	// scale button
 	rcbutton.SetRect(10,80,FSizeF(200,60));
 	D2DButton* btn2 = new D2DButton();
 	btn2->CreateWindow( parent, cs, rcbutton, VISIBLE|BORDER,L"small" );
@@ -272,5 +291,11 @@ void CreateChild(V4::D2DWindow* parent)
 		else
 			cs->Zoom( rto*0.9f );
 	};
+
+	// Textbox
+	/*FRectF rctxt( 10, 200,FSizeF(200,26));
+	D2DTextbox* tx = new D2DTextbox(TSF::GetTextEditorCtrl());
+	tx->CreateWindow( parent, cs, rctxt, VISIBLE|BORDER, L"NONAME" );
+	tx->SetText( L"hello world" );*/
 
 }

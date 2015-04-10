@@ -204,6 +204,7 @@ void TestDrawFillRectEx( D2DContext& cxt,const D2D1_RECT_F& rc, ID2D1Brush* waku
 typedef std::function<void (D2DContext& cxt)> DrawFunction;
 bool CreateBitmapPartBrush( D2DContext& cxt, const FSizeF& size, DrawFunction drawfunc, OUT ID2D1BitmapBrush **ppBitmapBrush );
 
+*/
 
 //ˆÈ‰º TSF‚Ì‚½‚ß‚É’Ç‰Á /////////////////////////////////////////////////////////////////////
 void InvertRect(D2DContext& cxt, FRectF* rc );
@@ -215,6 +216,5 @@ bool DrawCaret(D2DContext& cxt, const FRectF& rc );
  CComPtr<ID2D1SolidColorBrush> CreateBrush( D2DContext& cxt, D2D1_COLOR_F color );
             
 
-*/
 
 };

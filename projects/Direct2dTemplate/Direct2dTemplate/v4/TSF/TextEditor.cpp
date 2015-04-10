@@ -862,7 +862,9 @@ BOOL CTextEditorCtrl::OnKeyDown(WPARAM wParam, LPARAM lParam)
 			MoveSelection(nSelEnd, nSelEnd);
 		break;
     }
-
+	
+	_layout.bRecalc_ = true;
+	
 	return ret;
 }
 

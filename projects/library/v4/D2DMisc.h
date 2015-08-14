@@ -1,13 +1,12 @@
 ///////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright 2015, sugarontop@icloud.com
-//	MIT LICENCE
+// (C) Copyright 2015, admin@sugarontop.net
+//
 ///////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #include <d2d1.h>
-#include <d2d1helper.h>
 
 using namespace D2D1;
 
@@ -179,6 +178,18 @@ class FRectF : public D2D1_RECT_F
 			}
 			return *this;
 		}
+		FRectF& operator=(const FRectF& rc)
+		{
+			if (this != &rc)
+			{
+				left = rc.left;
+				right = rc.right;
+				top = rc.top;
+				bottom = rc.bottom;
+			}
+			return *this;
+		}
+
 		
 		
 		float Width()  const{ return right-left; }
@@ -561,3 +572,4 @@ class FRectFBoxModel : public FRectF
 
 };
 
+typedef V4::FRectFBoxModel FRectFBM;

@@ -1,4 +1,4 @@
-D2Dwindow
+ï»¿D2Dwindow
 =========
 
 Direct2D Windows Framework.
@@ -14,7 +14,7 @@ Direct2D Windows Framework.
 			*D2DTextbox (tsf, singleline only)
 
 	2015/08
-			‚·‚×‚Ä/old_201504 ‚ÖˆÚ“®
+			ã™ã¹ã¦/old_201504 ã¸ç§»å‹•
 
 
 

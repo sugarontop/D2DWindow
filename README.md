@@ -13,4 +13,9 @@ Direct2D Windows Framework.
 	2015/04		
 			*D2DTextbox (tsf, singleline only)
 
+	2015/08
+			‚·‚×‚Ä/old_201504 ‚ÖˆÚ“®
+
+
+
 

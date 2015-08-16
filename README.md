@@ -26,10 +26,9 @@ Direct2D Windows Framework.
 			*D2DFrameWindowControl
 			*D2DTextbox (tsf, singleline only)
 
-
-履歴
-	2015/08/14	old_201504 へ移動
-	2015/08/16	projects/201508を追加(Datagrid,listbox,dropdownbox,textboxを実装)
+	rireki
+		2015/08/14	old_201504 へ移動
+		2015/08/16	projects/201508を追加(Datagrid,listbox,dropdownbox,textboxを実装)
 
 
 

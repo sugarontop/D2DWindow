@@ -1,7 +1,7 @@
 ﻿D2Dwindow
 =========
 
-Direct2D Windows Framework.
+Direct2D Windows Framework.(VS2015)
 
 
 	/projects/201508

@@ -13,23 +13,20 @@ Direct2D Windows Framework.(VS2015)
 				D2DCommon.dll
 				D2DWin.dll
 		D2DWin
-			(empty)
+			コントロールクラス、C++をC関数へ変換
 		include
 			共通のヘッダファイル
 	
+	
 	/old_201504 
 		Test Framework.
-			*D2DWindow
-			*D2DControl
-			*D2DControls
-			*D2DButton
-			*D2DFrameWindowControl
-			*D2DTextbox (tsf, singleline only)
+			D2DWindow,D2DControl,D2DControls,
+			D2DButton,D2DFrameWindowControl, D2DTextbox (tsf, singleline only)
 
-	rireki
+	履歴
 		2015/08/14	old_201504 へ移動
 		2015/08/16	projects/201508を追加(Datagrid,listbox,dropdownbox,textboxを実装)
-
+		2015/08/28  javascript
 
 
 

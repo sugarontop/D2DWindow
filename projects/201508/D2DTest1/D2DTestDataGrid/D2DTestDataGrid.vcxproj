@@ -100,6 +100,8 @@
     <ResourceCompile Include="D2DTest2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="check.png" />
+    <Image Include="check2.png" />
     <Image Include="D2DTest2.ico" />
     <Image Include="small.ico" />
   </ItemGroup>

@@ -4,17 +4,18 @@
 Direct2D Windows Framework.(VS2015)
 
 
-	/projects/201508
-		D2DCommon
-			簡単なAPI群
-		D2DTest1
-			/Debug
-				D2DTestDataGrid.exe <-- sample exe
-				D2DCommon.dll
-				D2DWin.dll
-		D2DWin
+	projects/201508
+		/D2DTest1
+			/D2DTestDataGrid <-- main
+				/Debug
+					D2DTestDataGrid.exe <-- sample exe
+					D2DCommon.dll
+					D2DWin.dll
+		/D2DWin
 			コントロールクラス、C++をC関数へ変換
-		include
+		/D2DCommon
+			簡単なAPI群
+		/include
 			共通のヘッダファイル
 	
 	

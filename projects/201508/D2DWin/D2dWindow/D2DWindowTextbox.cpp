@@ -830,6 +830,8 @@ void D2DTextbox::StatActive( bool bActive )
 	{
 		_ASSERT( parent_->GetCapture() == this );
 
+		ctrl_->Password( (typ_ & PASSWORD) != 0 );
+
 		CalcRender(true);
 
 
@@ -840,9 +842,7 @@ void D2DTextbox::StatActive( bool bActive )
 			float hh = ( ct_.bSingleLine_? 0.0 : RowHeight() *  scbar_->info_.rowno);
 			ctrl_->mat_._32 -= hh;
 		}
-
-
-		ctrl_->Password( (typ_ & PASSWORD) != 0 );
+		
 
 		ctrl_->SetFocus();
 

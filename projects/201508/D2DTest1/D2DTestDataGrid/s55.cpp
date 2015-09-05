@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -102,6 +102,9 @@ void CreatePageA(D2Ctrls t0)
 
 	rc1.Offset(0, 30);
 	rc2.Offset(0, 30);
+
+	
+
 	rc3.Offset(0, 30);
 	rc4.Offset(0, 30);
 	rc5.Offset(0, 30);
@@ -111,6 +114,8 @@ void CreatePageA(D2Ctrls t0)
 	
 	auto ls1 = ListboxTest1(t0, rc1);
 	auto ls2 = ListboxTest2(t0, rc2);
+
+	
 	auto ls3 = ListboxTest3(t0, rc3);
 	auto tx = TextboxTest(t0, rc4);
 

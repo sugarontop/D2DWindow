@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -113,6 +113,8 @@ D2DListbox::~D2DListbox()
 		delete (*it);
 }
 
+#define COLOR_MOUSE_MOVE D2RGBA(153,217,234,255)
+#define COLOR_SELECTED D2RGBA(132,137,227,100)
 
 void D2DListbox::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height,D2DListboxItem* template_item, LPCWSTR name, int id )
 {

@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -28,8 +28,7 @@ SOFTWARE.
 #include "faststack.h"
 #include "D2DCommon.h"
 
-#define COLOR_MOUSE_MOVE D2RGBA(153,217,234,255)
-#define COLOR_SELECTED D2RGBA(132,137,227,100)
+
 
 
 namespace TSF {
@@ -62,6 +61,7 @@ class D2DControl : public D2DCaptureObject
 		virtual void StatActive(bool bActive);
 		virtual bool IsAutoResize(){ return auto_resize_; }
 		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms){}
+		virtual void OnResutructRnderTarget(bool bCreate) {}
 
 		int Stat(int new_stat);
 		int GetStat()  const { return stat_; }
@@ -98,6 +98,7 @@ class D2DControl : public D2DCaptureObject
 		LRESULT SendMessage( UINT msg, WPARAM w,LPARAM l ){ return ::SendMessage( parent_->hWnd_, msg, w, l ); }
 		void InnerCreateWindow(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int controlid);
 		virtual void OnCreate(){}
+		
 	protected :
 		D2DMat mat_; 
 		FRectF dp_rc_; // device座標
@@ -114,7 +115,7 @@ class D2DControl : public D2DCaptureObject
 class D2DControls : public D2DControl
 {
 	public :
-		D2DControls():mouse_enter_(false){ scrollbar_off_ = FSizeF(0,0);clr_ = D2RGB(255,255,255);}
+		D2DControls():mouse_enter_(false){ scrollbar_off_ = FSizeF(0,0); backclr_ = D2RGB(255,255,255);}
 
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual LRESULT KeyProc(D2DControl* sender, UINT message, WPARAM wParam, LPARAM lParam);
@@ -126,14 +127,15 @@ class D2DControls : public D2DControl
 		virtual bool IsAutoResize(){ return auto_resize_; }
 		virtual void DestroyControl();
 		void Clear();
-		virtual void BackColor(D2D1_COLOR_F clr){ clr_ = clr; }
+		virtual void BackColor(D2D1_COLOR_F clr){ backclr_ = clr; }
 		virtual void Bind(void* p) {};
 		
 		void Lineup(bool vertical=true ); // childを整列させる
 
 		std::shared_ptr<D2DControl> Detach( D2DControl* );
 		void Attach( std::shared_ptr<D2DControl> ctrl );
-
+		virtual void OnResutructRnderTarget(bool bCreate);
+		
 	public :
 		std::vector<std::shared_ptr<D2DControl>> controls_;
 		bool mouse_enter_;
@@ -141,8 +143,10 @@ class D2DControls : public D2DControl
 		bool bwindow_size_;
 	
 		std::pair<int,int> vector_idx;
-		D2D1_COLOR_F clr_;
-	
+	protected :
+		D2D1_COLOR_F backclr_;
+		const ID2D1SolidColorBrush* back_brush_;
+		
 	public :
 		LRESULT SendMessageAll( D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		LRESULT SendMessageReverseAll( D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);		
@@ -275,6 +279,7 @@ class D2DImage : public D2DControl
 		D2DImage();
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual void OnCreate();
+		virtual void OnResutructRnderTarget(bool bCreate);
 
 		bool LoadImage( ID2D1DeviceContext* cxt, LPCWSTR img );
 
@@ -343,4 +348,11 @@ void SetCursor( HCURSOR h );
 D2D1_COLOR_F VariantColor( const VARIANT& v );
 bool VariantBOOL(const VARIANT& src);
 bool findParameterMap(const std::map<std::wstring, VARIANT>& prms, LPCWSTR key, _variant_t& def, _variant_t& ret);
+
+struct SolidColor
+{
+	D2D1_COLOR_F color;
+	const ID2D1SolidColorBrush* br;
+};
+
 };

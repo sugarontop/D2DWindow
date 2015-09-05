@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -46,49 +46,34 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			
 			::SetWindowLongPtr( hWnd, GWL_USERDATA,(LONG) st->lpCreateParams ); // GWL_USERDATA must be set here.
 
-
 			SetFocus(hWnd);
-
-			#if _DEBUG
-			::remove("capture_reki.txt");
-			#endif
-
-			return 0; // DefWindowProc(hWnd, message, wParam, lParam);
+						
+			return 0; 
 		}		
 		break;
 		case WM_DISPLAYCHANGE:
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);					
+			BeginPaint(hWnd, &ps);					
 			ID2D1RenderTarget* cxt = d->cxt_.cxt;			
 			
-			//SelectResource( d->res_ );
 
 			cxt->BeginDraw();
 			D2D1_MATRIX_3X2_F mat = Matrix3x2F::Identity();
 
-			//mat._11 = mat._11*2.3; 
-			//mat._22 = mat._22*2.3;
 
 			cxt->SetTransform(mat);
 			cxt->Clear(ColorF(ColorF::White));
 
-			d->WndProc( message, wParam, lParam ); // All objects is drawned.
+			d->WndProc(WM_PAINT, wParam, lParam );
 
 
-//FRectF rc(0,0,100,100);
-//cxt->DrawRectangle(rc, d->cxt_.black );
-					
-			//D2DImage img;
-			//img.id = 0;
-			//DrawBitmap( d->cxt_.cxt, img, FRectF(100+0,100+0,100+48,100+48));
 
-			// CAPTURE OBJECTは最後に表示 
-			// Comobox内のListboxなど
-			int cap_cnt = d->capture_obj_.size();
-			if ( cap_cnt )
+			// captureされたものをもう一度トップで描画			
+			if (!d->capture_obj_.empty())
 			{
+				int cap_cnt = d->capture_obj_.size();
 				auto p = d->capture_obj_.head();
 				for( int i = 0; i < cap_cnt; i++ )
 				{
@@ -97,15 +82,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			}
 
 
-			// ここがアニメーションの計算場所
+			// for anime
 			for(auto it = d->mts_.begin(); it!=d->mts_.end(); )
 			{					
 				bool isend;
-				MoveTargetEx* mtx = (MoveTargetEx*)it->first;
+				MoveTarget* mtx = (MoveTarget*)it->first;
 				mtx->UIFire(d, isend);
 
 				if (isend)
-					d->mts_.erase(it++); // set map流のerase方法らしい			
+					d->mts_.erase(it++);
 				else
 					it++;
 			}
@@ -142,23 +127,19 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	}
 }
 #endif
-
-			
-
 			auto hr = cxt->EndDraw();
 
+			// ディスプレイの解像度を変更したり、ディスプレイ アダプターを取り外したりすると、デバイスが消失する可能性があります
 			if ( D2DERR_RECREATE_TARGET == hr || d->resource_test_ )
 			{
-				d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 0,0 ); // RenderTargetにリンクしている物はすべてリリース
-
-				// ディスプレイの解像度を変更したり、ディスプレイ アダプターを取り外したりすると、デバイスが消失する可能性があります
-				
+				d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 0,0 ); //リソースのリンクを切る
+				d->ResourceCreate(false); // 実際にリリース
+							
 				d->cxt_.DestroyRenderTargetResource();
-
 				d->cxt_.CreateRenderResource(hWnd);
 								
-				
-				d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 1,0 );// 新RenderTargetでリソース作りなおし
+				d->ResourceCreate(true); // リソースを作成
+				d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 1,0 );// リソースとリンクする
 
 				d->redraw_ = 1;
 				d->resource_test_ = false;
@@ -172,10 +153,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 			}
 
-
-
 			EndPaint(hWnd, &ps);
-
 
 			if (d->redraw_)
 			{
@@ -183,10 +161,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				d->redraw_ = 0;
 			}
 
-
-			#ifdef USE_ID2D1DEVICECONTEXT
-				d->cxt_.dxgiSwapChain->Present(1, 0);
-			#endif
+		#ifdef USE_ID2D1DEVICECONTEXT
+			d->cxt_.dxgiSwapChain->Present(1, 0);
+		#endif
 
 			return 0;
 		}
@@ -211,16 +188,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 					// 大きい場合と小さすぎる場合に再作成
 					if ( cx < ncx || cy < ncy ||  ncx < (cx * 0.5) ||  ncy < (cy * 0.5)  )
 					{
+						d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 0,0 );
+						d->ResourceCreate(false);
 
-						// capture時めーっセージが回らないかもしれない
-						//TRACE( L"%d %d %d %d %x\n" , cx, ncx, cy, ncy, d->GetCapture());
-
-						d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 0,0 ); // RenderTargetにリンクしている物はすべてリリース
 
 						d->cxt_.DestroyRenderTargetResource();
 						d->cxt_.CreateRenderResource( hWnd );
-					
-						d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 1,0 );// RenderTargetに再リンク
+						
+						d->ResourceCreate(true);
+						d->WndProc( WM_D2D_RESTRUCT_RENDERTARGET, 1,0 );
 					}
 				}
 				#else
@@ -241,7 +217,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		}
 		break;
 
-		case WM_MOUSEWHEEL:// マウスホイール	
+		case WM_MOUSEWHEEL:
 		{				
 			FPoint pt(lParam);			
 			ScreenToClient( hWnd, &pt );				
@@ -255,7 +231,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_MOUSEMOVE:		
-		//case WM_MOUSEHWHEEL:
 		case WM_CHAR:
 		{
 
@@ -367,9 +342,9 @@ ATOM D2DWindowRegisterClass(HINSTANCE hInstance)
 
 	wcex.style			= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	wcex.lpfnWndProc	= WndProc;
-	wcex.hInstance		= hInstance; //::GetModuleHandle(0);
+	wcex.hInstance		= hInstance; 
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= NULL; //(HBRUSH)(COLOR_WINDOW+1);
+	wcex.hbrBackground	= NULL; 
 	wcex.lpszClassName	= CLASSNAME;
 
 	return RegisterClassEx(&wcex);
@@ -403,10 +378,13 @@ void D2DWindow::Clear()
 {
 	// All object are cleared.
 
+	ResourceCreate(false);
+
 	while ( !capture_obj_.empty())
 		capture_obj_.pop();
 	
 	children_ = NULL;
+	
 }
 
 HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE, RECT rc )
@@ -435,7 +413,7 @@ HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE
 		rc = rc1;
 	}
 	
-	hWnd_ =  ::CreateWindowExW( dwWSEXSTYLE, CLASSNAME, L"", dwWSSTYLE, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, parent, NULL, ::GetModuleHandle(0), this ); 	
+	hWnd_ = ::CreateWindowExW( dwWSEXSTYLE, CLASSNAME, L"", dwWSSTYLE, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, parent, NULL, ::GetModuleHandle(0), this ); 	
 
 	try 
 	{
@@ -455,6 +433,7 @@ HWND D2DWindow::CreateD2DWindow( DWORD dwWSEXSTYLE, HWND parent, DWORD dwWSSTYLE
 
 	redraw_ = 0;
 	resource_test_ = false;
+	roundpaint_obj_ = nullptr;
 
 	if ( OnCreate )
 		OnCreate( this );
@@ -481,8 +460,8 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		
 		children->WndProc(this,WM_PAINT,wParam,lParam);
 
-		//if ( tooltip_.IsShow())
-		//	tooltip_.Draw();
+		if (roundpaint_obj_)
+			roundpaint_obj_->WndProc(this, message, wParam, lParam);
 	}
 	else if (message == WM_SIZE && children)
 	{
@@ -493,12 +472,12 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		if ( wParam == 0 )
 		{
 			if ( children )
-				children->WndProc(this,message,wParam,lParam); //ResourceRelease
+				children->OnResutructRnderTarget(false); //ResourceRelease
 		}					
 		else if ( wParam == 1 )
 		{
 			if ( children )
-				children->WndProc(this,message,wParam,lParam); //CreateResource
+				children->OnResutructRnderTarget(true); //CreateResource
 		}
 	}
 	else if ( !capture_obj_.empty() && message < WM_D2D_EV_FIRST )
@@ -569,7 +548,7 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 				OnDestroy( this );
 
 			cxt_.DestroyAll();
-			//ResourceRelease( res_ );
+			
 		}
 		break;
 		
@@ -586,38 +565,6 @@ void D2DWindow::SetCapture(D2DCaptureObject* p,  FPointF* pt, D2DMat* mat )
 	}
 	::SetFocus( hWnd_ );
 	
-
-	#ifdef _DEBUG
-	{
-		/*V2::File cf;
-		int a = cf.OpenWrite( L"capture_reki.txt", false, V2::File::TYP::ASCII );
-		cf.SeekToEnd();
-	
-
-		if ( dynamic_cast<D2DControl*>(p) )
-		{
-			FString s = FString::Format(L"SetCapture %x %s", p, ((D2DControl*) p)->name_.c_str());
-			cf.WriteString( s, true );
-			ATLTRACE( L"%s\n", s.c_str() );
-		}
-		else 	
-		{
-			FString s = FString::Format(L"SetCapture %x %s", p, L"---" );
-			cf.WriteString(s, true);
-			ATLTRACE(L"%s\n", s.c_str());
-		}
-
-		if (!capture_obj_.empty() && p == capture_obj_.top())
-		{
-			cf.WriteString(L"却下", true);
-			ATLTRACE(L"%s\n", L"却下");
-		}
-
-
-		cf.Close();*/
-	}
-	#endif
-
 	if (capture_obj_.empty() )
 		capture_obj_.push(p);
 	else if ( p != capture_obj_.top())
@@ -642,32 +589,6 @@ D2DCaptureObject* D2DWindow::ReleaseCapture()
 {
 	auto p = capture_obj_.top();
 
-
-
-
-
-#ifdef _DEBUG
-	{
-		/*V2::File cf;
-		cf.OpenWrite(L"capture_reki.txt", false, V2::File::TYP::ASCII);
-		cf.SeekToEnd();
-
-		if (dynamic_cast<D2DControl*>(p))
-		{
-			FString s = FString::Format(L"ReleaseCapture %x %s", p, ((D2DControl*) p)->name_.c_str());
-			cf.WriteString(s, true);
-			ATLTRACE(L"%s\n", s.c_str());
-		}
-		else
-		{
-			FString s = FString::Format(L"ReleaseCapture %x %s", p, L"---");
-			cf.WriteString(s, true);
-			ATLTRACE(L"%s\n", s.c_str());
-		}
-		cf.Close();*/
-	}
-#endif
-
 	capture_obj_.pop();		
 
 	HWND hWnd = ::GetCapture();
@@ -679,14 +600,6 @@ D2DCaptureObject* D2DWindow::ReleaseCapture()
 
 	::SetFocus( hWnd );
 	redraw_ = 1;
-	
-
-//auto pw = dynamic_cast<D2DControls*>(p);// dynamic_cast<D2DCaptureWindow*>(p);
-//if ( pw )
-//{
-//	// vectorの順番を変更する
-//	pw->MeToOrg();
-//}
 
 	return p;
 }
@@ -698,72 +611,50 @@ void V4::SetCursor( HCURSOR h )
 		::SetCursor( h );
 	}
 }
-//void Inner::ToolTip::Set( D2DControl*p, LPCWSTR str )
-//{ 
-//	str_ = str; ctrl_ = p; 
-//	
-//	isShow_ = true;
-//	
-//	::GetCursorPos(&pt_); // マウスの位置
-//
-//	ScreenToClient(ctrl_->parent_->hWnd_, &pt_ );
-//
-//
-//	rc_.SetRect(0,0,200,30);
-//
-//	rc_.Offset( pt_.x, pt_.y+20 ); // 20 cursorの高さサイズ
-//
-//}
-//
-//void Inner::ToolTip::Draw()
-//{
-//	FPoint pt;
-//	::GetCursorPos(&pt);
-//	ScreenToClient(ctrl_->parent_->hWnd_, &pt );
-//
-//	if ( pt.x == pt_.x && pt.y == pt_.y )
-//	{	
-//		auto cxt = ctrl_->parent_->cxt_;
-//		D2DMatrix mat(cxt);
-//		mat.PushTransform();
-//
-//		mat._31 = 0;
-//		mat._32 = 0;
-//
-//		mat.SetTransform();
-//
-//		cxt.SetAntiAlias(false );
-//
-//
-//		FSizeF sz = CalcText( cxt.cxtt.textformat, str_, str_.length() );
-//
-//		FRectF rc;
-//		rc.SetPoint( rc_.LeftTop());
-//		rc.SetSize(sz);		
-//		rc.InflateRect(3,3);		
-//		
-//		FRectFBoxModel rcm = rc;
-//		
-//		rcm.Padding_.Set(3);
-//
-//		xassert( cxt.tooltip );
-//		DrawFillRect(cxt,rcm.GetBorderRect(),cxt.black, cxt.tooltip,1);
-//	
-//		DrawCenterText( cxt, cxt.black,rcm.GetContentRect(), str_, str_.length(), 0 );
-//
-//
-//		cxt.SetAntiAlias(true );
-//
-//		mat.PopTransform();
-//	}
-//	else
-//		Show(false);
-//
-//}
-void D2DWindow::ShowToolTip( D2DControl* p, LPCWSTR message )
-{
-	//tooltip_.Set( p, message );	
 
+
+DWORD D2DRGBADWORD_CONV(D2D1_COLOR_F clr)
+{
+	DWORD r = ROUND(clr.r * 255);
+	DWORD g = ROUND(clr.g * 255);
+	DWORD b = ROUND(clr.b * 255);
+	DWORD a = ROUND(clr.a * 255);
+
+	return D2DRGBADWORD(r, g, b, a);
+}
+ID2D1SolidColorBrush* D2DWindow::GetSolidColor(D2D1_COLOR_F clr)
+{
+	DWORD d = D2DRGBADWORD_CONV(clr);
+
+	auto& it = SolidColorBank_.find(d);
+	if (it != SolidColorBank_.end())
+		return it->second;
+
+	auto r = MakeBrsuh(cxt_, clr).Detach();
+	SolidColorBank_[d] = r;
+	return r;
+}
+
+void D2DWindow::ResourceCreate(bool bCreate)
+{
+	if (!bCreate)
+	{
+		for (auto& it : SolidColorBank_)
+		{
+			it.second->Release();
+		}
+		// この後でRenderTargetは再作成される
+		// it.firstは残しておく、この情報は配色なので。
+	}
+	else
+	{
+		for (auto& it : SolidColorBank_)
+		{
+			DWORD dw = it.first;
+			auto clr = D2DRGBA(dw);
+			SolidColorBank_[dw] = MakeBrsuh(cxt_, clr).Detach();
+		}
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////
 //CHDL ControlHandle::handle_ = 800; // initial value

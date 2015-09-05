@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -830,7 +830,7 @@ void D2DTextbox::StatActive( bool bActive )
 	{
 		_ASSERT( parent_->GetCapture() == this );
 
-		ctrl_->Password( (typ_ & PASSWORD) != 0 );
+		ctrl_->Password((typ_ & PASSWORD) != 0);
 
 		CalcRender(true);
 
@@ -842,6 +842,8 @@ void D2DTextbox::StatActive( bool bActive )
 			float hh = ( ct_.bSingleLine_? 0.0 : RowHeight() *  scbar_->info_.rowno);
 			ctrl_->mat_._32 -= hh;
 		}
+
+
 		
 
 		ctrl_->SetFocus();

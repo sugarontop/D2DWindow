@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -54,9 +54,7 @@ LRESULT D2DStatic::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 				auto fore = MakeBrsuh(cxt, brush_fore_);
 				cxt.cxt->DrawTextLayout(offpt_, textlayout_, fore);
 			}
-			
-			
-			
+		
 			mat.PopTransform();
 		}
 		break;

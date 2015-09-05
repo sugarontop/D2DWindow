@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -24,6 +24,7 @@ SOFTWARE.
 #include "D2DWindowControl_easy.h"
 #include "D2DCommon.h"
 #include "D2DWindowMessageStruct.h"
+#include "MoveTarget.h"
 using namespace V4;
 
 #pragma region D2DControl
@@ -169,7 +170,9 @@ void D2DControls::CreateWindow( D2DWindow* parent, D2DControls* paconrol, const 
 
 //	chdl_ = parent_->chandle_.CreateControlHandle( this );
 	
-
+	
+	backclr_ = ColorF(ColorF::White);
+	back_brush_ = parent_->GetSolidColor(backclr_);
 	OnCreate();
 }
 void D2DControls::Clear()
@@ -185,12 +188,33 @@ void D2DControls::UpdateScrollbar(D2DScrollbar* bar)
 	//	scrollbar_off_.width = bar->info_.position;
 }
 
+void D2DControls::OnResutructRnderTarget(bool bCreate)
+{
+	if (bCreate)
+	{
+		back_brush_ = parent_->GetSolidColor(backclr_);
+
+	}
+	else
+	{
+		back_brush_ = nullptr;
+	}
+
+
+	for (auto& it : controls_)
+		it->OnResutructRnderTarget(bCreate);
+}
+
 LRESULT D2DControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT ret = 0;
 
+	_ASSERT(message != WM_D2D_RESTRUCT_RENDERTARGET);
+
 	if ( !VISIBLE(stat_))
 		return ret;
+
+
 	
 	D2DContext& cxt = d->cxt_;
 	D2DMatrix mat(cxt);		
@@ -210,15 +234,12 @@ mat.Offset( rc_.left, rc_.top );
 	{
 		case WM_PAINT:
 		{						
-			if ( (stat_ & BORDER) ) // && (stat_ & DEBUG1) )
+			if ( stat_ & BORDER )
 			{
 				FRectF rc1 = rc_.ZeroRect();
-				auto br = MakeBrsuh(cxt, clr_ );
-				DrawFillRect( cxt, rc1, d->cxt_.black, br, 1.0f );
+				auto br = back_brush_;
+				DrawFillRect( cxt, rc1, d->cxt_.black, (ID2D1Brush*)br, 1.0f );
 
-
-//				if ( stat_ & DEBUG1)
-//					DrawLine( cxt, rc1.LeftTop(), rc1.RightBottom(), 1, cxt.bluegray );
 			}
 
 			SendMessageReverseAll(d,message,wParam,lParam);	
@@ -323,6 +344,7 @@ mat.Offset( rc_.left, rc_.top );
 				ret = SendMessageAll(d,message,wParam,lParam);	
 		}
 		break;
+		
 		default:
 			if (ENABLE(stat_))
 				ret = SendMessageAll(d,message,wParam,lParam);		
@@ -402,20 +424,6 @@ std::shared_ptr<D2DControl> D2DControls::Detach(D2DControl* target)
 
 	return NULL;
 }
-
-
-//void D2DControls::MeToOrg()
-//{	
-//	std::vector<std::shared_ptr<D2DControl>>& ls = this->parent_control_->controls_;
-//
-//	auto a1 = ls[vector_idx.second];
-//	auto pos = ls.begin()+vector_idx.second;
-//	ls.erase(pos);
-//	
-//	pos = ls.begin()+vector_idx.first;
-//	ls.insert( pos, a1);
-//
-//}
 
 void D2DControls::MeToLast()
 {
@@ -540,6 +548,7 @@ void D2DControls::DestroyControl()
 		D2DControl::DestroyControl();
 	}
 }
+
 #pragma endregion // D2DControl
 
 
@@ -614,26 +623,8 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{			
 			D2DContext& cxt = d->cxt_;
 
-			auto rcx = rc_.ZeroRect();
+			//auto rcx = rc_.ZeroRect();
 			
-			//D2DRectFilter f(cxt, rcx );
-
-			//auto bk = MakeBrsuh( cxt, backcolor_ );
-			//FillRect(cxt,rcx, bk);
-
-			//cxt.cxt->FillRectangle( rcx, bk.p );
-
-#ifdef _SKEYBLUE_GRID
-			RECT rc;
-			GetClientRect(d->hWnd_,&rc);
-			DrawSkyBlueGrid( cxt, FSizeF(rc.right,rc.bottom),50);
-#endif
-			
-			// DrawDebugCross(d->cxt_, d->cxt_.black );
-
-			
-
-
 			SendMessageReverseAll(d,message,wParam,lParam);	
 
 			#ifdef _DEBUG
@@ -1315,6 +1306,20 @@ D2DImage::D2DImage()
 {
 
 }
+void D2DImage::OnResutructRnderTarget(bool bCreate)
+{
+	if (!bCreate)
+		bmp_.Release();
+	else
+	{
+		ComPTR<ID2D1DeviceContext> dcxt;
+		if (HR(parent_->cxt_.cxt->QueryInterface(&dcxt)))
+		{
+			LoadImage(dcxt, filename_);
+		}
+	}
+
+}
 LRESULT D2DImage::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT ret = 0;
@@ -1337,31 +1342,10 @@ LRESULT D2DImage::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPar
 			auto sz = bmp_->GetSize();
 
 			FRectF rc(0,0,sz);
-
-
 			cxt.cxt->DrawBitmap( bmp_, rc );
-
-
-
-		}
-		break;
-		case WM_D2D_RESTRUCT_RENDERTARGET:
-		{
-			if ( wParam == 0 )
-				bmp_.Release();
-			else if ( wParam == 1 )
-			{				
-				ComPTR<ID2D1DeviceContext> dcxt;						
-				if ( HR(parent_->cxt_.cxt->QueryInterface( &dcxt )))
-				{				
-					LoadImage(dcxt, filename_ );
-				}
-			}
 		}
 		break;
 	}
-
-
 	return 0;
 }
 void D2DImage::OnCreate()
@@ -1382,7 +1366,7 @@ bool D2DImage::LoadImage( ID2D1DeviceContext* cxt, LPCWSTR fnm )
 
 #pragma endregion
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#include "MoveTarget.h"
+
 #pragma region  D2DWaiter
 
 void D2DWaiter::DrawContent( D2DContext& cxt, const FRectFBoxModel& rc, int stat, const FString& s, int pos )
@@ -1440,14 +1424,17 @@ void D2DWaiter::OnDraw( D2DContext& cxt )
 
 void D2DWaiter::Start()
 {
-	MoveTargetEx* mt = new MoveTargetEx();
+	MoveTarget* mt = new MoveTarget();
 		
 	mt->SetParameter( 0, 0, 7*50, 0, 10000 );
-	
-	DWORD st = MoveTargetEx::TimeGetTime(); // ::timeGetTime();
+
+	LARGE_INTEGER f;
+
+	QueryPerformanceFrequency(&f);
+	DWORD st = MoveTarget::TimeGetTime(f); 
 	
 		
-	mt->Fire_ = [this](MoveTargetEx* mt, float x1, float y1)->bool
+	mt->Fire_ = [this](MoveTarget* mt, float x1, float y1)->bool
 	{
 		/*if ( pos_ == (int)x1 )
 		{
@@ -1465,7 +1452,7 @@ void D2DWaiter::Start()
 		return true;
 	};
 		
-	mt->End_ = [this](MoveTargetEx* mt, float x, float y)
+	mt->End_ = [this](MoveTarget* mt, float x, float y)
 	{		
 		
 		/*
@@ -1505,7 +1492,7 @@ LRESULT D2DWaiter::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 		case WM_DESTROY:
 		{
-		   delete (MoveTargetEx*) mt_;
+		   delete (MoveTarget*) mt_;
 
 		}
 
@@ -1728,7 +1715,7 @@ void D2DMessageBox::Draw(D2DContext& cxt)
 D2DGroupControls::D2DGroupControls()
 {
 	move_able_ = 0;
-	clr_ = D2RGB(0,0,0);
+	backclr_ = D2RGB(0,0,0);
 
 }
 
@@ -1762,7 +1749,7 @@ LRESULT D2DGroupControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPA
 
 			SendMessageReverseAll(d, message, wParam, lParam);
 
-			auto br = MakeBrsuh(cxt, clr_);
+			auto br = MakeBrsuh(cxt, backclr_);
 			cxt.cxt->DrawRectangle(rc1, br);
 		}
 		else
@@ -1851,6 +1838,8 @@ LRESULT D2DGroupControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPA
 			}			
 		}
 		break;
+
+
 	}
 
 
@@ -1877,7 +1866,7 @@ void D2DGroupControls::SetParameters(const std::map<std::wstring, VARIANT>& prms
 		}
 		else if (key == L"bordercolor")
 		{			
-			clr_ = VariantColor(it.second);
+			backclr_ = VariantColor(it.second);
 		}
 		else if (key == L"moveable")
 		{

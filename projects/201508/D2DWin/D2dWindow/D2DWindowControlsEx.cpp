@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -598,11 +598,11 @@ void D2DControlsEx::Expand( bool bExpand )
 			
 		mat2_ = mat_;
 
-		MoveTargetEx* mt = new MoveTargetEx();
+		MoveTarget* mt = new MoveTarget();
 
 		mt->SetParameter( mat2_._11, mat2_._22, 0.3f, 0.3f, 500 ); // 100 / sz.width,100 / sz.width, 500 );
 
-		mt->Fire_ = [this](MoveTargetEx* p, float a, float b)->bool{
+		mt->Fire_ = [this](MoveTarget* p, float a, float b)->bool{
 
 			mat2_._11 = a;
 			mat2_._22 = b;
@@ -611,7 +611,7 @@ void D2DControlsEx::Expand( bool bExpand )
 
 		};
 
-		mt->End_ = [this](MoveTargetEx* p, float a, float b){
+		mt->End_ = [this](MoveTarget* p, float a, float b){
 			
 			delete p;
 		};
@@ -626,11 +626,11 @@ void D2DControlsEx::Expand( bool bExpand )
 	else
 	{
 		
-		MoveTargetEx* mt = new MoveTargetEx();
+		MoveTarget* mt = new MoveTarget();
 
 		mt->SetParameter( mat2_._11, mat2_._22, 1,1 , 500 );
 
-		mt->Fire_ = [this](MoveTargetEx* p, float a, float b)->bool{
+		mt->Fire_ = [this](MoveTarget* p, float a, float b)->bool{
 
 			mat2_._11 = a;
 			mat2_._22 = b;
@@ -639,7 +639,7 @@ void D2DControlsEx::Expand( bool bExpand )
 
 		};
 
-		mt->End_ = [this](MoveTargetEx* p, float a, float b){
+		mt->End_ = [this](MoveTarget* p, float a, float b){
 			
 			mat2_._11 = 1;
 			mat2_._22 = 1;

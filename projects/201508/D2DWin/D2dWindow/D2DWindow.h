@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -22,14 +22,8 @@ SOFTWARE.
 
 #include "D2DContextEx.h"
 #include "D2Dcontextnew.h"
-//#include "ItemLoopArray.h"
 #include "D2DWindowMessage.h"
-//#include "D2DWindowMessageStruct.h"
-//#include "tsf\TextContainer.h"	// CTextContainer
-//#include "tsf\IBridgeTSFInterface.h"
 #include "gdi32.h"
-//#include "ControlHandle.h"
-//#include "msxmlex6.h"
 #include "faststack.h"
 #undef CreateWindow
 namespace V4 {
@@ -38,10 +32,6 @@ namespace V4 {
 #define VISIBLE( stat ) (stat&STAT::VISIBLE)
 #define DEAD( stat ) (stat&STAT::DEAD)
 #define BORDER( stat ) (stat&STAT::BORDER)
-
-
-
-
 
 
 // DISABLE:表示はされる、マウス等はうけつけない 
@@ -53,6 +43,7 @@ enum STAT{ VISIBLE=0x1,MOUSEMOVE=0x2,CLICK=0x4,CAPTURED=0x8,SELECTED=0x10, DISAB
 class D2DControl;
 class D2DControls;
 class D2DWindow;
+class MoveTarget;
 
 class D2DCaptureObject
 {
@@ -63,43 +54,20 @@ class D2DCaptureObject
 
 namespace Inner {
 
-	//class ToolTip
-	//{
-	//	public :
-	//		ToolTip():isShow_(false){};
-
-	//		bool IsShow(){ return isShow_; }
-	//		void Set( D2DControl*p, LPCWSTR str );
-	//		void Show(bool bShow){ isShow_ = bShow; }
-	//		void Draw();
-	//	private :
-	//		FString str_;
-	//		FRectF rc_;
-	//		bool isShow_;
-	//		D2DControl* ctrl_;
-	//		GDI32::FPoint pt_;
-	//};
 
 };
 
 // Object mode
 enum MOUSE_MODE { NONE,MOVE,RESIZE,COLUM_RESIZE,ROW_RESIZE,CHILD_CTRL };
-//enum OBJ_STATUS { NONE=0,SELECT=0x1,CAPTURED=0x2 };
 
 class D2DWindow
 {
 	public :
 		D2DWindow();
-		virtual ~D2DWindow()
-		{
-			int a = 0;
-		};
+		virtual ~D2DWindow(){ Clear();}
 
 		HWND CreateD2DWindow( DWORD WSEX_STYLE, HWND parent, DWORD WS_STYLE, RECT rc );		
 		LRESULT WndProc(UINT message, WPARAM wParam, LPARAM lParam);
-
-		
-		
 
 		void SetCapture(D2DCaptureObject* p, FPointF* pt=NULL, D2DMat* mat=NULL );
 		D2DCaptureObject* ReleaseCapture();
@@ -122,7 +90,7 @@ class D2DWindow
 		static int SecurityId(bool bNew);
 		
 		void Clear();
-		void ShowToolTip( D2DControl* p, LPCWSTR message );
+		
 
 
 
@@ -136,7 +104,7 @@ class D2DWindow
 		
 		std::function<void(D2DWindow*)> OnCreate;
 		std::function<void(D2DWindow*)> OnDestroy;
-		std::map<void*,int> mts_;
+		std::map<MoveTarget*, int> mts_;
 		std::shared_ptr<D2DControls> children_;
 		faststack<D2DCaptureObject*> capture_obj_;
 		std::vector<D2DControl*> drag_accepters_;
@@ -144,18 +112,20 @@ class D2DWindow
 
 		bool resource_test_;
 
-		//ControlHandle chandle_;
+		
 		static std::wstring appinfo_;
 		
+		// resource function
+		void ResourceCreate(bool bCreate);
+		ID2D1SolidColorBrush* GetSolidColor(D2D1_COLOR_F clr);
 	protected :
-
-		std::map<DWORD,ComPTR<ID2D1SolidColorBrush>> colorBank_;
+		
+		std::map<DWORD, ID2D1SolidColorBrush*> SolidColorBank_;
 		
 	protected :
 		FPointF capture_pt_;
-		FRectFBoxModel capture_rect_;
-		//Inner::ToolTip tooltip_;
-		
+		FRectFBoxModel capture_rect_;		
+		D2DCaptureObject* roundpaint_obj_;
 };
 
 };

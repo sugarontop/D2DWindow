@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -78,7 +78,14 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 {
 	LRESULT ret = 0;
 	if (!VISIBLE(stat_))
+	{
+		if ( message == WM_D2D_RESTRUCT_RENDERTARGET )
+		{
+			OnResutructRnderTarget(wParam == 1);
+		}		
+
 		return ret;
+	}
 
 	bool bProcess = true;
 	switch( message )
@@ -233,12 +240,7 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 		break;
 		case WM_D2D_RESTRUCT_RENDERTARGET:
 		{
-			if ( wParam == 0 )
-			{
-				// Do release linked resource object.
-
-				int a = 0;
-			}
+			OnResutructRnderTarget(wParam == 1);
 		}
 		break;
 		case WM_KEYDOWN:
@@ -260,7 +262,11 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 	return ret;
 
 }
+void D2DDataGrid::OnResutructRnderTarget(bool bCreate)
+{
+	// 共有リソースは使用していない
 
+}
 
 void D2DDataGrid::AllocateBuffer( int cnt )
 {
@@ -489,9 +495,24 @@ void D2DDataGrid::SetRect(const FRectFBoxModel& rc)
 	bar_->SetRect(rc1);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+SolidColor GetSolidColor(D2DWindow* d, D2D1_COLOR_F  clr)
+{
+	SolidColor r;
+	r.color = clr;
+	r.br = d->GetSolidColor(r.color);
+	return r;
+}
+
 void D2DDataGridListbox::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height, LPCWSTR name, int id)
 {	
 	D2DDataGrid::CreateWindow(parent, pacontrol, rc, stat, item_min_height,0, 1, name, id);
+
+	wfloating    = GetSolidColor(parent, D2RGBA(0, 0, 255, 30));
+	wfloating_w  = GetSolidColor(parent, D2RGB(0, 0, 255));
+	wselecting   = GetSolidColor(parent, D2RGBA(255, 0, 0, 30));
+	wselecting_w = GetSolidColor(parent, D2RGB(255, 0, 0));
+	
 
 	DrawRow_ = [this](D2DDataGrid*, D2DContext& cxt, RowInfo& rinfo){
 
@@ -506,17 +527,17 @@ void D2DDataGridListbox::CreateWindow(D2DWindow* parent, D2DControls* pacontrol,
 
 		if (r.selected_rows.find(r.row) != r.selected_rows.end())
 		{
-			DrawFillRect(cxt, rc, D2RGB(0, 0, 0), D2RGBA(0, 0, 255, 30));
+			DrawRect(cxt,rc, (ID2D1Brush*)wselecting_w.br, 1 );
+			FillRectangle(cxt, rc, (ID2D1Brush*) wselecting.br );
+
 		}
 		else if (r.row == r.float_row)
 		{
-			DrawFillRect(cxt, rc, D2RGB(0,0,0), D2RGBA(255,0,0,30));
-
+			DrawRect(cxt, rc, (ID2D1Brush*) wfloating_w.br, 1);
+			FillRectangle(cxt, rc, (ID2D1Brush*) wfloating.br);
 		}
-		
 
 		DrawCenterText(cxt, cxt.black, rc, str.c_str(), str.length(), 0);
-
 	};
 
 	title_header_height_ = 0;
@@ -567,7 +588,23 @@ void D2DDataGridListbox::SetRect(const FRectFBoxModel& rc)
 	
 
 }
-
+void D2DDataGridListbox::OnResutructRnderTarget(bool bCreate)
+{
+	if (bCreate)
+	{
+		wfloating = GetSolidColor(parent_, wfloating.color );
+		wfloating_w = GetSolidColor(parent_, wfloating_w.color);
+		wselecting = GetSolidColor(parent_, wselecting.color);
+		wselecting_w = GetSolidColor(parent_, wselecting_w.color);
+	}
+	else
+	{
+		wfloating.br = nullptr;
+		wfloating_w.br = nullptr;
+		wselecting.br = nullptr;
+		wselecting_w.br = nullptr;
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void D2DDropdownList::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height, LPCWSTR name, int id)
@@ -641,6 +678,7 @@ LRESULT D2DDropdownList::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPAR
 	switch (message)
 	{
 		case WM_PAINT:
+		case WM_D2D_PAINT:
 		{
 			auto& cxt = d->cxt_;
 			cxt.cxt->GetTransform(&mat_);

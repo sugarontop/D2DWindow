@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -30,6 +30,7 @@ namespace V4 {
 			virtual ~D2DDataGrid();
 			virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 			virtual void SetRect(const FRectFBoxModel& rc);
+			virtual void OnResutructRnderTarget(bool bCreate);
 
 			void CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height, float title_height, int colcnt, LPCWSTR name, int id);
 			void SetTitle( int title_cnt );
@@ -98,6 +99,7 @@ namespace V4 {
 		public :
 			D2DDataGridListbox(){}
 			void CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height, LPCWSTR name, int id);
+			virtual void OnResutructRnderTarget(bool bCreate);
 
 			void AddString(LPCWSTR key, LPCWSTR val);
 			int Count();
@@ -117,6 +119,12 @@ namespace V4 {
 
 			std::map<std::wstring, kv*> keyvalues_;
 			std::vector<std::shared_ptr<kv>> ar_;
+
+
+			SolidColor wfloating;
+			SolidColor wfloating_w;
+			SolidColor wselecting;
+			SolidColor wselecting_w;
 	};
 	
 	class D2DDropdownList : public D2DControls

@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWin.h"
 #include "D2DWindowMessage.h"
@@ -31,10 +30,6 @@ D2DControlsWithScrollbar::D2DControlsWithScrollbar()
 {
 
 }
-D2DControlsWithScrollbar::~D2DControlsWithScrollbar()
-{
-	int a = 0;
-}
 
 void D2DControlsWithScrollbar::ShowScrollbar(TYP typ, bool visible)
 {
@@ -44,8 +39,37 @@ void D2DControlsWithScrollbar::ShowScrollbar(TYP typ, bool visible)
 		Hscbar_->Show(visible);
 
 }
+void D2DControlsWithScrollbar::SetParameters(const std::map<std::wstring, VARIANT>& prms)
+{
+	auto it = prms.find( L"name" );
+	if ( it != prms.end())
+	{
+		name_ = it->second.bstrVal;
+	}
+	
+	ParameterColor(parent_, back_color_, prms, L"backcolor");
+	ParameterColor(parent_, border_color_, prms, L"bordercolor");
+}
+void D2DControlsWithScrollbar::RequestUpdate(D2DControl* client, int typ)
+{
+	if (typ == WM_SIZE )
+	{
+		int j = 0;
+		for( auto& it : controls_ )
+		{
+			if ( it.get() == client )
+			{								
+				FRectF rc1 = rc_.GetContentRectZero();
+				
+				client->SetRect(FPointF(0,0), rc1.GetSize());
+				
+				break;
+			}
+			j++;
+		}
+	}
 
-
+}
 
 LRESULT D2DControlsWithScrollbar::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -55,179 +79,171 @@ LRESULT D2DControlsWithScrollbar::WndProc(D2DWindow* d, UINT message, WPARAM wPa
 	if (!VISIBLE(stat_))
 		return ret;
 
-	D2DContext& cxt = d->cxt_;
-
-	D2DMatrix mat(cxt);
-
-	mat.PushTransform();
-	mat.Scale(scale_, scale_);
+	
 
 	switch (message)
 	{
-	case WM_PAINT:
-	{
-
-		mat.Offset(rc_.left, rc_.top);
-		mat_ = mat;
-
-
-		FRectF rcborder = rc_.GetContentRectZero();
-		//FRectF rcborder2 = rc_.GetContentRect().ZeroRect();
-		rcborder.right--;
-
-		auto br = (stat_ & BORDER ? cxt.black : cxt.transparent);
-
-		cxt.cxt->FillRectangle(rcborder, cxt.white);//
-
-		
-
-		FRectF rc = rc_.GetContentRectZero();
-		D2DRectFilter f(cxt, rc);
-
-		//mat.Offset( rcborder.left, rcborder.top );		
-		//mat_ = mat; // 自座標(左上0,0)のmatrix
-
-		mat.PushTransform();
+		case WM_PAINT:
 		{
-			mat.Offset(-scrollbar_off_.width, -scrollbar_off_.height);
+			D2DContext& cxt = d->cxt_;
+			D2DMatrix mat(cxt);
 
-			LRESULT r = 0;
-			auto it = controls_.begin();
+			mat.PushTransform();
+			mat.Scale(scale_, scale_);
 
-			_ASSERT((*it).get() == Vscbar_);
+			mat.Offset(rc_.left, rc_.top);
+			mat_ = mat;
 
-			it++; // pass Vscbar_
-			it++; // pass Hscbar_
+			FRectF rcborder = rc_.GetContentRectZero();
+			rcborder.right--;
 
-			for (; it != controls_.end(); ++it) {
-				(*it)->WndProc(d, message, wParam, lParam);
+			//auto br = (stat_ & BORDER ? (ID2D1Brush*)border_color_.br : cxt.transparent);
+
+			cxt.cxt->FillRectangle(rcborder, (ID2D1Brush*)back_color_.br);
+
+			FRectF rc = rc_.GetContentRectZero();
+			D2DRectFilter f(cxt, rc);
+
+			//mat.Offset( rcborder.left, rcborder.top );		
+			//mat_ = mat; // 自座標(左上0,0)のmatrix
+
+			mat.PushTransform();
+			{
+				mat.Offset(-scrollbar_off_.width, -scrollbar_off_.height);
+
+				LRESULT r = 0;
+				auto it = controls_.begin();
+
+				_ASSERT((*it).get() == Vscbar_);
+
+				it++; // pass Vscbar_
+				it++; // pass Hscbar_
+
+				for (; it != controls_.end(); ++it) {
+					(*it)->WndProc(d, message, wParam, lParam);
+				}
+
 			}
+			mat.PopTransform();
 
-		}
-		mat.PopTransform();
 
-		bProcess = false;
-
-		//cxt.SetAntiAlias(true);
-
-		Vscbar_->WndProc(d, message, wParam, lParam);
-		Hscbar_->WndProc(d, message, wParam, lParam);
-	}
-	break;
-
-	case WM_MOUSEMOVE:
-	{
-		FPointF pt = mat_.DPtoLP(FPointF(lParam));
-		pt.x += rc_.left;
-		pt.y += rc_.top;
-
-		if (rc_.PtInRect(pt))
-			ret = D2DControls::WndProc(d, message, wParam, lParam);
-
-		bProcess = false;
-
-	}
-	break;
-	case WM_MOUSEWHEEL:
-	{
-		FPointF pt = mat_.DPtoLP(FPointF(lParam));
-		pt.x += rc_.left;
-		pt.y += rc_.top;
-
-		if (rc_.PtInRect(pt))
-			ret = D2DControls::WndProc(d, message, wParam, lParam);
-
-		bProcess = false;
-	}
-	break;
-
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_CAPTURECHANGED:
-	{
-		FPointF pt = mat_.DPtoLP(FPointF(lParam));
-		pt.x += rc_.left;
-		pt.y += rc_.top;
-
-		if (rc_.PtInRect(pt))
-		{
-			ret = D2DControls::WndProc(d, message, wParam, lParam);
 			bProcess = false;
-		}
-	}
-	break;
-	case WM_D2D_OBJECT_UPDATE:
-	{
-		// Dropされたobjectを受け入れるか。
-		if (bDropped_object_accept_)
-		{
-			D2D_OBJECT_UPDATE* pm = (D2D_OBJECT_UPDATE*) lParam;
 
-			FPointF pt = mat_.DPtoLP(pm->globalpt);
+			
+			Vscbar_->WndProc(d, message, wParam, lParam);
+			Hscbar_->WndProc(d, message, wParam, lParam);
+						
+			mat.PopTransform();
+			return 0;
+		}
+		break;
+
+		case WM_MOUSEMOVE:
+		{
+			FPointF pt = mat_.DPtoLP(FPointF(lParam));
 			pt.x += rc_.left;
 			pt.y += rc_.top;
 
-			D2DControl* pc = (D2DControl*) pm->object;
+			if (rc_.PtInRect(pt))
+				ret = D2DControls::WndProc(d, message, wParam, lParam);
 
-			// 自分の領域に落とされた場合
+			bProcess = false;
+
+		}
+		break;
+		case WM_MOUSEWHEEL:
+		{
+			FPointF pt = mat_.DPtoLP(FPointF(lParam));
+			pt.x += rc_.left;
+			pt.y += rc_.top;
+
+			if (rc_.PtInRect(pt))
+				ret = D2DControls::WndProc(d, message, wParam, lParam);
+
+			bProcess = false;
+		}
+		break;
+
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_LBUTTONDBLCLK:
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+		case WM_CAPTURECHANGED:
+		{
+			FPointF pt = mat_.DPtoLP(FPointF(lParam));
+			pt.x += rc_.left;
+			pt.y += rc_.top;
+
 			if (rc_.PtInRect(pt))
 			{
-				if (this != pc->parent_control_)
-				{
-					OnDropObject(pc);
-
-					if (pm->stat == D2D_OBJECT_UPDATE::TYP::TRY_NEWPARENT)
-						pm->stat = D2D_OBJECT_UPDATE::TYP::SUCCESS;
-				}
-				else
-					pm->stat = D2D_OBJECT_UPDATE::TYP::MOVE;
-
-				// return 1; 
-				bProcess = true;
-
+				ret = D2DControls::WndProc(d, message, wParam, lParam);
+				bProcess = false;
 			}
 		}
-	}
-	break;
-	case WM_SIZE:
-	{
-		if (auto_resize_)
+		break;
+		case WM_D2D_OBJECT_UPDATE:
 		{
-			FRectF rc = parent_control_->GetContentRect();
+			// Dropされたobjectを受け入れるか。
+			if (bDropped_object_accept_)
+			{
+				D2D_OBJECT_UPDATE* pm = (D2D_OBJECT_UPDATE*) lParam;
 
+				FPointF pt = mat_.DPtoLP(pm->globalpt);
+				pt.x += rc_.left;
+				pt.y += rc_.top;
 
-			FSizeF sz = rc.Size();
-			rc_.SetContentSize(sz);
+				D2DControl* pc = (D2DControl*) pm->object;
 
+				// 自分の領域に落とされた場合
+				if (rc_.PtInRect(pt))
+				{
+					if (this != pc->parent_control_)
+					{
+						OnDropObject(pc);
 
-			Vscbar_->WndProc(d, message, wParam, lParam);
-			Hscbar_->WndProc(d, message, wParam, lParam);
+						if (pm->stat == D2D_OBJECT_UPDATE::TYP::TRY_NEWPARENT)
+							pm->stat = D2D_OBJECT_UPDATE::TYP::SUCCESS;
+					}
+					else
+						pm->stat = D2D_OBJECT_UPDATE::TYP::MOVE;
 
-			ret = 1;
+					// return 1; 
+					bProcess = true;
+
+				}
+			}
 		}
-	}
-	break;
-	case WM_D2D_EVSLIDER_CHEANGED:
-	{
-		//			D2DSlider* sl = (D2DSlider*)wParam;
-		//			float pos = (float)lParam;
-		//			scale_ = 2*(sl->pos_ / (sl->max_ - sl->min_));
+		break;
+		case WM_SIZE:
+		{
+			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+			if ( p )
+			{
+				p->RequestUpdate(this, WM_SIZE );
+			}
+			else
+			{
+				auto sz = parent_control_->GetChildSize(this);
+				rc_.SetSize(sz);
+			}
+			ret = 0;
+				
+		}
+		break;
+		case WM_D2D_EVSLIDER_CHEANGED:
+		{
+			//			D2DSlider* sl = (D2DSlider*)wParam;
+			//			float pos = (float)lParam;
+			//			scale_ = 2*(sl->pos_ / (sl->max_ - sl->min_));
 
-		d->redraw_ = 1;
+			d->redraw_ = 1;
+		}
+		break;
 	}
-	break;
-	}
-
-
 
 	if (bProcess && ret == 0)
 		ret = D2DControls::WndProc(d, message, wParam, lParam);
-
-
-	mat.PopTransform();
 
 	return ret;
 }

@@ -19,69 +19,68 @@ SOFTWARE.
 */
 #pragma once
 
+#include "MsXml6.tlh"
+
+//////////////////////////////////////////////////////////////////////////
+// menu.xmlで作成されるメインフレームメニュー　WM_D2D_COMMANDを送る
+//////////////////////////////////////////////////////////////////////////
+
 namespace V4 {
 
-class D2DButtonGruop : public D2DControl //, public D2DCaptureWindow
+class D2DMenuItems : public D2DControls
 {
 	public :
-		D2DButtonGruop(){};
-		virtual void MeToLast(){};
-		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id, int btncount );
+		D2DMenuItems(){}
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, bool bVertical, int id=-1  );
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 
-		std::function<FPointF(FSizeF)> GetPlace_;
-		int btncnt_;
+		D2DControl* GetActiveControl();
 	private :
-		void DrawButton( D2DContext& cxt );
-		int btnmode_;
-
-
+		bool bVertical_;
+		int active_;
 };
-class D2DTitleBar : public D2DControls //, public D2DCaptureWindow
+class D2DMainFrameMenu : public D2DControls
 {
 	public :
-		D2DTitleBar(){};
+		D2DMainFrameMenu(){};
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
-		virtual void MeToLast(){};
-		//virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id );
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1  );
+		void LoadMenu();
+		struct MenuItem
+		{
+			_bstr_t title;
+			float width;
+		};
+
+		void CreateSubMenu();
+		void CreateSubMenuItem(MSXML2::IXMLDOMNode* nd);
 	private :
-		virtual void OnCreate();
-		FPointF GetPlaceRightButton(FSizeF sz );
-		D2DButtonGruop* btngrp_;
+		std::vector<MenuItem> ar_;
+		int active_;
 
+		D2DMenuItems* submenu_;
+		MSXML2::IXMLDOMDocument2Ptr menuxml_;
 };
 
-
-class D2DControlsEx : public D2DControls //, public D2DCaptureWindow
+class D2DMenuItemEx : public D2DControls
 {
 	public :
-		D2DControlsEx():bExpand_(true),md_(0){};
-		virtual ~D2DControlsEx();
-
-
+		D2DMenuItemEx(){}
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
-		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id );
-		virtual void SetRect( const FRectF& rc );
-		virtual void MeToLast();
-		void Expand( bool bExpand );
-		void Dialog( bool bDialog );
-		void TopDialog();
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1  );
 
-		bool bExpand_;
-		bool bDialog_;
-		D2DMat mat2_;
-		FRectF rc2_;
+		void CreateSubMenu();
+		MSXML2::IXMLDOMNodePtr nd_;
+		bool bBottomLine_;
+		D2DControls* submenu_;
+	private :
+		FString strL, strR;
+		//Image xxxx
 		int md_;
-	protected :
-		LRESULT WndProc0(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
-		LRESULT WndProc1(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
-
-
-		int wndstat_;
-		float titlebar_height_;
-		D2DTitleBar* tbar_;
 };
 
-};
+
+}; // V4
+
 
 

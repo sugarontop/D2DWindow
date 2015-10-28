@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowMessage.h"
 #include "D2DWindowControl_easy.h"
@@ -179,8 +178,9 @@ LRESULT D2DImageButtons::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPAR
 				if (IS_CLICKONLY(md))
 					md &= ~STAT_ON;
 
+				
 
-				if ( onclick_ )
+				if (!IS_DISABLE(md) && onclick_ )
 				{
 					FRectF rcb = rc_.GetContentRect();
 					FPointF pt = mat_.DPtoLP(lParam);

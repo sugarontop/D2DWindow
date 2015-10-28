@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowControl_easy.h"
 #include "ItemLoopArray.h"
@@ -37,8 +36,9 @@ D2DDataGrid::~D2DDataGrid()
 }
 void D2DDataGrid::Clear()
 {
+	// D2EVENT2_MODE::DRAWにてBindしたdataがDestroy_にて削除されるので注意
 	if (databox_ && Destroy_)
-		Destroy_(this);
+		Destroy_(this); 
 }
 void D2DDataGrid::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectFBoxModel rc, int stat, float item_min_height,float title_height, int colcnt, LPCWSTR name, int id)
 {
@@ -75,6 +75,10 @@ void D2DDataGrid::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectF
 		fore_color_.color = ColorF(ColorF::Black);
 		back_color_.color = D2RGBA(0,0,0,0);
 		OnResutructRnderTarget(true);
+
+		colline_ = -1;
+		mproc_ = std::make_shared<DataGrid::MouseProcSelectRow>(this);
+		
 	}
 
 	OnCreate();
@@ -82,15 +86,9 @@ void D2DDataGrid::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, FRectF
 LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT ret = 0;
-	/*if (!VISIBLE(stat_))
-	{
-		if ( message == WM_D2D_RESTRUCT_RENDERTARGET )
-		{
-			OnResutructRnderTarget(wParam == 1);
-		}		
-
+	
+	if ( !VISIBLE(stat_))
 		return ret;
-	}*/
 
 	bool bProcess = true;
 	switch( message )
@@ -98,8 +96,6 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 		case WM_PAINT:
 		{	
 			auto& cxt = d->cxt_;			
-			//cxt.cxt->GetTransform(&mat_);
-
 			D2DMatrix mat(cxt);
 			mat_ = mat.PushTransform();
 			
@@ -155,107 +151,51 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 			}
 		}
 		break;
-		
-		/*case WM_SIZE:
-		{
-			FSizeF sz = parent_control_->GetRect().Size();
-			rc_.right = rc_.left + sz.width;
-		}
-		break;*/
-		
 		case WM_LBUTTONDOWN:
-		case WM_MOUSEMOVE:
+		{
+			
+			FPointF pt(lParam);
+			pt = mat_.DPtoLP(pt);
+
+			if (rc_.PtInRect(pt))
+			{
+				//pt.x -= rc.left;
+				//pt.y -= rc.top;
+
+				FRectF rc = rc_;
+				rc.bottom = rc.top + title_header_height_;
+				if ( rc.PtInRect(pt))
+				{
+					mproc_ = std::make_shared<DataGrid::MouseProcTitleResize>(this);
+				}
+				else
+					mproc_ = std::make_shared<DataGrid::MouseProcSelectRow>(this);
+
+				ret = mproc_->LButtonDown(d,wParam,lParam);
+			}
+			else
+				mproc_ = nullptr;
+		}
+		break;
+		case WM_MOUSEMOVE:			
+		{
+			if ( mproc_ )
+			{
+				ret = mproc_->MouseMove(d,wParam,lParam);
+
+				if (ret == 0 )
+				{
+					ret = bar_->WndProc(d, message, wParam, lParam);
+				}
+			}
+		}
+		break;
 		case WM_LBUTTONUP:
 		{
-			if (stat_ & VISIBLE)
+			if ( mproc_ )
 			{
-				FPointF pt(lParam);
-				pt = mat_.DPtoLP(pt);
-
-				FRectF rc(rc_);
-				rc.right -= bar_->GetRect().Width();
-
-
-				if (message == WM_LBUTTONDOWN)
-				{
-					//ATLTRACE( L"left=%f top %f this=%x\n", mat_._31, mat_._32, this );
-				}
-
-				if (message == WM_LBUTTONDOWN)
-				{
-					if (rc.PtInRect(pt))
-					{
-						pt.x -= rc_.left;
-						pt.y -= rc_.top;
-
-						pt.y += scrollbar_off_.height;
-						pt.x += scrollbar_off_.width;
-
-						bool bCombobox;
-						bool bCtontrolKey = ( 0!=(wParam&MK_CONTROL));
-						OnItemSelected(pt, bCombobox, bCtontrolKey); // 内部でcaptureしている場合あり
-
-						//if (!bCombobox) // comboboxはすぐlbが非表示になる
-							d->SetCapture(this);
-
-						ret = 1;
-					}
-					else
-					{
-						if (d->GetCapture() == this)
-						{
-							d->ReleaseCapture();
-
-							
-						}
-
-						ret = 0;
-					}
-				}
-				else if (message == WM_MOUSEMOVE)
-				{
-					active_ = rc.PtInRect2(pt);
-
-					if (active_)
-					{
-						pt.x -= rc_.left;
-						pt.y -= rc_.top;
-
-						pt.y += scrollbar_off_.height;
-						pt.x += scrollbar_off_.width;
-
-						OnItemMouseFloat(pt);
-						ret = 1;
-					}
-					else if (float_idx_ > -1)
-					{
-						float_idx_ = -1;
-						d->redraw_ = 1;
-					}
-
-
-				}
-				else if (message == WM_LBUTTONUP)
-				{
-
-					ret = 0;
-					if (d->GetCapture() == this)
-					{
-						d->ReleaseCapture();
-							
-						if (onmouse_extend_)
-							onmouse_extend_(this, WM_LBUTTONUP);
-					}
-
-				}
-
-				
-				{
-					if (ret == 0 || message == WM_MOUSEMOVE)
-					{
-						ret = bar_->WndProc(d, message, wParam, lParam);
-					}
-				}
+				ret = mproc_->LButtonUp(d,wParam,lParam);
+				mproc_ = std::make_shared<DataGrid::MouseProcSelectRow>(this);
 			}
 		}
 		break;
@@ -285,8 +225,6 @@ LRESULT D2DDataGrid::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 }
 void D2DDataGrid::AllocateBuffer( int cnt )
 {
-	Clear();
-	
 	std::vector<LONG_PTR*> xar;
 	xar.resize(cnt);
 	databox_ = VectorToSerialEx(xar);
@@ -312,27 +250,27 @@ void D2DDataGrid::UpdateScrollbar(D2DScrollbar* bar)
 	else
 		scrollbar_off_.width = bar->info_.position;
 }
+void D2DDataGrid::SetInitialColumnWidth( float* width )
+{
+	if ( width == nullptr )
+		return;
+
+	column_x_pos_ = std::shared_ptr<float>( new float[colcnt_+1], std::default_delete<float[]>() );
+	float* x = column_x_pos_.get();
+	x[0] = 0;
+
+	for( int i = 0; i < colcnt_; i++ )
+	{		
+		x[i+1] = x[i] + width[i];
+	}
+}
 float* D2DDataGrid::ColXPosition()
 {
-	// とりあえず
+	_ASSERT( column_x_pos_ );
 
-	_ASSERT( colcnt_ > 1 );
-
-	float width = rc_.GetContentRect().Width();
-
-	width -= 25;
-	float wc = width / (colcnt_-1);
-
-	float* w = new float[colcnt_+1];
-	
-	w[0] = 0;
-	w[1] = w[0]+25;
-
-	for( int i = 2; i <= colcnt_; i++ )
-		w[i] = w[i-1]+ wc;
-
-	return w;
-
+	float* ret = new float[colcnt_];
+	memcpy( ret, column_x_pos_.get(), sizeof(float)*colcnt_ );
+	return ret;
 }
 
 void D2DDataGrid::DrawContent(D2DContext& cxt, int cnt, float cx, float itemHeight, float offy, void* etc)
@@ -348,6 +286,9 @@ void D2DDataGrid::DrawContent(D2DContext& cxt, int cnt, float cx, float itemHeig
 
 	D2DMatrix mat(cxt);
 
+	auto old = cxt.cxtt.textformat->GetWordWrapping();
+	cxt.cxtt.textformat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP );
+
 	mat.PushTransform();
 	{
 		mat.Offset(rc_.left, rc_.top);
@@ -358,6 +299,8 @@ void D2DDataGrid::DrawContent(D2DContext& cxt, int cnt, float cx, float itemHeig
 		rinfo.float_row = float_idx_;
 		rinfo.sz_row = itemsz;
 		rinfo.col_xpos = ColXPosition();
+
+		
 
 		// ☆initial method タイトル表示
 		rinfo.row = -1;
@@ -393,7 +336,7 @@ void D2DDataGrid::DrawContent(D2DContext& cxt, int cnt, float cx, float itemHeig
 	}
 	mat.PopTransform();
 
-	
+	cxt.cxtt.textformat->SetWordWrapping(old );
 }
 
 
@@ -462,6 +405,14 @@ void D2DDataGrid::OnItemSelected( FPointF mousept, bool& bCombobox, bool bContro
 
 	bCombobox = false;
 
+
+	if ( id_ > 0 )
+	{
+		WPARAM wp = MAKEWPARAM( id_, selected_idx );
+		HWND hwnd = ::GetAncestor(parent_->hWnd_, GA_ROOTOWNER);
+		::SendMessage( hwnd, WM_DD_SELECT_CHANGED, wp, (LPARAM)this);
+	}	
+
 	if (onselected_changed_)
 		bCombobox = onselected_changed_(this, selected_idx); // Comboboxの場合だけtrueを返す。
 }
@@ -513,6 +464,7 @@ void D2DDataGrid::SetRect(const FRectFBoxModel& rc)
 }
 void D2DDataGrid::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 	ParameterColor(parent_, border_color_, prms, L"bordercolor");
 	ParameterColor(parent_, fore_color_, prms, L"forecolor");
@@ -685,17 +637,23 @@ void D2DDropdownList::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, co
 			key_ = ls->GetKey(idx);
 			value_ = ls->GetValue(key_.c_str());
 
-
 			ls->Visible(false);
 			ls_->UnSelect();
 
 			if ( this == ls->parent_->GetCapture())
 			{
 				parent_->ReleaseCapture();
-
-
-
 			}
+
+			if ( id_ > 0 )
+			{
+				WPARAM wp = MAKEWPARAM( id_, idx );
+				HWND hwnd = ::GetAncestor(parent_->hWnd_, GA_ROOTOWNER);
+				::SendMessage( hwnd, WM_DD_SELECT_CHANGED, wp, (LPARAM)this);
+			}
+
+
+
 		}
 
 
@@ -803,25 +761,29 @@ LRESULT D2DDropdownList::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPAR
 		{
 			FSizeF sz;
 
-			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
-			if ( p  )
+			if ( auto_resize_ ) 
 			{
-				p->RequestUpdate(this, WM_SIZE );
 
-				sz = rc_.GetContentRect().Size();
-				headrc_.right = headrc_.left + sz.width;
-			}
-			else if (auto_resize_ )
-			{
-				FRectFBM rc = parent_control_->GetRect();
+				auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+				if ( p  )
+				{
+					p->RequestUpdate(this, WM_SIZE );
+
+					sz = rc_.GetContentRect().Size();
+					headrc_.right = headrc_.left + sz.width;
+				}
+				else 
+				{
+					FRectFBM rc = parent_control_->GetRect();
 						
-				sz = rc.GetContentRect().Size();
-				rc_.right = rc_.left + sz.width;
-				headrc_.right = headrc_.left + sz.width;				
-			}
+					sz = rc.GetContentRect().Size();
+					rc_.right = rc_.left + sz.width;
+					headrc_.right = headrc_.left + sz.width;				
+				}
 
 			SetRect( rc_ );
 			
+			}
 		}
 		break;
 		case WM_LBUTTONDOWN:
@@ -891,6 +853,7 @@ void D2DDropdownList::OnResutructRnderTarget(bool bCreate)
 }
 void D2DDropdownList::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 	ParameterColor(parent_, border_color_, prms, L"bordercolor");
 	ParameterColor(parent_, fore_color_, prms, L"forecolor");
@@ -898,5 +861,184 @@ void D2DDropdownList::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 	ls_->SetParameters( prms );
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+namespace DataGrid {
 
-};
+MouseProcSelectRow::MouseProcSelectRow( D2DDataGrid* p )
+{
+	parent_ = p;
+}
+LRESULT MouseProcSelectRow::LButtonDown( D2DWindow* d,WPARAM wParam,LPARAM lParam)
+{
+	LRESULT ret = 0;
+	FPointF pt(lParam);
+	pt = parent_->mat_.DPtoLP(pt);
+
+	FRectF rc = parent_->GetRect(); //(rc_);
+	rc.right -= parent_->bar_->GetRect().Width();
+
+	if (rc.PtInRect(pt))
+	{
+		pt.x -= rc.left;
+		pt.y -= rc.top;
+
+		pt.y += parent_->scrollbar_off_.height;
+		pt.x += parent_->scrollbar_off_.width;
+
+		bool bCombobox;
+		bool bCtontrolKey = ( 0!=(wParam&MK_CONTROL));
+		parent_->OnItemSelected(pt, bCombobox, bCtontrolKey); // 内部でcaptureしている場合あり
+
+		d->SetCapture(parent_);
+
+		ret = 1;
+	}
+	else
+	{
+		if (d->GetCapture() == parent_)
+		{
+			d->ReleaseCapture();
+		}
+		ret = 0;
+	}
+	return ret;
+}
+LRESULT MouseProcSelectRow::MouseMove( D2DWindow* d,WPARAM wp,LPARAM lParam)
+{
+	LRESULT ret = 0;
+	FPointF pt(lParam);
+	pt = parent_->mat_.DPtoLP(pt);
+	
+
+	FRectF rc = parent_->GetRect();
+	rc.right -=  parent_->bar_->GetRect().Width();
+
+	parent_->active_ = rc.PtInRect2(pt);
+
+	pt.x -= rc.left;
+	pt.y -= rc.top;
+	FPointF pt2 = pt;
+
+	if (parent_->active_)
+	{
+		pt.y += parent_->scrollbar_off_.height;
+		pt.x += parent_->scrollbar_off_.width;
+
+		parent_->OnItemMouseFloat(pt);
+		ret = 1;
+	}
+	else if (parent_->float_idx_ > -1)
+	{
+		parent_->float_idx_ = -1;
+		d->redraw_ = 1;
+	}
+
+	parent_->colline_ = -1;
+
+	if ( 0 < pt2.y && pt2.y < parent_->title_header_height_ )
+	{
+		float* colline = parent_->column_x_pos_.get(); 
+
+		for( int i = 1; i < parent_->colcnt_; i++ )
+		{		
+			float x = colline[i];
+			if ( x-5 <= pt2.x && pt2.x <= x+5 )
+			{
+				parent_->colline_ = i;
+
+				::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
+
+				break;			
+			}
+
+		
+		}
+	}
+
+	return ret;
+	
+}
+LRESULT MouseProcSelectRow::LButtonUp( D2DWindow* d,WPARAM wp,LPARAM lp)
+{
+	LRESULT ret = 0;
+	if (d->GetCapture() == parent_)
+	{
+		d->ReleaseCapture();
+							
+		if (parent_->onmouse_extend_)
+			parent_->onmouse_extend_(parent_, WM_LBUTTONUP);
+
+		ret = 1;
+	}
+	return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+MouseProcTitleResize::MouseProcTitleResize( D2DDataGrid* p )
+{
+	parent_ = p;
+}
+LRESULT MouseProcTitleResize::LButtonDown( D2DWindow* d,WPARAM wp,LPARAM lParam)
+{
+	LRESULT ret = 1;
+	FPointF pt(lParam);
+	pt = parent_->mat_.DPtoLP(pt);
+
+	d->SetCapture(parent_, &pt, &parent_->mat_);
+
+
+
+	return ret;
+}
+LRESULT MouseProcTitleResize::MouseMove( D2DWindow* d,WPARAM wp,LPARAM lParam)
+{
+	LRESULT ret = 1;
+
+	auto mat = d->CaptureMat();
+	FPointF pt = mat.DPtoLP(lParam);
+	FPointF ptprv = d->CapturePoint(pt);
+
+	float offx = pt.x - ptprv.x; 
+	//float offy = pt.y - ptprv.y;
+	FSizeF sz = parent_->GetRect().Size();
+	
+	if ( parent_->colline_ > 0 )
+	{
+		float* colline = parent_->column_x_pos_.get(); 
+		int idx = parent_->colline_;
+
+		float nx = colline[idx] + offx;
+
+		auto bl1 = ( 0 < idx && colline[idx-1] < nx );
+		auto bl2 = ( idx+1 <= parent_->colcnt_  && nx < sz.width ); //[idx+1] );
+
+		if ( bl1 && bl2 )
+			colline[idx] = nx;
+
+
+
+
+		::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
+
+		d->redraw_ = 1;
+	}
+
+	return ret;
+
+}
+LRESULT MouseProcTitleResize::LButtonUp( D2DWindow* d,WPARAM wp,LPARAM lp)
+{
+	LRESULT ret = 0;
+	if (d->GetCapture() == parent_)
+	{
+		d->ReleaseCapture();
+		ret = 1;
+	}
+	return ret;
+
+}
+}; // DataGrid
+
+}; // V4

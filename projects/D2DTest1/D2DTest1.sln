@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2DTestJS", "D2DTestJS\D2DTestJS.vcxproj", "{F860096A-5677-46FA-851C-6EC8523ED3FF}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2DTestDataGrid", "D2DTestDataGrid\D2DTestDataGrid.vcxproj", "{A950B04E-AE78-4493-AA1A-5A49C5BD8FB1}"
 EndProject
 Global
@@ -15,14 +13,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Debug|Win32.Build.0 = Debug|Win32
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Debug|x64.ActiveCfg = Debug|x64
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Debug|x64.Build.0 = Debug|x64
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Release|Win32.ActiveCfg = Release|Win32
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Release|Win32.Build.0 = Release|Win32
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Release|x64.ActiveCfg = Release|x64
-		{F860096A-5677-46FA-851C-6EC8523ED3FF}.Release|x64.Build.0 = Release|x64
 		{A950B04E-AE78-4493-AA1A-5A49C5BD8FB1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A950B04E-AE78-4493-AA1A-5A49C5BD8FB1}.Debug|Win32.Build.0 = Debug|Win32
 		{A950B04E-AE78-4493-AA1A-5A49C5BD8FB1}.Debug|x64.ActiveCfg = Debug|Win32

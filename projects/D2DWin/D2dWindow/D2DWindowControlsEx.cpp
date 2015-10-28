@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 
 #include "stdafx.h"
 #include "D2DWindowControl_easy.h"
@@ -440,12 +439,15 @@ LRESULT D2DControlsEx::WndProc0(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		break;
 		case WM_SIZE:
 		{			
-			if ( bwindow_size_ ) 
+			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+			if ( p )
 			{
-				FSizeF sz(lParam);
-				sz = mat_.DPtoLP(sz);
-				rc_.bottom = rc_.top + sz.height;
-				rc_.right = rc_.left + sz.width;
+				p->RequestUpdate(this, WM_SIZE );
+			}
+			else
+			{
+				auto sz = parent_control_->GetChildSize(this);
+				rc_.SetSize(sz);
 			}
 
 			SendMessageAll(d,message,wParam,lParam);		

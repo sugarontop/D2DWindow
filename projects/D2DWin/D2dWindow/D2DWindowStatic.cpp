@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowMessage.h"
 #include "D2DWindowControl_easy.h"
@@ -59,6 +58,38 @@ LRESULT D2DStatic::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	}
 	return 0;
+
+}
+void D2DStatic::SetText(LPCWSTR s) // 15 micrso sec.
+{
+	textlayout_.Release();
+	FRectF rcc = rc_.GetContentRect();
+	IDWriteFactory2* wf = parent_->cxt_.cxtt.wfactory;
+	ComPTR<IDWriteTextFormat> tf;
+	auto hr = wf->CreateTextFormat(DEFAULTFONT, 0, (DWRITE_FONT_WEIGHT) 400, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, DEFAULTFONT_HEIGHT, L"", &tf);
+	if (HR(hr))
+	{
+		ComPTR<IDWriteTextLayout> tl;
+		if (S_OK == wf->CreateTextLayout(s, lstrlen(s), tf, rcc.Width(), rcc.Height(), &tl))
+		{
+			textlayout_ = tl;
+
+			DWRITE_TEXT_METRICS tm;
+			textlayout_->GetMetrics(&tm);
+
+			if (alignment_ == 0)
+				offpt_.x = 0;
+			else if (alignment_ == 1)
+				offpt_.x = (rcc.Width() - tm.width) / 2;
+			else if (alignment_ == 2)
+				offpt_.x = rcc.Width() - tm.width;
+
+
+			offpt_.y = (rc_.Height() - tm.height) / 2; //センタ-配置
+
+		}
+	}
+
 
 }
 void D2DStatic::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, int alignment, LPCWSTR name, int id )

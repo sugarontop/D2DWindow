@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #pragma once
 
 #include "D2DContextEx.h"
@@ -49,6 +48,13 @@ class IUpdatar
 		virtual void RequestUpdate(D2DControl* p, int typ) = 0;
 
 };
+class MouseProcAbstract
+{
+	public :
+		virtual LRESULT LButtonDown( D2DWindow* win,WPARAM wp,LPARAM lp) = 0;
+		virtual LRESULT MouseMove( D2DWindow* win,WPARAM wp,LPARAM lp) = 0;
+		virtual LRESULT LButtonUp( D2DWindow* win,WPARAM wp,LPARAM lp)=0 ;
+};
 
 typedef std::function<LRESULT(D2DControl*,UINT,WPARAM,LPARAM)> OnWndProcExtDelegate;
 
@@ -72,9 +78,8 @@ class D2DControl : public D2DCaptureObject
 		virtual D2DControl* UnPack(){ return this; }
 		virtual void StatActive(bool bActive);
 		virtual bool IsAutoResize(){ return auto_resize_; }
-		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms){}
+		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms);
 		virtual void OnResutructRnderTarget(bool bCreate) {}
-		
 
 		int Stat(int new_stat);
 		DWORD GetStat()  const { return stat_; }
@@ -88,6 +93,7 @@ class D2DControl : public D2DCaptureObject
 		bool IsEnable()  const;
 		bool IsVisible()  const;
 		bool IsFixedSize() const;
+		D2DMat Mat() const { return mat_; }
 		
 		FRectF GetDPRect() const{ return dp_rc_; } // Device変換されたrc_
 		
@@ -105,6 +111,8 @@ class D2DControl : public D2DCaptureObject
 		virtual void DestroyControl();
 		void SafeDestroyControl();
 
+		static LRESULT MouseSelectedMoveProc(D2DControl* p, UINT message, WPARAM wParam, LPARAM lParam);
+		static LRESULT MousePropertyMenuProc(D2DControl* p, UINT message, WPARAM wParam, LPARAM lParam);
 
 		D2DWindow* parent_;				
 		D2DControls* parent_control_;
@@ -224,6 +232,7 @@ class D2DButton : public D2DControl
 
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1 );
+		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms);
 
 		void CreateCheckboxButton(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id = -1);
 		void CreateRadioButton(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id = -1);
@@ -274,14 +283,15 @@ class D2DScrollbar : public D2DControl
 //
 /////////////////////////////////////////////////////////////
 
-class D2DControlsWithScrollbar : public D2DControls
+class D2DControlsWithScrollbar : public D2DControls, public IUpdatar
 {
 	public :
 		D2DControlsWithScrollbar();
-		virtual ~D2DControlsWithScrollbar();
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int typ=0, int id=-1  );
-		
+		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms) override;
+		virtual void RequestUpdate(D2DControl* p, int typ);
+
 		virtual void OnDropObject( D2DControl* pc );
 		virtual void UpdateScrollbar(D2DScrollbar* bar);
 		void SetTotalSize( float cx, float cy );
@@ -355,6 +365,9 @@ class D2DFRectFBM : public D2DControl
 		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms);
 		virtual void OnResutructRnderTarget(bool bCreate);
 		virtual void OnCreate();
+
+
+		
 	protected :
 		SolidColor fore_color_;
 		SolidColor back_color_;

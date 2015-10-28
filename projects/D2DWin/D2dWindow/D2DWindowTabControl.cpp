@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowControl_easy.h"
 #include "D2DWindowTabControl.h"
@@ -36,6 +35,42 @@ D2DTabControls::~D2DTabControls()
 {
 	int a = 0;
 }
+
+
+//FSizeF D2DTabControls::GetChildSize(D2DControl* child) const
+//{ 
+//	auto sz = rc_.Size(); 
+//
+//	sz.height = sz.height - TAGHEIGHT;
+//
+//	return sz;
+//}
+
+void D2DTabControls::RequestUpdate(D2DControl* client, int typ)
+{
+	if (typ == WM_SIZE )
+	{
+		int j = 0;
+		for( auto& it : controls_ )
+		{
+			if ( it.get() == client )
+			{
+				
+				//auto nsz = rcc_[j].Size();
+				FRectF rc1 = rc_.GetContentRectZero();
+				rc1.top += TAGHEIGHT + 6;
+
+				client->SetRect(FPointF(0,0), rc1.GetSize());
+
+
+				break;
+			}
+			j++;
+		}
+	}
+
+}
+
 LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT ret = 0;
@@ -51,27 +86,21 @@ LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 	if ( !VISIBLE(stat_))
 		return ret;
 
-	D2DContext& cxt = d->cxt_;
-	D2DMatrix mat(cxt);		
-	mat.PushTransform();
-	
-
 	switch( message )
 	{
 
 		case WM_PAINT:
 		{			
-			
+			D2DContext& cxt = d->cxt_;
+			D2DMatrix mat(cxt);		
+			mat.PushTransform();
+
 			mat_ = mat; // 親コントロールが原点		
 			mat.Offset(rc_.left, rc_.top);
 
 			// 自座標　左上が(0,0)となる
 			FRectF rc1 = rc_.GetContentRectZero();
-			
-			//DrawDebugCross(cxt, cxt.black);
-
-			//D2DRectFilter f(d->cxt_, rc1);	
-			
+		
 			FRectF rc = OnTagDraw(d->cxt_);
 			FRectF rc2 = rc_; //.GetContentRect();
 			rc2.bottom = rc.bottom + 3;
@@ -86,9 +115,7 @@ LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 				rc2.left += 2;
 
 				CreateTagButtomGeometry(cxt.cxt, rc, rc2, &pGeometry);
-				//D2DRectFilter(cxt, rc2);
-			
-				//cxt.cxt->FillRectangle( rc2, cxt.red);
+
 				cxt.cxt->FillGeometry(pGeometry, d->cxt_.ltgray);
 
 				OnTagDraw(d->cxt_);
@@ -105,7 +132,10 @@ LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 			mat.PopTransform();
 			
 				
-			ret = -1;				
+
+			mat.PopTransform();	
+
+			return 0;
 		}
 		break;
 		
@@ -152,43 +182,20 @@ LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		break;
 		case WM_SIZE :
 		{
-			if ( scale_ & AUTO::HEIGHT || auto_resize_ )
+			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+			if ( p )
 			{
-				auto rr = parent_control_->GetRect();
-				auto sz = parent_control_->GetRect().GetContentRect().Size();
-				auto sz2 = parent_control_->GetContentRect().Size();
-
-
-				rc_.bottom = rc_.top + sz.height;
-
-				for(auto& it : controls_ )
-				{
-					auto p = it.get();
-					FRectFBoxModel rc = it.get()->GetRect();
-					rc.bottom = rc.top + sz.height;
-					it.get()->SetRect(rc);
-				}
+				p->RequestUpdate(this, WM_SIZE );
+			}
+			else
+			{
+				auto sz = parent_control_->GetChildSize(this);
+				rc_.SetSize(sz);
 			}
 
-			if ( scale_ & AUTO::WIDTH || auto_resize_ )
-			{
-				auto sz = parent_control_->GetRect().GetContentRect().Size();
-				rc_.right = rc_.left + sz.width;
+			SendMessageAll(d,message,wParam,lParam);		
+			return 0;
 
-				for(auto& it : controls_ )
-				{
-					FRectFBoxModel rc = it.get()->GetRect();
-					rc.right = rc.left + sz.width;
-					it.get()->SetRect(rc);
-				}
-			}
-
-	
-			for( auto& it : controls_ )
-				it->WndProc(d,message,wParam,lParam);
-
-
-			ret = -1;
 		}
 		break;
 		/*case WM_D2D_RESTRUCT_RENDERTARGET :
@@ -213,7 +220,7 @@ LRESULT D2DTabControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 	if ( active_idx_ < controls_.size() && ret == 0 )
 		ret = controls_[active_idx_]->WndProc(d,message,wParam,lParam);
 
-	mat.PopTransform();
+	
 	return (LRESULT)( ret <= 0 ? 0 : ret );
 }
 void D2DTabControls::SetActivePage( int idx )

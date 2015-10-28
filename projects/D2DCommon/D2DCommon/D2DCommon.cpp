@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -18,7 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #include "stdafx.h"
 #include "D2DCommon.h"
 #include "D2Image.h"
@@ -35,7 +34,10 @@ namespace V4 {
 
 FPointF* WINAPI Triangle( int typ, float cx, float cy, int* ptcount );
 
-
+DLLEXPORT void WINAPI DrawLine(ID2D1RenderTarget* cxt,D2D1_POINT_2F pt1, D2D1_POINT_2F pt2, float width,ID2D1Brush* br, ID2D1StrokeStyle* st )
+{
+	cxt->DrawLine( pt1, pt2, br, width, st );
+}
 DLLEXPORT void WINAPI DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, ID2D1Brush* br, float width )
 {		
 	//RenderFilter f(cxt,rc);

@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowMessage.h"
 #include "D2DWindowControl_easy.h"
@@ -34,6 +33,7 @@ using namespace V4;
 #endif
 
 #define TAB_WIDTH_4CHAR 4
+#define MAXLENGTH 65500
 
 using namespace TSF;
 using namespace V4;
@@ -73,13 +73,13 @@ D2DTextbox::D2DTextbox(CTextEditorCtrl* ctrl)
 	active_border_color_.color = ColorF(ColorF::Red);
 
 	typ_ = TYP::SINGLELINE;
-	ct_.bSingleLine_ = true;
 	ctrl_ = ctrl;
 	bActive_ = false;
 	bUpdateScbar_ = false;
 	fmt_ = NULL;
 	
-	ct_.LimitCharCnt_ = 65500;
+	ct_.bSingleLine_ =  true;
+	ct_.LimitCharCnt_ = MAXLENGTH;
 	temp_font_height_ = 0;	
 }
 D2DTextbox::D2DTextbox(TYP typ, CTextEditorCtrl* ctrl)
@@ -106,10 +106,19 @@ D2DTextbox::D2DTextbox(TYP typ, CTextEditorCtrl* ctrl)
 	fmt_ = NULL;
 	
 	ct_.bSingleLine_ = ( typ_ != TYP::MULTILINE );
-	ct_.LimitCharCnt_ = 65500;	
-
+	ct_.LimitCharCnt_ = MAXLENGTH;	
+	temp_font_height_ = 0;
 }
+UINT D2DTextbox::MaxLength( UINT nlength )
+{
+	UINT old = ct_.LimitCharCnt_;
 
+	if ( (int)nlength < 0 )
+		return old;
+
+	ct_.LimitCharCnt_ = min( MAXLENGTH, nlength);
+	return old;
+}
 void D2DTextbox::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
 {
 	D2DControl::CreateWindow( parent,pacontrol,rc,stat,name, id );
@@ -428,13 +437,13 @@ LRESULT D2DTextbox::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lP
 						return ret;
 				}
 				break;
-				case WM_RBUTTONUP:
-				{
-					ret = parent_control_->WndProc(d,WM_D2D_TEXTBOX_FLOAT_MENU,wParam,lParam ); // parent_controlはbproecssをFALSEにすること
-					if (ret != 0)
-						return ret;
-				}
-				break;
+				//case WM_RBUTTONUP:
+				//{
+				//	ret = parent_control_->WndProc(d,WM_D2D_TEXTBOX_FLOAT_MENU,wParam,lParam ); // parent_controlはbproecssをFALSEにすること
+				//	if (ret != 0)
+				//		return ret;
+				//}
+				//break;
 			}
 		
 
@@ -839,7 +848,8 @@ void D2DTextbox::ActiveSw()
 		old = parent_->cxt_.text;
 		parent_->cxt_.text = fmt_;
 	}
-
+	
+ctrl_->Password((typ_ & PASSWORD) != 0);
 	ctrl_->SetContainer( &ct_, this ); 
 	ctrl_->mat_ = mat_;	
 	ctrl_->CalcRender( parent_->cxt_ );
@@ -1006,12 +1016,21 @@ void D2DTextbox::TabEnable()
 }
 void D2DTextbox::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
+
 	for( auto& it : prms )
 	{
 		auto& key = it.first;
 		if ( key == L"settext" )
 			SetText( it.second );	
+		else if ( key == L"maxlength" )
+		{
+			_variant_t v = it.second; v.ChangeType( VT_INT);
+			MaxLength( v.intVal );
+		}
 	}
+
+
 
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 	ParameterColor(parent_, border_color_, prms, L"bordercolor");

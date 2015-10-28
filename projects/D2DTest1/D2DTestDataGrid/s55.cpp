@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,28 +17,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DTest2.h"
 #include "D2DWin.h"
 #include "fstring.h"
 #include "resource.h"
+#import <msxml6.dll>	// make msxml6.tlh, msxml6.tli 
 
 using namespace V4;
 using namespace std;
 
-
-static DDImage g1, g2,g3,g4,g5;
 const float title_height = 26;
 
 D2Ctrl ListboxTest1(D2Ctrls t0, FRectF rc);
 D2Ctrl ListboxTest2(D2Ctrls t0, FRectF rc);
 D2Ctrl ListboxTest3(D2Ctrls t0, FRectF rc);
-
 D2Ctrl TextboxTest(D2Ctrls t0, FRectF rc);
 
 void MessageBoxTest(D2Ctrls t0, FRectF rc);
 void CreatePageA(D2Ctrls t0);
+void CreatePageB(D2Ctrls t0);
 void MoveTest(D2Ctrls t0, D2Ctrl target, FRectF rc);
 void LoginTest(D2Ctrls t0, FRectF rc);
 
@@ -56,30 +54,44 @@ bool LoadResourceFromRC(UINT id, LPCWSTR Section, DDImage& r)
 
 void CreatePage0(D2Ctrls t0)
 {
-	
-	auto t1 = DDMkControls(t0, FRectF(0,0,9000,1000), L"group", NONAME);
-
-
 	std::map<std::wstring, VARIANT> m;
+	auto t1 = DDMkControls(t0, FRectF(0,0,9000,1000), L"group", NONAME);
+	
 
-	_variant_t color((UINT) D2DRGBADWORD(87, 106, 148, 0));
+	auto tab = DDMkTabControls(t1,FRectF(),NONAME);
 
-	m[L"moveable"] = variant_t(TRUE); // TRUEで移動できます。
-	m[L"bordercolor"] = color;
+	auto page2 = DDAddPage(tab,-1);
 
-	DDSetParameter(Ctrl(t1), m);
+	auto page1 = DDGetPage(tab,0);
+
+	_variant_t nm(L"page2");
+	m[L"name"] = nm;
+	DDSetParameter(Ctrl(page2), m);
+
+	CreatePageA( page1 );
 
 
-	CreatePageA( t1 );
-	//CreatePageB(t1);
+
+	CreatePageB(page2);
 }
 
 void CreatePageA(D2Ctrls t0)
 {
 	std::map<std::wstring, VARIANT> m;
 
+	_variant_t color((UINT) D2DRGBADWORD(87, 106, 148, 0));
+
+	//m[L"moveable"] = variant_t(TRUE); // TRUEで移動できます。
+	m[L"bordercolor"] = color;
+
+	DDSetParameter(Ctrl(t0), m);
+
+
+	m.clear();
+	
+
 	_variant_t vf(L"Arial");
-	_variant_t color((UINT) D2DRGBADWORD(87, 106, 148, 255));
+	color = _variant_t((UINT) D2DRGBADWORD(87, 106, 148, 255));
 	m[L"fontname"] = vf;
 	m[L"fontheight"] = _variant_t(14);
 	m[L"fontbold"] = _variant_t(800);
@@ -212,164 +224,7 @@ void LoginTestOld(D2Ctrls t0, FRectF rc)
 
 
 
-D2Ctrl ListboxTest3(D2Ctrls t0, FRectF rc)
-{
 
-	struct RowStruct
-	{
-		int img;
-		wstring status;
-		wstring name;
-		wstring comment;
-	};
-
-
-	rc.SetSize( rc.GetSize().width,350 );
-
-	std::vector<RowStruct>* data = new std::vector<RowStruct>();
-
-	auto ls = DDMkDataGrid(t0, rc ,4, 26, title_height, NONAME);
-		
-
-	for( int i = 0; i < 100; i++ )
-	{
-		RowStruct s;
-
-		s.img = 0;
-		s.status = L"completed";
-		s.name = FString::Format(L"%d, MSDN Magazine july", i);
-		s.comment = L"unkonwn";
-
-		data->push_back(s);
-
-	}
-
-	DDDataGridAllocbuffer( ls, data->size() );
-
-
-	LoadResourceFromRC(IDB_PNG3, L"PNG", g3);
-
-
-
-	DDEvent2Draw(D2EVENT2_MODE::DRAW, ls,[data](D2EVENT2_MODE ev, D2Ctrl c, DDContext p, DDRowInfo& r )
-	{
-		if ( r.row == -1 )
-		{
-			// タイトル
-
-			if (title_height )
-			{
-				FRectF rc(r.col_xpos[1],0, r.col_xpos[2], title_height);
-				DDDrawStringEx(p, rc, L"status",1 );
-
-				rc.SetRect(r.col_xpos[2], 0, r.col_xpos[3], title_height);
-				DDDrawStringEx(p, rc, L"name",1 );
-
-				rc.SetRect(r.col_xpos[3], 0, r.col_xpos[4], title_height);
-				DDDrawStringEx(p, rc, L"comment",1);
-
-				DDColor c;
-				c.r = 170;
-				c.g = 170;
-				c.b = 170;
-				c.a = 50;
-				DDDrawFillRect(p, r.sz_row.width, title_height, c);
-			}
-
-
-			bool bl = DDLoadImage(p, g3);
-
-			
-			FRectF rc1(0,0,16,16);
-			
-			
-			DDDivideImage( g3, g1, rc1 );
-					
-			rc1.Offset(16,0);
-			DDDivideImage(g3, g2, rc1);
-			
-			
-			return;
-		}
-		else if (r.row == -2)
-		{
-			// 境界線
-
-			DDSetAlias(p, true);
-
-			for( int i = 1; i < 4; i++ )
-			{
-				FPointF pt1(r.col_xpos[i],0);
-				FPointF pt2(r.col_xpos[i], 600);
-				DDDrawLine( p, pt1, pt2,0 );
-			}
-
-			DDSetAlias(p, false );
-
-			g1.p.Release();
-			g2.p.Release();
-			g3.p.Release();
-			return;
-		}
-
-		
-
-		std::vector<RowStruct>& ar = *(std::vector<RowStruct>*)data;
-
-		FString x = ar[r.row].status;
-		FString n = ar[r.row].name;
-		FString w = ar[r.row].comment;
-		int color = 0;
-
-		auto gbmp = (r.row % 6 == 0 ? g2 : g1);
-		LPCWSTR status = (r.row % 6 == 0 ? L"fail" : x.c_str());
-			
-		if (r.is_selected_row)
-		{
-			DDColor c;
-			c.r = 87;
-			c.g = 106;
-			c.b = 148;
-			c.a = 255;
-			DDDrawFillRect(p, r.sz_row.width, r.sz_row.height, c);
-			
-			DDDrawImage(p, FRectF(2, 3, 18, 19), gbmp);
-			DDDrawWhiteString(p, r.col_xpos[1], 0, status );
-			DDDrawWhiteString(p, r.col_xpos[2], 0, n.c_str());
-			DDDrawWhiteString(p, r.col_xpos[3], 0, w.c_str());
-			return;
-		}
-		else if ( r.row == r.float_row )
-		{
-			DDColor c;
-			c.r=255;
-			c.g=0;
-			c.b=0;
-			c.a=50;
-			DDDrawFillRect(p, r.sz_row.width, r.sz_row.height, c);
-		}
-		
-		
-
-
-		DDDrawImage(p, FRectF(2, 3, 18, 19), gbmp);
-
-		DDDrawString(p, r.col_xpos[1], 0, status );
-		DDDrawString(p, r.col_xpos[2], 0, n.c_str());
-		DDDrawString(p, r.col_xpos[3], 0, w.c_str());
-	});
-
-
-	DDEvent0(D2EVENT0_MODE::DESTROY, ls, [data](D2EVENT0_MODE ev, D2Ctrl c){
-
-		delete data;
-		
-	});
-	 
-
-	return ls;
-	
-} 
 
 D2Ctrl ListboxTest1(D2Ctrls t0, FRectF rc)
 {
@@ -401,7 +256,7 @@ D2Ctrl ListboxTest2(D2Ctrls t0, FRectF rc)
 	for (int i = 0; i < 100; i++)
 	{
 		FString key = FString::NewGuid();
-		FString val = FString::Format(L"MSDN MAGAZINE %d", i);
+		FString val = FString::Format(L"--MSDN MAGAZINE %d", i);
 		DDAddKeyValue(ls, key, val);
 	}
 	 
@@ -490,4 +345,210 @@ void MoveTest(D2Ctrls t0, D2Ctrl target, FRectF rc)
 		
 
 	});
+}
+
+
+
+D2Ctrl ListboxTest3(D2Ctrls t0, FRectF rc)
+{
+	FRectF rcbtn( 0,0,100,26);
+	FRectF rcDG( 0,50,300,400);
+
+	rcbtn.Offset( 100, 50);
+	rcDG.Offset( 100, 50);
+
+	auto ctBtn = DDMkButton( t0, rcbtn, L"load" );
+
+	FString url = L"out.xml"; 
+
+	////////////////////////////////////////////////////////
+
+	
+	
+	struct RowStruct
+	{
+		_bstr_t cd;
+		_bstr_t status;
+		_bstr_t name;
+		_bstr_t comment;
+	};
+
+	
+
+	std::vector<RowStruct>* data = new std::vector<RowStruct>();
+
+	float w[4];
+	w[0] = 100;
+	w[1] = 100;
+	w[2] = 100;
+	w[3] = 100;
+
+	auto ls = DDMkDataGrid(t0, rcDG, 4, w, 26, 26, NONAME );
+		
+
+	
+
+	DDEvent2Draw(D2EVENT2_MODE::DRAW, ls,[data](D2EVENT2_MODE ev, D2Ctrl c, DDContext p, DDRowInfo& r )
+	{
+		if ( r.row == -1 )
+		{
+			// タイトル
+
+			int title_height = 26;
+			if (title_height )
+			{
+				FRectF rc(r.col_xpos[1],0, r.col_xpos[2], title_height);
+				DDDrawStringEx(p, rc, L"status",1 );
+
+				rc.SetRect(r.col_xpos[2], 0, r.col_xpos[3], title_height);
+				DDDrawStringEx(p, rc, L"name",1 );
+
+				rc.SetRect(r.col_xpos[3], 0, 999, title_height);
+				DDDrawStringEx(p, rc, L"comment",1);
+
+				DDColor c;
+				c.r = 170;
+				c.g = 170;
+				c.b = 170;
+				c.a = 50;
+				DDDrawFillRect(p, r.sz_row.width, title_height, c);
+			}
+
+
+			return;
+		}
+		else if (r.row == -2)
+		{
+			// 境界線
+
+			DDSetAlias(p, true);
+
+			for( int i = 1; i < 4; i++ )
+			{
+				FPointF pt1(r.col_xpos[i],0);
+				FPointF pt2(r.col_xpos[i], 600);
+				DDDrawLine( p, pt1, pt2,0 );
+			}
+
+			DDSetAlias(p, false );
+
+
+			return;
+		}
+
+		
+
+		std::vector<RowStruct>& ar = *(std::vector<RowStruct>*)data;
+
+		if ( ar.empty()) return;
+
+
+		_bstr_t cd = ar[r.row].cd;
+		_bstr_t x = ar[r.row].status;
+		_bstr_t n = ar[r.row].name;
+		_bstr_t w = ar[r.row].comment;
+		int color = 0;
+
+		
+		
+			
+		if (r.is_selected_row)
+		{
+			DDColor c;
+			c.r = 87;
+			c.g = 106;
+			c.b = 148;
+			c.a = 255;
+			DDDrawFillRect(p, r.sz_row.width, r.sz_row.height, c);			
+			
+
+			DDDrawString4(p, r.col_xpos[0], r.col_xpos[1],26.0f, cd, cd.length(), 1 );
+			DDDrawString4(p, r.col_xpos[1], r.col_xpos[2],26.0f, x, x.length(), 1 );
+			DDDrawString4(p, r.col_xpos[2], r.col_xpos[3],26.0f, n, n.length(), 1 );
+			DDDrawString4(p, r.col_xpos[3], r.sz_row.width,26.0f, w, w.length(), 1 );
+
+			return;
+		}
+		else if ( r.row == r.float_row )
+		{
+			DDColor c;
+			c.r=255;
+			c.g=0;
+			c.b=0;
+			c.a=50;
+			DDDrawFillRect(p, r.sz_row.width, r.sz_row.height, c);
+		}
+		
+		DDDrawString4(p, r.col_xpos[0], r.col_xpos[1],26.0f, cd, cd.length(), 0 );
+		DDDrawString4(p, r.col_xpos[1], r.col_xpos[2],26.0f, x, x.length(), 0 );
+		DDDrawString4(p, r.col_xpos[2], r.col_xpos[3],26.0f, n, n.length(), 0 );
+		DDDrawString4(p, r.col_xpos[3], r.sz_row.width,26.0f, w, w.length(), 0 );
+	});
+
+
+	DDEvent0(D2EVENT0_MODE::DESTROY, ls, [data](D2EVENT0_MODE ev, D2Ctrl c){
+
+		delete data;
+		
+	});
+
+
+	data->clear();
+
+	///////////////////////////////////////////////////////////////////////
+	DDEvent0(D2EVENT0_MODE::CLICK, ctBtn, [url,data,ls](D2EVENT0_MODE ev, D2Ctrl)
+	{
+		MSXML2::IXMLDOMDocument3Ptr doc;
+		doc.CreateInstance( __uuidof(MSXML2::DOMDocument60) );
+
+		
+		if ( doc->load( _variant_t(url.c_str())) )
+		{
+			auto root = doc->GetdocumentElement();
+			auto lss = root->selectNodes( _bstr_t(L"row"));
+
+			for( int i = 0; i <lss->length; i++ )
+			{
+				auto row = lss->Getitem(i);
+				
+				RowStruct s;
+
+				auto ch = row->GetfirstChild();				
+				s.cd = ch->Gettext();
+				ch = ch->nextSibling;
+
+				s.status = ch->Gettext();
+
+				ch = ch->nextSibling;
+				s.name = ch->Gettext();
+				ch = ch->nextSibling;
+				s.comment = ch->Gettext();
+
+				data->push_back(s);
+			}
+
+			DDDataGridAllocbuffer( ls, data->size() );
+
+		}
+	});
+
+	return ls;
+} 
+//////////////////////////////////////////////////////////////////////////////////
+void CreatePageB(D2Ctrls t0)
+{
+	FRectF rc(10,10,FSizeF(200,200));
+	for( int i = 0; i < 5; i++ )
+	{
+		auto prvrc = rc;
+		for( int j = 0; j < 5; j++ )
+		{
+			DDMkFRectFBM( t0, rc, 1, NONAME );
+
+			rc.Offset( 0, 220);
+		}
+		rc = prvrc;
+
+		rc.Offset( 220, 0 );
+	}
 }

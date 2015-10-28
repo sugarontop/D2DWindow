@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindow.h"
 #include "D2DWindowControl_easy.h"
@@ -395,7 +394,12 @@ D2DWindow::D2DWindow():capture_obj_(256),capture_pt_(256)
 	if ( !GetClassInfoEx( GetModuleHandle(0), CLASSNAME, &wcx ))	
 		D2DWindowRegisterClass( GetModuleHandle(0));
 }
+void D2DWindow::CallDispatcher( DispatherDelegate* pfunc, LPVOID lp )
+{
+	_ASSERT( pfunc );
 
+	PostMessage( hWnd_, WM_D2D_DISPATCHER_DELEGATE, (WPARAM)pfunc, (LPARAM)lp );
+}
 void D2DWindow::Clear()
 {
 	// All object are cleared.
@@ -486,7 +490,7 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	else if (message == WM_SIZE && children)
 	{
-		children->WndProc(this,message,wParam,lParam);
+		children->WndProc(this,WM_SIZE,wParam,lParam);
 		return ret;
 	}
 	else if ( message == WM_D2D_RESTRUCT_RENDERTARGET )
@@ -504,7 +508,7 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return ret;
 	}
-	else if ( !capture_obj_.empty() && message < WM_D2D_EV_FIRST )
+	else if ( !capture_obj_.empty() && message < WM_D2D_EVENT_FIRST )
 	{
 		auto obj1 = capture_obj_.top();
 	
@@ -544,13 +548,8 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		
 		death_objects_.clear();
-	}
-	
-	else if (children &&  message != WM_MOUSEMOVE)
-	{		
-		children->WndProc(this,message,wParam,lParam);
-	}
-	else if ( children &&  message==WM_MOUSEMOVE )
+	}	
+	else if (children )
 	{		
 		children->WndProc(this,message,wParam,lParam);
 	}
@@ -558,7 +557,8 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 	
 	switch( message )
 	{		
-		// 状態変化しやすい命令はデフォルトで必ずリドローさせる。WM_MOUSEMOVEは適宜、リドローさせる。
+		// 状態変化しやすい命令はデフォルトで必ずリドローさせる。
+		// WM_MOUSEMOVEは適宜、リドローさせる。
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:		
 		case WM_LBUTTONDBLCLK:
@@ -593,9 +593,9 @@ void D2DWindow::SetCapture(D2DCaptureObject* p,  FPointF* pt, D2DMat* mat )
 {
 	if ( capture_obj_.empty())
 	{
-		::SetCapture( hWnd_ );
-		
+		::SetCapture( hWnd_ );		
 	}
+
 	::SetFocus( hWnd_ );
 	
 	if (capture_obj_.empty() )
@@ -604,19 +604,12 @@ void D2DWindow::SetCapture(D2DCaptureObject* p,  FPointF* pt, D2DMat* mat )
 		capture_obj_.push(p);
 
 	if ( pt )
-		capture_pt_ = *pt; //.push(*pt);
+		capture_pt_ = *pt; 
 	else
 		capture_pt_ = (FPointF(0,0));
 
 	if ( mat )
 		capture_matrix_ = *mat;
-
-	//auto pw = dynamic_cast<D2DControls*>(p);// dynamic_cast<D2DCaptureWindow*>(p);
-	//if ( pw )
-	//{
-	//	// vectorの順番を変更する
-	//	pw->MeToLast();
-	//}
 }
 D2DCaptureObject* D2DWindow::ReleaseCapture()
 {

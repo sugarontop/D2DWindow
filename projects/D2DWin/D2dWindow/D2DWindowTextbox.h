@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #pragma once
 
 #include "TSF\IBridgeTSFInterface.h"
@@ -78,13 +77,12 @@ class D2DTextbox : public D2DControl, public IBridgeTSFInterface
 		void Clear(){ SetText(L""); }
 
 		void TabEnable();
+		UINT MaxLength( UINT nlength );
 		
 
 		virtual D2DTextbox* Clone(D2DControls* pa);
 
-		wstring FilterInputString( LPCWSTR s, UINT len );
-
-		
+		std::wstring FilterInputString( LPCWSTR s, UINT len );
 
 		// scroll //////////////////////////////////////////////
 		float RowHeight();
@@ -100,17 +98,7 @@ class D2DTextbox : public D2DControl, public IBridgeTSFInterface
 		std::function<bool(D2DTextbox*,const wstring&)> OnValidation_;
 		
 		OnWndProcExtDelegate OnWndProcExt_;
-	protected :
-		std::function<LRESULT(D2DTextbox*, UINT key)> OnPushKey_;
-
-	public :
-
-		SolidColor fore_color_;
-		SolidColor back_color_;
-		SolidColor border_color_;
-		SolidColor active_border_color_;
 	
-
 	private :
 		
 		int OnKeyDown(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam);
@@ -125,6 +113,7 @@ class D2DTextbox : public D2DControl, public IBridgeTSFInterface
 	private :
 		TYP typ_;
 		bool bActive_;
+		
 
 		TSF::CTextEditorCtrl* ctrl_;
 		TSF::CTextContainer ct_;
@@ -133,10 +122,16 @@ class D2DTextbox : public D2DControl, public IBridgeTSFInterface
 		bool bUpdateScbar_;
 		bool bSizing_;
 
-		
+		std::function<LRESULT(D2DTextbox*, UINT key)> OnPushKey_;
 		ComPTR<IDWriteTextFormat> fmt_;
 		ComPTR<IDWriteTextLayout> text_layout_;
+		
+		SolidColor fore_color_;
+		SolidColor back_color_;
+		SolidColor border_color_;
+		SolidColor active_border_color_;
 	
+
 		std::shared_ptr<D2DScrollbar> scbar_; // vscrollbar
 		D2DMat matEx_; // スクロール用matrix
 };
@@ -149,7 +144,7 @@ class D2DStatic : public D2DControl
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		void CreateWindow(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, int alignment, LPCWSTR name, int id = -1);
 		virtual void OnResutructRnderTarget(bool bCreate);
-
+		void SetText(LPCWSTR s );
 		SolidColor fore_color_;
 
 		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms);

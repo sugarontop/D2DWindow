@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #pragma once
 
 #ifdef _USRDLL
@@ -54,10 +53,7 @@ struct DDRowInfo
 };
 struct DDColor
 {
-	byte r;
-	byte g;
-	byte b;
-	byte a;
+	byte r,g,b,a;
 };
 
 struct DDImage
@@ -72,25 +68,37 @@ struct DDImage
 	LPVOID parent;
 };
 
-typedef std::function<void(D2DWin)> D2DWinOnEntry;
-typedef LPVOID DDContext;
+using D2DWinOnEntry = void(*)(D2DWin win, LPVOID prm);
+using DDContext = LPVOID;
+
+// ----------------------------------------------------------------------------------------------------------------------
+// basic
+
+DLLEXPORT D2Ctrl WINAPI Ctrl(D2Ctrls ctrl);
+DLLEXPORT HWND WINAPI D2HWND( D2Ctrl ctrl );
+DLLEXPORT void WINAPI DDRedraw( D2Ctrl ctrl );
 
 
-DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWnd, D2DWinOnEntry entry );
+// ----------------------------------------------------------------------------------------------------------------------
+// DDWindow
+
+DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWnd, D2DWinOnEntry entry, LPVOID prm=nullptr );
 DLLEXPORT void WINAPI DDResizeWindow(D2DWin win, int cx, int cy );
-
-DLLEXPORT D2Ctrl Ctrl(D2Ctrls ctrl);
-
 DLLEXPORT void WINAPI DDDestroyWindow(D2DWin win );
 
-// constrols
+
+// ----------------------------------------------------------------------------------------------------------------------
+// DDConstrols
+
 DLLEXPORT D2Ctrls WINAPI DDMkTopControls( D2DWin win, const FRectFBM& rc, LPCWSTR name );
 DLLEXPORT D2Ctrls WINAPI DDMkControls( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR classnm, LPCWSTR name);
 DLLEXPORT D2Ctrls WINAPI DDMkControlsWithTitle( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR classnm, LPCWSTR name);
 DLLEXPORT D2Ctrls WINAPI DDMkVerticalStackControls(D2Ctrls ctrls, const FRectFBM& rc,bool order, LPCWSTR classnm, LPCWSTR name);
 
 
+// ----------------------------------------------------------------------------------------------------------------------
 // TAB controls
+DLLEXPORT D2Ctrls WINAPI DDMkTabControls( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, int id=-1 );
 DLLEXPORT D2Ctrls WINAPI DDGetPage( D2Ctrls ctrl, int page ); // 0 start
 DLLEXPORT D2Ctrls WINAPI DDAddPage( D2Ctrls ctrl, int page ); // newpage : page=-1, insert: page > 0, 
 
@@ -99,14 +107,15 @@ DLLEXPORT D2Ctrls WINAPI DDAddPage( D2Ctrls ctrl, int page ); // newpage : page=
 // ----------------------------------------------------------------------------------------------------------------------
 // control
 
-DLLEXPORT D2Ctrl WINAPI DDMkButton( D2Ctrls parent, const FRectFBM& rc, LPCWSTR name );
-DLLEXPORT D2Ctrl WINAPI DDMkTextbox( D2Ctrls parent, const FRectFBM& rc, int typ, LPCWSTR name );
-DLLEXPORT D2Ctrl WINAPI DDMkListbox( D2Ctrls parent, const FRectFBM& rc, int typ, LPCWSTR name );
-DLLEXPORT D2Ctrl WINAPI DDMkStatic(D2Ctrls parent, const FRectFBM& rc, int , LPCWSTR text);
+DLLEXPORT D2Ctrl WINAPI DDMkButton( D2Ctrls parent, const FRectFBM& rc, LPCWSTR name, int id=-1 );
+DLLEXPORT D2Ctrl WINAPI DDMkTextbox( D2Ctrls parent, const FRectFBM& rc, int typ, LPCWSTR name, int id=-1 );
+DLLEXPORT D2Ctrl WINAPI DDMkListbox( D2Ctrls parent, const FRectFBM& rc, int typ, LPCWSTR name, int id=-1 );
+DLLEXPORT D2Ctrl WINAPI DDMkStatic(D2Ctrls parent, const FRectFBM& rc, int , LPCWSTR text, int id=-1);
+DLLEXPORT void WINAPI DDSetParameter(D2Ctrl ctrl, const std::map<std::wstring,VARIANT>& prms );
 
-
+// ----------------------------------------------------------------------------------------------------------------------
 // datagrid
-DLLEXPORT D2Ctrl WINAPI DDMkDataGrid(D2Ctrls ctrls, const FRectFBM& rc, int colum_cnt, float row_height, float title_height, LPCWSTR name);
+DLLEXPORT D2Ctrl WINAPI DDMkDataGrid(D2Ctrls ctrls, const FRectFBM& rc, int colum_cnt, float* column_width, float row_height, float title_height, LPCWSTR name, int id=-1);
 DLLEXPORT void WINAPI DDDataGridAllocbuffer(D2Ctrl ctrl, int total_rowcnt);
 DLLEXPORT int  WINAPI DDDGGetSelectedIdx(D2Ctrl ctrl, int* idx);
 DLLEXPORT LPCWSTR  WINAPI DDDGGetKey(D2Ctrl ctrl, int idx);
@@ -142,18 +151,16 @@ DLLEXPORT LONG_PTR* WINAPI DDListGetBuffer(D2Ctrl ctrl);
 
 
 
-
+// ----------------------------------------------------------------------------------------------------------------------
 // Textbox
 DLLEXPORT void WINAPI DDSetText( D2Ctrl ctrl, LPCWSTR text );
 DLLEXPORT BSTR WINAPI DDGetText( D2Ctrl ctrl );
 DLLEXPORT void WINAPI DDInsertText(D2Ctrl ctrl, int pos, LPCWSTR text);
 
 
-DLLEXPORT void WINAPI DDSetParameter(D2Ctrl ctrl, const std::map<std::wstring,VARIANT>& prms );
 
 
-
-
+// ----------------------------------------------------------------------------------------------------------------------
 // misc
 DLLEXPORT D2Ctrl WINAPI DDImageLoadFile( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR filename );
 DLLEXPORT D2Ctrl WINAPI DDMkWaiter( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name );
@@ -161,12 +168,16 @@ DLLEXPORT D2Ctrl WINAPI DDMkWaiter( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR n
 
 
 
+// ----------------------------------------------------------------------------------------------------------------------
 // drawing function
 DLLEXPORT void WINAPI DDDrawFillRect(DDContext p, float cx, float cy, const DDColor& color );
 DLLEXPORT void WINAPI DDDrawStringEx(DDContext p, const V4::FRectF& rc, LPCWSTR str, int center);
 DLLEXPORT void WINAPI DDDrawString(DDContext p, float offx, float offy, LPCWSTR str);
 DLLEXPORT void WINAPI DDDrawWhiteString(DDContext p, float offx, float offy, LPCWSTR str);
 DLLEXPORT void WINAPI DDDrawString2(DDContext p, float offx, float offy, LPCWSTR str, DDColor color);
+
+DLLEXPORT void WINAPI DDDrawString4(DDContext p, float left, float right, float height, LPCWSTR str, int len, int colorIndex );
+
 
 
 DLLEXPORT void WINAPI DDDrawLine(DDContext p, V4::FPointF& pt1, V4::FPointF& pt2, int typ );
@@ -181,11 +192,11 @@ DLLEXPORT bool WINAPI DDCopyToImage(DDContext p, const DDImage& src, const D2D1_
 DLLEXPORT bool WINAPI DDDivideImage(const DDImage& src, DDImage& dst, const D2D1_RECT_F& dstrc);
 
 // datagridを拡張したリストボックス
-DLLEXPORT D2Ctrl WINAPI DDMkDGListbox(D2Ctrls parent, const FRectFBM& rc, float row_height,bool multiselect, LPCWSTR name);
+DLLEXPORT D2Ctrl WINAPI DDMkDGListbox(D2Ctrls parent, const FRectFBM& rc, float row_height,bool multiselect, LPCWSTR name, int id=-1);
 DLLEXPORT void  WINAPI DDAddKeyValue(D2Ctrl parent, LPCWSTR key, LPCWSTR value );
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkDropdownList(D2Ctrls parent, const FRectFBM& rc, float row_height, LPCWSTR name);
+DLLEXPORT D2Ctrl WINAPI DDMkDropdownList(D2Ctrls parent, const FRectFBM& rc, float row_height, LPCWSTR name, int id=-1);
 
 // table controls-------------------------------------------------------------------------
 DLLEXPORT D2Ctrls WINAPI DDMkTableControls(D2Ctrls ctrls, const FRectFBM& rc, int rowcnt, int colcnt, LPCWSTR name);
@@ -198,7 +209,7 @@ DLLEXPORT void WINAPI DDSetControlPlace(D2Ctrls ctrls, D2Ctrl ctrl, int row, int
 #define STAT_ON					0x8
 #define MODE_ONOFF_OTHERALLOFF	0x10
 
-DLLEXPORT D2Ctrl WINAPI DDMkImageButtons(D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, DDImage btnImage, const D2D1_RECT_F* btnrc,DWORD* btnmode, int btnrc_cnt);
+DLLEXPORT D2Ctrl WINAPI DDMkImageButtons(D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, DDImage btnImage, const D2D1_RECT_F* btnrc,DWORD* btnmode, int btnrc_cnt, int id=-1);
 
 DLLEXPORT D2Ctrl WINAPI DDMkTopTitleBar(D2Ctrls ctrls, float height, LPCWSTR name);
 DLLEXPORT D2Ctrls WINAPI DDMkSomeblocks(D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name);
@@ -240,20 +251,3 @@ DLLEXPORT D2Ctrl WINAPI DDMkMessageBox(D2Ctrls parent, const FRectFBM& rc, int t
 DLLEXPORT void WINAPI DDMove(D2Ctrl ctrl, int typ, float offx, float offy, float millisecond );
 DLLEXPORT void WINAPI DDMoveResize(D2Ctrl ctrl, int typ, V4::FRectF dstrc, float millisecond);
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TR Series
-
-/*
-
-rowcount行、colcount列のテキストボックス入力欄を作成
-DLLEXPORT D2Ctrl WINAPI DDTRCreateCellBox(D2Ctrls ctrls, const FRectFBM& rc, int rowcount, int colcount );
-parameter
-m["edit"] = 1;
-m["color"]= xxxx;
-m["cx" ] = 100;
-m["cy" ] =200;
-
-
-
-*/

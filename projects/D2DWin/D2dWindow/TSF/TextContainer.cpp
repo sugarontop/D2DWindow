@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "TextContainer.h"
 using namespace TSF;
@@ -77,22 +76,28 @@ BOOL CTextContainer::InsertText(int nPos, const WCHAR* psz, UINT nCnt, UINT& nRe
 		psz_[0] = 0;
 		return TRUE;
 	}
-	
-	if (!EnsureBuffer(nTextSize_ + nCnt))
-    {
-        return FALSE;
-    }
+
+	if ( 0 < nCnt )
+	{	
+		if (!EnsureBuffer(nTextSize_ + nCnt))
+		{
+			return FALSE;
+		}
 
 	
-    memmove(psz_ + nPos + nCnt, psz_ + nPos, (nTextSize_ - nPos) * sizeof(WCHAR));
-    memcpy(psz_ + nPos, psz, nCnt * sizeof(WCHAR));
-    nTextSize_ += nCnt;
+		memmove(psz_ + nPos + nCnt, psz_ + nPos, (nTextSize_ - nPos) * sizeof(WCHAR));
+		memcpy(psz_ + nPos, psz, nCnt * sizeof(WCHAR));
+		nTextSize_ += nCnt;
 
-	psz_[nTextSize_] = 0;
+		psz_[nTextSize_] = 0;
 
-	nResultCnt = nCnt;
- 
-    return TRUE;
+		nResultCnt = nCnt;
+		return TRUE;
+	}
+
+	
+	nResultCnt = 0;
+    return FALSE;
 }
 
 //----------------------------------------------------------------

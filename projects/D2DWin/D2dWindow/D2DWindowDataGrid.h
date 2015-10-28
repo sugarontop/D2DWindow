@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,14 +17,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
  #pragma once
 
 #include "ItemLoopArray.h"
 namespace V4 {
+	class MouseProcAbstract;
+
+	namespace DataGrid {
+		class MouseProcSelectRow;
+		class MouseProcTitleResize;
+		};
 
 	class D2DDataGrid : public D2DControls
 	{
+		
+		friend class DataGrid::MouseProcSelectRow;
+		friend class DataGrid::MouseProcTitleResize;
+
 		public:
 			D2DDataGrid();
 			virtual ~D2DDataGrid();
@@ -41,6 +50,7 @@ namespace V4 {
 			void Clear();
 			int GetSelectedIdx();
 			void UnSelect();
+			void SetInitialColumnWidth( float* width );
 
 
 			std::set<int> GetSelectIdxes(){ return selected_idx_s_; }
@@ -95,8 +105,10 @@ namespace V4 {
 			bool multi_select_;
 			bool active_;
 
-			//SolidColor back_color_;
-			//SolidColor border_color_;
+			std::shared_ptr<float> column_x_pos_;
+			std::shared_ptr<MouseProcAbstract> mproc_;
+			int colline_;
+
 			SolidColor fore_color_;
 	};
 
@@ -159,6 +171,37 @@ namespace V4 {
 			//SolidColor border_color_;
 			SolidColor fore_color_;
 	};
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/*class MouseProcAbstract
+	{
+		public :
+			virtual LRESULT LButtonDown( D2DWindow* win,WPARAM wp,LPARAM lp) = 0;
+			virtual LRESULT MouseMove( D2DWindow* win,WPARAM wp,LPARAM lp) = 0;
+			virtual LRESULT LButtonUp( D2DWindow* win,WPARAM wp,LPARAM lp)=0 ;
+	};*/
 
+	namespace DataGrid {
+	class MouseProcSelectRow : public MouseProcAbstract
+	{
+		public :
+			MouseProcSelectRow( D2DDataGrid* p );
+			virtual LRESULT LButtonDown( D2DWindow* win,WPARAM wp,LPARAM lp);
+			virtual LRESULT MouseMove( D2DWindow* win,WPARAM wp,LPARAM lp);
+			virtual LRESULT LButtonUp( D2DWindow* win,WPARAM wp,LPARAM lp);
+		private :
+			D2DDataGrid* parent_;
+	};
+	class MouseProcTitleResize : public MouseProcAbstract
+	{
+		public :
+			MouseProcTitleResize( D2DDataGrid* p );
+			virtual LRESULT LButtonDown( D2DWindow* win,WPARAM wp,LPARAM lp);
+			virtual LRESULT MouseMove( D2DWindow* win,WPARAM wp,LPARAM lp);
+			virtual LRESULT LButtonUp( D2DWindow* win,WPARAM wp,LPARAM lp);
+		private :
+			D2DDataGrid* parent_;
+	};
+
+	};
 };

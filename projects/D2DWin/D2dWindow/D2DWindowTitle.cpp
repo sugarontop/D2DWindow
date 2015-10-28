@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowControl_easy.h"
 #include "D2DWindowTitle.h"
@@ -195,22 +194,21 @@ LRESULT D2DVerticalStackControls::WndProc(D2DWindow* d, UINT message, WPARAM wPa
 
 			DrawControlRect(cxt, rc_, (ID2D1Brush*) border_color_.br, (ID2D1Brush*) back_color_.br);
 						
-
 			D2DRectFilter fil(cxt, rc_);
-
 			
-						
 			mat.PushTransform();
 			mat.Offset(rc_);
 					
 			if (order_reverse_)
 			{
-				mat.Offset(0,rc_.Height());
+				mat.Offset(0,rc_.Height()); 
 				for (auto& it : controls_)
 				{
-					mat.Offset(0, -it->GetRect().bottom ); //bottom is top+height.
+					auto rc =  it->GetRect();
 
-					
+					mat.Offset(0, -rc.bottom ); //bottom is top+height.
+
+
 					mat.PushTransform();
 					it->WndProc(d, message, wParam, lParam);
 					mat.PopTransform();
@@ -239,15 +237,15 @@ LRESULT D2DVerticalStackControls::WndProc(D2DWindow* d, UINT message, WPARAM wPa
 			if ( p )
 			{
 				p->RequestUpdate(this, WM_SIZE );
-
-				SendMessageAll(d,message,wParam,lParam);		
-				return 0;
 			}
 			else
 			{
 				auto sz = parent_control_->GetChildSize(this);
 				rc_.SetSize(sz);
 			}
+
+			SendMessageAll(d,message,wParam,lParam);		
+			return 0;
 		}
 		break;
 		case WM_MOUSEMOVE :

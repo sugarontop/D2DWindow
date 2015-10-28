@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWin.h"
 #include "D2DWindowMessage.h"
@@ -25,6 +24,7 @@ SOFTWARE.
 #include "D2DCommon.h"
 #include "D2DWindowMessageStruct.h"
 #include "MoveTarget.h"
+#include "D2DWindowMenu.h"
 using namespace V4;
 
 #pragma region D2DControl
@@ -173,9 +173,123 @@ void D2DControl::SafeDestroyControl()
 		}			
 	}
 }
+void D2DControl::SetParameters(const std::map<std::wstring, VARIANT>& prms)
+{
+	_variant_t v,r;
+	if ( findParameterMap(prms, L"enable", v, r ))
+	{
+		r.ChangeType(VT_BOOL);
+		Enable(( r.boolVal?true:false));
+	}
+	if ( findParameterMap(prms, L"visible", v, r ))
+	{
+		r.ChangeType(VT_BOOL);
+		Visible(( r.boolVal?true:false));
+	}
+}
+
+// static
+LRESULT D2DControl::MouseSelectedMoveProc(D2DControl* p, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT ret = 0;
+	
+	D2DWindow* d = p->parent_;
+
+	switch( message )
+	{
+		case WM_LBUTTONDOWN:
+		{			
+			auto rc = p->GetRect();
+
+			static D2DMat mat = p->Mat();
+
+			FPointF pt = mat.DPtoLP(lParam);
+
+			if ( rc.PtInRect(pt))
+			{					
+				d->SetCapture(p, &pt, &mat);
+				ret = 1;			
+			}
 
 
+		}
+		break;
+		case WM_MOUSEMOVE:
+		{
+			if ( d->GetCapture() == p )
+			{
+				auto mat = d->CaptureMat();
+				FPointF pt = mat.DPtoLP(lParam);
+				FPointF ptprv = d->CapturePoint(pt);
 
+				float offx = pt.x - ptprv.x; 
+				float offy = pt.y - ptprv.y;
+
+
+				auto rc = p->GetRect();
+				rc.Offset( offx, offy );
+				p->SetRect(rc);
+				ret =1;
+				d->redraw_ = 1;
+			}
+		}
+		break;
+		case WM_LBUTTONUP:
+		{
+			if ( d->GetCapture() == p )
+			{
+				d->ReleaseCapture();				
+				ret = 1;
+			}
+		}
+		break;
+	}
+	return ret;
+}
+// static
+LRESULT D2DControl::MousePropertyMenuProc(D2DControl* p, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT ret = 0;
+	
+	D2DWindow* d = p->parent_;
+
+	switch( message )
+	{
+		case WM_RBUTTONDOWN:
+		{			
+			auto rc = p->GetRect();
+
+			static D2DMat mat = p->Mat();
+
+			FPointF pt = mat.DPtoLP(lParam);
+
+			if ( rc.PtInRect(pt))
+			{					
+				d->SetCapture(p, &pt, &mat);
+				ret = 1;		
+				
+				// not implement yet	
+
+				//D2DMenuItems* test = new D2DMenuItems();
+				//test->CreateWindow( d,  p->parent_control_, FRectF(pt.x,pt.y,FSizeF(100,300)), VISIBLE|BORDER,NONAME,true);
+
+			}
+
+
+		}
+		break;		
+		case WM_RBUTTONUP:
+		{
+			if ( d->GetCapture() == p )
+			{
+				d->ReleaseCapture();				
+				ret = 1;
+			}
+		}
+		break;
+	}
+	return ret;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void D2DControls::CreateWindow( D2DWindow* parent, D2DControls* paconrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
@@ -613,6 +727,7 @@ void D2DControls::DestroyControl()
 }
 void D2DControls::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 	ParameterColor(parent_, border_color_, prms, L"bordercolor");
 
@@ -654,7 +769,7 @@ FRectF D2DTopControls::CalcAutoSize( const GDI32::FSize& sz )
 }
 void D2DTopControls::OnCreate()
 {
-	WndProc(parent_,WM_D2D_APP_ON_CREATE, 0,0);		
+	//WndProc(parent_,WM_D2D_APP_ON_CREATE, 0,0);		
 }
 
 void D2DTopControls::BackColor(D2D1_COLOR_F clr)
@@ -705,7 +820,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 			#endif
 		}
 		break;	
-		case WM_D2D_JS_ERROR:
+		/*case WM_D2D_JS_ERROR:
 		{
 			error_msg_ = (BSTR)lParam;
 
@@ -713,7 +828,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 			
 
 		}
-		break;
+		break;*/
 		
 		case WM_LBUTTONDOWN:		
 		{
@@ -834,6 +949,8 @@ void D2DTopControls::OnResutructRnderTarget(bool bCreate)
 }
 void D2DTopControls::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
+
 	for (auto& it : prms)
 	{
 		auto& key = it.first;
@@ -858,6 +975,13 @@ void D2DTopControls::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 
 
 ///////////
+
+
+void D2DButton::SetParameters(const std::map<std::wstring, VARIANT>& prms)
+{
+	D2DControl::SetParameters(prms);
+	
+}
 void D2DButton::DrawRadioButton(D2DContext& cxt, const FRectFBoxModel& rc, int stat, const FString& s, bool bChecked)
 {
 	FRectF rcb = rc.GetBorderRect();
@@ -932,8 +1056,8 @@ void D2DButton::DrawNormalButton( D2DContext& cxt, const FRectFBoxModel& rc, int
 	}
 	else if ( (stat & CLICK) && (stat & DEBUG1)  )
 		DrawButton( cxt.cxt, info,rcc, L"onclick", cxt.red );
-	else if ( (stat & MOUSEMOVE) && (stat & DEBUG1)  )
-		DrawButton( cxt.cxt, info,rcc, L"onmove", cxt.black );
+	else if ( (stat & MOUSEMOVE) )
+		DrawButton( cxt.cxt, info,rcc, s, cxt.red );
 	else if ( (stat & FOCUS) && (stat & DEBUG1)  )
 		DrawButton( cxt.cxt, info,rcc, s, cxt.red );
 	else
@@ -1082,23 +1206,22 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 		case WM_MOUSEMOVE:
 		{		
-			//if ( d->GetCapture() == this )
+			if (ENABLE(stat_))
 			{
-				if (ENABLE(stat_))
-				{
-					FPointF pt = mat_.DPtoLP(lParam); // 親の座標へ変換, rc_は親座標
+				FPointF pt = mat_.DPtoLP(lParam); // 親の座標へ変換, rc_は親座標
 
-					bool bl = rc_.PtInRect2( pt );
+				bool bl = rc_.PtInRect2( pt );
 													
-					int stat =( bl ?  (stat_ | MOUSEMOVE) :  (stat_ & ~MOUSEMOVE) );
+							
+				
+				int stat =( bl ?  (stat_ | MOUSEMOVE) :  (stat_ & ~MOUSEMOVE) );
 
-					if ( stat != stat_ )
-					{
-						Stat( stat );				
-						ret = 1;
-					}
-				}				
-			}
+				if ( stat != stat_ )
+				{
+					Stat( stat );				
+					ret = 1;
+				}
+			}				
 		}
 		break;		
 		
@@ -1118,6 +1241,14 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 					FPointF pt = mat_.DPtoLP( lParam);
 					if ( rcb.PtInRect( pt ) )
 					{
+						if ( id_ > 0 && typ_ == TYP::NORMAL )
+						{
+							WPARAM wp = MAKEWPARAM( id_, 0 );
+							HWND hwnd = ::GetAncestor(parent_->hWnd_, GA_ROOTOWNER);
+							::SendMessage( hwnd, WM_DD_COMMAND, wp, (LPARAM)this);
+						}
+												
+						
 						if ( OnClick_ )
 							OnClick_(this);
 
@@ -1127,6 +1258,8 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 						{							
 							RadioButtonUpdate(true);
 						}
+
+						
 					}														
 					ret = 1;
 				}
@@ -1135,47 +1268,53 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 		case WM_KEYDOWN:
 		{
-			if ( wParam == VK_RETURN )
+			if (ENABLE(stat_))
 			{
-				Stat( stat_ | CLICK |FOCUS|CAPTURED );
-				d->SetCapture(this);
-				if ( parent_control_ )
+				if ( wParam == VK_RETURN )
 				{
-					//parent_control_->WndProc( parent_, WM_D2D_BUTTON_CLICK, id_,(LPARAM)this);
-					::SendMessage( d->hWnd_, WM_D2D_BUTTON_CLICK, id_,(LPARAM)this);
-					ret = 1;
+					Stat( stat_ | CLICK |FOCUS|CAPTURED );
+					d->SetCapture(this);
+					if ( parent_control_ )
+					{
+						//parent_control_->WndProc( parent_, WM_D2D_BUTTON_CLICK, id_,(LPARAM)this);
+						::SendMessage( d->hWnd_, WM_D2D_BUTTON_CLICK, id_,(LPARAM)this);
+						ret = 1;
+					}
 				}
-			}
-			else if ( wParam == VK_TAB )
-			{
-				ret = parent_control_->KeyProc(this, message,wParam,lParam );
+				else if ( wParam == VK_TAB )
+				{
+					ret = parent_control_->KeyProc(this, message,wParam,lParam );
+				}
 			}
 		}
 		break;
 		case WM_KEYUP:
 		{
-			if ( wParam == VK_RETURN )
+			if (ENABLE(stat_))
 			{
-				bool bl = ( d->GetCapture() == this );
-
-				if ( bl )
-					d->ReleaseCapture();
-
-
-				if ( bl && (stat_ & CLICK) )
+				if ( wParam == VK_RETURN )
 				{
+					bool bl = ( d->GetCapture() == this );
+
+					if ( bl )
+						d->ReleaseCapture();
+
+
+					if ( bl && (stat_ & CLICK) )
+					{
 				
-					Stat( stat_ & ~CLICK );	
-					Stat( stat_ & ~FOCUS );	
-					Stat( stat_ & ~CAPTURED );	
-					if ( OnClick_ )
-						OnClick_(this);
-					ret = 1;
+						Stat( stat_ & ~CLICK );	
+						Stat( stat_ & ~FOCUS );	
+						Stat( stat_ & ~CAPTURED );	
+						if ( OnClick_ )
+							OnClick_(this);
+						ret = 1;
+					}
 				}
-			}
-			else
-			{
-				ret = parent_control_->KeyProc(this, message,wParam,lParam );
+				else
+				{
+					ret = parent_control_->KeyProc(this, message,wParam,lParam );
+				}
 			}
 		}
 		break;
@@ -1185,7 +1324,7 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 
 		}
 		break;
-		case WM_D2D_JS_ENABLE:
+		/*case WM_D2D_JS_ENABLE:
 		if ( id_ == wParam )
 		{
 			VARIANT* pv = (VARIANT*)lParam;
@@ -1212,15 +1351,17 @@ LRESULT D2DButton::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lPa
 				ret = 1;
 			}
 		}
-		break;
+		break;*/
 		case WM_SIZE:
 		{
 			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
 			if ( p )
 			{
-				p->RequestUpdate(this, WM_SIZE );
-
+				bool fixw = GetStat() & STAT::WIDTH_FIX;
+				bool fixh = GetStat() & STAT::HEIGHT_FIX;
 				
+				if ( !fixw && !fixh )
+					p->RequestUpdate(this, WM_SIZE );				
 				return 0;
 			}
 			/*else
@@ -1784,6 +1925,8 @@ void D2DFRectFBM::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, const 
 {
 	D2DControl::CreateWindow(parent,pacontrol,rc,stat,name,id);
 	typ_ = typ;
+
+	auto_resize_ = rc.IsZero();
 }
 
 FString DebugFRectFBM( const FRectFBM& rc, bool bCRLF )
@@ -1836,43 +1979,30 @@ LRESULT D2DFRectFBM::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 		break;
 		case WM_SIZE:
 		{
-			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
-			if ( p )
+			if ( auto_resize_ )
 			{
-				p->RequestUpdate(this, WM_SIZE );
-
-				
-				return 0;
+				auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+				if ( p )
+					p->RequestUpdate(this, WM_SIZE );					
 			}
-			/*else
-			{
-				FRectF rcc = rc_; 
-				auto child_sz = parent_control_->GetChildSize(this);
-			
-				{
-					auto pt = rcc.LeftTop();
-
-					bool fixw = GetStat() & STAT::WIDTH_FIX;
-					bool fixh = GetStat() & STAT::HEIGHT_FIX;
-
-					FSizeF sz;
-					sz.width = (fixw ? rcc.Width() :  child_sz.width);
-					sz.height = (fixh ? rcc.Height() : child_sz.height);
-
-					rc_.SetRect(pt, sz);
-				
-				}
-			}*/
-
 		}
+		break;		
+		case WM_LBUTTONDOWN:
+		case WM_MOUSEMOVE:
+		case WM_LBUTTONUP:
+			if ( typ_ > 0 )
+				ret = MouseSelectedMoveProc( this,message,wParam,lParam);
 		break;
-		
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+			if ( typ_ > 0 )
+				ret = MousePropertyMenuProc(this,message,wParam,lParam);
+		break;
 	}
-
-
-
-	return 0;
+	return ret;
 }
+
+
 
 void V4::ParameterColor(D2DWindow* parent, SolidColor& clr, const std::map<std::wstring, VARIANT>& prms, LPCWSTR key )
 {
@@ -1887,6 +2017,8 @@ void V4::ParameterColor(D2DWindow* parent, SolidColor& clr, const std::map<std::
 
 void D2DFRectFBM::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
+
 	ParameterColor(parent_, fore_color_,prms, L"forecolor");
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 }
@@ -2223,6 +2355,7 @@ LRESULT D2DGroupControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPA
 
 void D2DGroupControls::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
+	D2DControl::SetParameters(prms);
 	ParameterColor(parent_, back_color_, prms, L"backcolor");
 
 	

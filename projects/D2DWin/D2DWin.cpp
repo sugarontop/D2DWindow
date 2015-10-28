@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 
 #include "stdafx.h"
 #include "D2DWin.h"
@@ -42,7 +41,7 @@ void AppExit()
 {
 	D2DTextbox::AppTSFExit();
 }
-DLLEXPORT D2Ctrl Ctrl(D2Ctrls ctrl)
+DLLEXPORT D2Ctrl WINAPI Ctrl(D2Ctrls ctrl)
 {
 	D2Ctrl x;
 	x.ctrl = ctrl.ctrls;
@@ -50,7 +49,7 @@ DLLEXPORT D2Ctrl Ctrl(D2Ctrls ctrl)
 }
 
 // D2D表示するHWNDを作成する
-DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWndParent, D2DWinOnEntry entry )
+DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWndParent, D2DWinOnEntry entry, LPVOID prm )
 {
 	D2DWin w;
 
@@ -58,7 +57,7 @@ DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWndParent, D2DWinOnEntry entry )
 	GDI32::FRect rc(0,0,0,0);
 	D2DWindow* win = new D2DWindow();
 	win->CreateD2DWindow( 0, hWndParent, WS_CHILD|WS_VISIBLE, rc );
-
+	
 	w.win = (HANDLE)win;
 
 	auto bl = D2DTextbox::AppTSFInit();
@@ -66,7 +65,7 @@ DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWndParent, D2DWinOnEntry entry )
 	D2DTextbox::CreateInputControl(win);	
 
 	if ( entry )
-		entry( w ); //各コントロールの作成
+		entry( w, prm ); //各コントロールの作成
 
 	return w;
 }	
@@ -89,7 +88,18 @@ DLLEXPORT void WINAPI DDResizeWindow(D2DWin win, int cx, int cy )
 
 }
 
+DLLEXPORT HWND WINAPI D2HWND( D2Ctrl ctrl )
+{
+	D2DControl* x = (D2DControl*)ctrl.ctrl;
 
+	return x->parent_->hWnd_;
+
+}
+
+DLLEXPORT void WINAPI DDRedraw( D2Ctrl ctrl )
+{
+	InvalidateRect(D2HWND(ctrl),NULL,FALSE);
+}
 
 DLLEXPORT D2Ctrls WINAPI DDMkTopControls( D2DWin win, const FRectFBM& rc, LPCWSTR name )
 {
@@ -120,18 +130,18 @@ DLLEXPORT D2Ctrls WINAPI DDMkTopControls( D2DWin win, const FRectFBM& rc, LPCWST
 }
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkButton( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name )
+DLLEXPORT D2Ctrl WINAPI DDMkButton( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, int id )
 {
 	D2DButton* btn = new D2DButton();
 	auto parent = (D2DControls*)ctrls.ctrls;
-	btn->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,name);
+	btn->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,name, id);
 
 	D2Ctrl r;
 	r.ctrl = btn;
 	return r;
 }
 
-DLLEXPORT D2Ctrl WINAPI DDMkTextbox( D2Ctrls ctrls, const FRectFBM& rc, int typ, LPCWSTR name )
+DLLEXPORT D2Ctrl WINAPI DDMkTextbox( D2Ctrls ctrls, const FRectFBM& rc, int typ, LPCWSTR name, int id )
 {
 	auto parent = (D2DControls*)ctrls.ctrls;
 
@@ -145,14 +155,14 @@ DLLEXPORT D2Ctrl WINAPI DDMkTextbox( D2Ctrls ctrls, const FRectFBM& rc, int typ,
 			ty = D2DTextbox::TYP::PASSWORD;
 		break;
 		case 3:
-			ty = D2DTextbox::TYP::RIGHT|D2DTextbox::TYP::SINGLELINE;
+			ty = D2DTextbox::TYP::RIGHT|D2DTextbox::TYP::SINGLELINE; // with bug.
 		break;
 	}
 
 
 	D2DTextbox* tx = new D2DTextbox( (D2DTextbox::TYP)ty, NULL );
 	
-	tx->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,name);
+	tx->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,name, id);
 
 	if ( ty == D2DTextbox::TYP::MULTILINE )
 		tx->TabEnable();
@@ -175,24 +185,24 @@ DLLEXPORT D2Ctrl WINAPI DDMkFRectFBM(D2Ctrls ctrls, const FRectFBM& rc, int typ,
 }
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkListbox( D2Ctrls ctrls, const FRectFBM& rc, int typ, LPCWSTR name )
+DLLEXPORT D2Ctrl WINAPI DDMkListbox( D2Ctrls ctrls, const FRectFBM& rc, int typ, LPCWSTR name, int id )
 {
 	auto parent = (D2DControls*)ctrls.ctrls;
 	D2DListbox* ls = new D2DListbox();
-	ls->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,26,NULL,name );
+	ls->CreateWindow( parent->parent_, parent, rc, VISIBLE|BORDER,26,NULL,name, id );
 	
 	D2Ctrl r;
 	r.ctrl = ls;
 	return r;
 }
 
-DLLEXPORT D2Ctrl WINAPI DDMkDataGrid(D2Ctrls ctrls, const FRectFBM& rc, int columm_cnt, float row_height, float title_height, LPCWSTR name)
+DLLEXPORT D2Ctrl WINAPI DDMkDataGrid(D2Ctrls ctrls, const FRectFBM& rc, int columm_cnt,float* column_width, float row_height, float title_height, LPCWSTR name, int id)
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 
 	D2DDataGrid* ls = new D2DDataGrid();
-	ls->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, row_height,title_height,columm_cnt, name, 0);
-
+	ls->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, row_height,title_height,columm_cnt, name, id);
+	ls->SetInitialColumnWidth( column_width );
 
 	D2Ctrl r;
 	r.ctrl = ls;
@@ -209,12 +219,12 @@ DLLEXPORT LONG_PTR* WINAPI DDGetListBuffer(D2Ctrl ctrl, int* cnt)
 }
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkStatic(D2Ctrls ctrls, const FRectFBM& rc, int alignment, LPCWSTR text)
+DLLEXPORT D2Ctrl WINAPI DDMkStatic(D2Ctrls ctrls, const FRectFBM& rc, int alignment, LPCWSTR text, int id)
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 
 	D2DStatic* t = new D2DStatic();
-	t->CreateWindow(parent->parent_, parent, rc, VISIBLE, alignment, NONAME);
+	t->CreateWindow(parent->parent_, parent, rc, VISIBLE, alignment, NONAME, id);
 
 	D2Ctrl r;
 	r.ctrl = t;
@@ -254,7 +264,20 @@ static D2Ctrls RetCtrls(void* p )
 	r.ctrls = p;
 	return r;
 }
+DLLEXPORT D2Ctrls WINAPI DDMkTabControls( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, int id )
+{
+	auto parent = (D2DControls*)ctrls.ctrls;
+		
+	D2DControls* p = nullptr;
 
+	D2DTabControls* p1 = new D2DTabControls();
+	p1->CreateWindow( parent->parent_, parent, (rc), VISIBLE|BORDER, name, id );
+	p = p1;
+
+	p1->auto_resize_ = true;
+	
+	return RetCtrls(p);
+}
 
 DLLEXPORT D2Ctrls WINAPI DDMkControls( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR classnm, LPCWSTR name )
 {
@@ -270,14 +293,7 @@ DLLEXPORT D2Ctrls WINAPI DDMkControls( D2Ctrls ctrls, const FRectFBM& rc, LPCWST
 		p = new D2DControls();
 		p->CreateWindow( parent->parent_, parent, (rc), VISIBLE|BORDER,name );
 	}
-	else if ( clsnm == L"tab" )
-	{	
-		D2DTabControls* p1 = new D2DTabControls();
-		p1->CreateWindow( parent->parent_, parent, (rc), VISIBLE|BORDER,name );		
-		p = p1;
-
-		p1->auto_resize_ = true;
-	}
+	
 	else if (clsnm == L"group")
 	{
 		// 枠ありなし、移動可、タイトルなし
@@ -390,7 +406,7 @@ DLLEXPORT void WINAPI DDEvent0( D2EVENT0_MODE ev, D2Ctrl ctrl, D2Event0Delegate 
 		
 	}
 
-
+	
 
 }
 DLLEXPORT void WINAPI DDEvent1( D2EVENT1_MODE ev, D2Ctrl ctrl, D2Event1Delegate func )
@@ -439,6 +455,8 @@ DLLEXPORT void WINAPI DDEvent1( D2EVENT1_MODE ev, D2Ctrl ctrl, D2Event1Delegate 
 
 		return;
 	}
+
+	
 	
 }
 DLLEXPORT void WINAPI DDEvent2( D2EVENT2_MODE ev, D2Ctrl ctrl, D2Event2Delegate func )
@@ -544,6 +562,12 @@ DLLEXPORT void WINAPI DDSetText( D2Ctrl ctrl, LPCWSTR text )
 		txt->SetText( text );
 		return;
 	}
+	D2DStatic* st = dynamic_cast<D2DStatic*>((D2DControl*) ctrl.ctrl);
+	if (st)
+	{
+		st->SetText(text);
+		return;
+	}
 	D2DControls* ct = dynamic_cast<D2DControls*>( (D2DControl*)ctrl.ctrl );
 	if ( ct )
 	{
@@ -634,14 +658,14 @@ DLLEXPORT D2Ctrl WINAPI DDMkWaiter( D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR n
 	return r;
 }
 
-DLLEXPORT D2Ctrl WINAPI DDMkDGListbox(D2Ctrls ctrls, const FRectFBM& rc, float row_height, bool multiselect, LPCWSTR name)
+DLLEXPORT D2Ctrl WINAPI DDMkDGListbox(D2Ctrls ctrls, const FRectFBM& rc, float row_height, bool multiselect, LPCWSTR name, int id)
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 
 	D2DDataGridListbox* ls = new D2DDataGridListbox();
 	int stat = (multiselect? (VISIBLE | BORDER|MULTISELECT) : (VISIBLE | BORDER));
 
-	ls->CreateWindow(parent->parent_, parent, rc, stat, row_height, name, -1);
+	ls->CreateWindow(parent->parent_, parent, rc, stat, row_height, name, id);
 	
 	D2Ctrl r;
 	r.ctrl = ls;
@@ -840,11 +864,11 @@ DLLEXPORT void WINAPI DDDataGridAllocbuffer(D2Ctrl ctrl, int rowcnt)
 }
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkDropdownList(D2Ctrls ctrls, const FRectFBM& rc, float row_height, LPCWSTR name)
+DLLEXPORT D2Ctrl WINAPI DDMkDropdownList(D2Ctrls ctrls, const FRectFBM& rc, float row_height, LPCWSTR name, int id)
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 	D2DDropdownList* ls = new D2DDropdownList();
-	ls->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, row_height,name,-1);
+	ls->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, row_height,name, id);
 
 	D2Ctrl r;
 	r.ctrl = ls;
@@ -871,12 +895,12 @@ DLLEXPORT D2Ctrl WINAPI DDMkMessageBox(D2Ctrls ctrls, const FRectFBM& rc, int ty
 }
 
 
-DLLEXPORT D2Ctrl WINAPI DDMkImageButtons(D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, DDImage btnImage, const D2D1_RECT_F* btnrc, DWORD* btnmode, int btnrc_cnt)
+DLLEXPORT D2Ctrl WINAPI DDMkImageButtons(D2Ctrls ctrls, const FRectFBM& rc, LPCWSTR name, DDImage btnImage, const D2D1_RECT_F* btnrc, DWORD* btnmode, int btnrc_cnt, int id)
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 	D2DImageButtons* btns = new D2DImageButtons();
 
-	btns->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, name, -1);
+	btns->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, name, id);
 
 	D2DContext& cxt = parent->parent_->cxt_;
 		

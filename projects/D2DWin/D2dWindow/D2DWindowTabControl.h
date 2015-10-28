@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #pragma once
 
 namespace V4 {
@@ -28,13 +27,17 @@ namespace V4 {
 //
 /////////////////////////////////////////////////////////////
 
-class D2DTabControls : public D2DControls
+class D2DTabControls : public D2DControls, public IUpdatar
 {
 	public :
 		D2DTabControls();
 		virtual ~D2DTabControls();
 		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
 		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id=-1  );
+		
+
+		//virtual FSizeF GetChildSize(D2DControl* child) const override;
+
 
 		FRectF OnTagDraw( D2DContext& cxt );
 
@@ -47,7 +50,9 @@ class D2DTabControls : public D2DControls
 		
 		void AutoScale( bool bWidth, bool bHeight );
 		void SetActivePage( int idx );
-	
+		
+	public :
+		virtual void RequestUpdate(D2DControl* p, int typ) override;
 	protected :
 		UINT HitTagPoint( FPointF pt );
 

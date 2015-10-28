@@ -19,51 +19,52 @@ SOFTWARE.
 */
 #pragma once
 
-#include "D2DMisc.h"
-//----------------------------------------------------------------
-//
-// String buffer
-//
-//----------------------------------------------------------------
-namespace TSF {
 
-class CTextContainer
+#include <string>
+#include <map>
+#include <vector>
+#include <memory>
+
+// The msxml6.dll is included in .NETframework3.0.
+
+#import <msxml6.dll>	// make msxml6.tlh, msxml6.tli 
+namespace V4 {
+
+class XMLDOMDocument6
 {
-	public:
-		CTextContainer(); 
-		virtual ~CTextContainer();
+	public :
+		XMLDOMDocument6(){}
+		bool Load( LPCWSTR url );
+		bool LoadXML( BSTR xml );
 
-		BOOL InsertText(int nPos, const WCHAR *psz, UINT nCnt, UINT& nResultCnt);
-		BOOL RemoveText(int nPos, UINT nCnt);
-		BOOL GetText(int nPos, WCHAR *psz, UINT nBuffSize);
+		bool Create();
 
-		UINT GetTextLength() {return nTextSize_;}
-		const WCHAR *GetTextBuffer() {return psz_;}
-		void CaretLast();
-		void Clear();
+		MSXML2::IXMLDOMElementPtr Root(){ return doc->GetdocumentElement();}
+
+		static long ParsePropertys( MSXML2::IXMLDOMNode* nd, std::map<std::wstring,std::wstring>& ret );
+		static long ParseList( MSXML2::IXMLDOMNodeList* nd, std::vector<MSXML2::IXMLDOMNodePtr>& ls );
 
 	public :
-		int nSelStart_, nSelEnd_;
-		bool bSelTrail_;
-		V4::FRectF rc_;
-
-		SIZE view_size_;
-
-		bool bSingleLine_;
-		UINT LimitCharCnt_;
-
-		V4::FPointF offpt_; // Textbox内の文字の移動、Singlelineで重要
-		int nStartCharPos_;
-	private:
-		BOOL EnsureBuffer(UINT nNewTextSize);
-	
-		WCHAR* psz_;
-
-		UINT nBufferSize_;
-		UINT nTextSize_;
-
-	
+		MSXML2::IXMLDOMDocument3Ptr doc; // MSXML2::IXMLxxxPtrはスマートポインタ
 };
 
+
+// etc c function //////////////////////////////////////////////////////////
+
+std::vector<_bstr_t> parse_candidate( _bstr_t s );
+_bstr_t GetCurrentDirectory();
+
+
+// vectorをshred_ptrを使った一連の配列へ変更
+template<typename T, typename S>
+std::shared_ptr<T> vector_to_sharedptr( std::vector<S>& ar )
+{
+	T* v = new T[ar.size()];
+	int i = 0;
+
+	for( auto& it : ar ) v[i++] = it;
+
+	return std::shared_ptr<T>( v , std::default_delete<T[]>());
+}
 
 };

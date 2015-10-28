@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWin.h"
 #include "D2DWindowControl_easy.h"
@@ -40,6 +39,26 @@ DLLEXPORT void WINAPI DDDrawString(DDContext p, float offx, float offy, LPCWSTR 
 
 	V4::DrawCenterText(cxt, cxt.black, rc, str, lstrlen(str), 0);
 }
+
+
+DLLEXPORT void WINAPI DDDrawString4(DDContext p, float left, float right, float height, LPCWSTR str, int len, int colorIndex )
+{
+	D2DContext& cxt = *(D2DContext*) p;
+
+	if ( left < right && len )
+	{
+		FRectF rc(left, 0, right, height);
+
+		ID2D1SolidColorBrush* clr[] = { cxt.black, cxt.white };
+
+		V4::DrawCenterText(cxt, clr[colorIndex], rc, str, len, 0);
+	}
+}
+
+
+
+
+
 DLLEXPORT void WINAPI DDDrawWhiteString(DDContext p, float offx, float offy, LPCWSTR str)
 {
 	D2DContext& cxt = *(D2DContext*) p;

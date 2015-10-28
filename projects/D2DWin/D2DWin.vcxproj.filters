@@ -110,6 +110,9 @@
     <ClCompile Include="D2dWindow\D2DWindowBlockControls.cpp">
       <Filter>ソース ファイル\D2dWindow</Filter>
     </ClCompile>
+    <ClCompile Include="D2dWindow\D2DWindowMenu.cpp">
+      <Filter>ソース ファイル\D2dWindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

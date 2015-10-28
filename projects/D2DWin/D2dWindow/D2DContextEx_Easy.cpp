@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 sugarontop@icloud.com
+Copyright (c) 2015 admin@sugarontop.net
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,7 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #include "stdafx.h"
 #include "D2DWindowControl_easy.h"
 
@@ -278,13 +277,6 @@ ComPTR<ID2D1SolidColorBrush> MakeBrsuh( ID2D1RenderTarget* cxt, D2D1_COLOR_F clr
 	return br;
 }
 
-//void DrawFillRect( D2DContext& cxt,const D2D1_RECT_F& rc, ID2D1Brush* wakuclr,ID2D1Brush* fillclr, float width )
-//{	
-//	D2DRectFilter f(cxt,rc);
-//	cxt.cxt->FillRectangle( rc, fillclr );	
-//	cxt.cxt->DrawRectangle( rc, wakuclr, width );					
-//}
-
 void DrawControlRect(D2DContext& cxt, const D2D1_RECT_F& rc, ID2D1Brush* wakuclr, ID2D1Brush* fillclr )
 {
 	cxt.cxt->DrawRectangle( rc, wakuclr );
@@ -302,6 +294,9 @@ void SetSystemCursor( UINT idx )
 DWRITE_TEXT_METRICS DrawCenterText( D2DContext& cxt, ID2D1Brush* clr, const FRectF& rc, LPCWSTR str, int len, int align, float xoff )
 {	
 	DWRITE_TEXT_METRICS tm;
+
+	//cxt.cxtt.textformat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP );
+
 	cxt.cxtt.GetLineMetric( rc.Size(), str, len, tm );
 
 	FRectF rcX(rc);

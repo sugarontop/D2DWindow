@@ -19,64 +19,9 @@ SOFTWARE.
 */
 #pragma once
 
-namespace V4 {
+// SDKDDKVer.h をインクルードすると、利用できる最も上位の Windows プラットフォームが定義されます。
 
-template <typename T>
-class faststack
-{
-	public : 
-		faststack( int maxcnt )
-		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
+// 以前の Windows プラットフォーム用にアプリケーションをビルドする場合は、WinSDKVer.h をインクルードし、
+// SDKDDKVer.h をインクルードする前に、サポート対象とするプラットフォームを示すように _WIN32_WINNT マクロを設定します。
 
-			_ASSERT( id_ >= -1 );
-		}
-		bool include( T t )
-		{
-			if ( empty()) 
-				return false;
-
-			for (int i = 0; i < size(); i++)
-			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
-		}
-
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
-
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
-
-};
-
-};
+#include <SDKDDKVer.h>

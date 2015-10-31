@@ -1,9 +1,9 @@
-﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.23026.0 (9ea256cd).
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.23026.0 (28fe1159).
 //
-// e:\work\github-next\projects\d2dtest1\d2dtestdatagrid\debug\msxml6.tlh
+// e:\work\github-next\projects\d2dtest1\d2dtestlistbox\debug\msxml6.tlh
 //
 // C++ source equivalent of Win32 type library msxml6.dll
-// compiler-generated file created 10/23/15 at 20:36:06 - DO NOT EDIT!
+// compiler-generated file created 10/27/15 at 18:10:27 - DO NOT EDIT!
 
 #pragma once
 #pragma pack(push, 8)
@@ -4510,7 +4510,7 @@ IXMLHTTPRequest2Callback : IUnknown
 // Wrapper method implementations
 //
 
-#include "e:\work\github-next\projects\d2dtest1\d2dtestdatagrid\debug\msxml6.tli"
+#include "e:\work\github-next\projects\d2dtest1\d2dtestlistbox\debug\msxml6.tli"
 
 } // namespace MSXML2
 

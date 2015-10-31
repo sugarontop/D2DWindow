@@ -43,6 +43,22 @@ DLLEXPORT void WINAPI DrawRect( ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc, I
 	//RenderFilter f(cxt,rc);
 	cxt->DrawRectangle( rc, br, width );			
 }
+DLLEXPORT D2D1_SIZE_F WINAPI MesureText( ID2D1RenderTarget* cxt,D2DTextWrite& info, LPCWSTR str, int len )
+{
+	D2D1_SIZE_F sz;
+
+	IDWriteFactory* fc = info.factory; 	
+	auto fmt = info.textformat;
+	
+	DWRITE_TEXT_METRICS tm;	
+	ComPTR<IDWriteTextLayout> textlayout;
+
+	fc->CreateTextLayout(str,len,fmt, 32000,32000, &textlayout ); // single line only
+    textlayout->GetMetrics(&tm);
+	sz.width = tm.width;
+	sz.height = tm.height;
+	return sz;
+}
 DLLEXPORT float WINAPI DrawCenterText( ID2D1RenderTarget* cxt,D2DTextWrite& info, ID2D1Brush* clr, const D2D1_RECT_F& rc, LPCWSTR str, int len, int align )
 {	
 	IDWriteFactory* fc = info.factory; 
@@ -426,7 +442,7 @@ DLLEXPORT void WINAPI CreateTagButtomGeometry(ID2D1RenderTarget* cxt, const D2D1
 	*ret = pGeometry;
 	(*ret)->AddRef();
 }
-void  DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc ,ID2D1Brush* br )
+DLLEXPORT void WINAPI DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc ,ID2D1Brush* br )
 {
 	cxt->FillRectangle( rc, br );
 }

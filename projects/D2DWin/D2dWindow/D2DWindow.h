@@ -73,7 +73,7 @@ class D2DWindow
 		LRESULT WndProc(UINT message, WPARAM wParam, LPARAM lParam);
 
 		void SetCapture(D2DCaptureObject* p, FPointF* pt=NULL, D2DMat* mat=NULL );
-		D2DCaptureObject* ReleaseCapture();
+		D2DCaptureObject* ReleaseCapture( bool all_layer = false );
 		D2DCaptureObject* GetCapture(){ return ( !capture_obj_.empty() ? capture_obj_.top() : NULL); }
 		FPointF CapturePoint( const FPointF& pt )
 		{ 

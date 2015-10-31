@@ -212,7 +212,8 @@ void D2DContext::CreateRenderTargetResource( ID2D1RenderTarget* rt )
 
 	rt->CreateSolidColorBrush( D2RGBA(113,113,130,100), &halftone); 
 	rt->CreateSolidColorBrush( D2RGBA(250,113,130,150), &halftoneRed);
-
+	rt->CreateSolidColorBrush( D2RGBA(201,222,245,180), &halftoneBlue);
+	
 	rt->CreateSolidColorBrush( D2RGBA(255,242,0,255), &tooltip);
 
 	// DestroyRenderTargetResourceを忘れないこと

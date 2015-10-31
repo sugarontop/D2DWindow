@@ -45,6 +45,10 @@ namespace V4 {
 DLLEXPORT void WINAPI DrawRect( ID2D1RenderTarget* cxt,const D2D1_RECT_F& rc, ID2D1Brush* br, float width );
 
 DLLEXPORT float WINAPI DrawCenterText( ID2D1RenderTarget* cxt,D2DTextWrite& info, ID2D1Brush* clr, const D2D1_RECT_F& rc, LPCWSTR str, int len, int align );
+
+DLLEXPORT D2D1_SIZE_F WINAPI MesureText( ID2D1RenderTarget* cxt,D2DTextWrite& info, LPCWSTR str, int len );
+
+
 DLLEXPORT void WINAPI DrawButton( ID2D1RenderTarget* cxt,D2DTextWrite& info, const D2D1_RECT_F& rc, LPCWSTR str, ID2D1Brush* br1 );
 
 DLLEXPORT void WINAPI CreateVerticalGradation(ID2D1RenderTarget* target, const D2D1_SIZE_F& sz, D2D1_COLOR_F& clr1, D2D1_COLOR_F& clr2, ID2D1LinearGradientBrush** br );
@@ -88,7 +92,7 @@ DLLEXPORT bool WINAPI CreatePathGeometry(ID2D1PathGeometry* pathg, const D2D1_PO
 DLLEXPORT void WINAPI CreateTagButtomGeometry(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rcbutton, const D2D1_RECT_F& rect, ID2D1PathGeometry** ret );
 
 
-DLLEXPORT void DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc ,ID2D1Brush* br1 );
+DLLEXPORT void WINAPI DrawFill(ID2D1RenderTarget* cxt, const D2D1_RECT_F& rc ,ID2D1Brush* br1 );
 
 DLLEXPORT void WINAPI FillRoundRect( ID2D1RenderTarget* cxt,ID2D1Factory* factory_, const D2D1_RECT_F& rc, float radius, ID2D1Brush* br );
 DLLEXPORT void WINAPI DrawFillRoundRect( ID2D1RenderTarget* cxt, ID2D1Factory* factory_, const D2D1_RECT_F& rc, float radius,ID2D1Brush* wakuclr,ID2D1Brush* fillclr );

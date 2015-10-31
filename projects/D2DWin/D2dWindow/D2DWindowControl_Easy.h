@@ -365,7 +365,7 @@ class D2DFRectFBM : public D2DControl
 		virtual void SetParameters(const std::map<std::wstring, VARIANT>& prms);
 		virtual void OnResutructRnderTarget(bool bCreate);
 		virtual void OnCreate();
-
+		virtual void BackColor(D2D1_COLOR_F clr);
 
 		
 	protected :

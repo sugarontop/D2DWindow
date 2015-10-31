@@ -95,6 +95,7 @@ struct D2DContext : public D2DContextBase
 	ComPTR<ID2D1SolidColorBrush> transparent;
 	ComPTR<ID2D1SolidColorBrush> halftone;
 	ComPTR<ID2D1SolidColorBrush> halftoneRed;
+	ComPTR<ID2D1SolidColorBrush> halftoneBlue;
 	ComPTR<ID2D1SolidColorBrush> tooltip;
 
 	ComPTR<ID2D1StrokeStyle> dot4_;

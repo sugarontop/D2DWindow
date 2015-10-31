@@ -17,66 +17,78 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-namespace V4 {
 
-template <typename T>
-class faststack
+#include "stdafx.h"
+#include "D2DAppExperiment.h"
+
+#include "D2DWindowControl_easy.h"
+
+using namespace V4;
+
+
+class MyBUtton : public D2DControl
 {
-	public : 
-		faststack( int maxcnt )
+	public :
+		MyBUtton()
 		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
 
-			_ASSERT( id_ >= -1 );
 		}
-		bool include( T t )
+		virtual void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
 		{
-			if ( empty()) 
-				return false;
+			D2DControl::CreateWindow(parent,pacontrol,rc,stat,name,id );
 
-			for (int i = 0; i < size(); i++)
+		}
+		virtual LRESULT WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
+		{
+			switch( message )
 			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
+				case WM_PAINT:
+				{
+					auto& cxt = d->cxt_;
+					D2DMatrix mat(cxt);
+
+					mat.PushTransform();
+					mat.Offset( rc_ );
+
+
+					
+
+					FRectF rc(0,0,300,30);
+					cxt.cxt->DrawRectangle( rc, cxt.black );
+					
+					DrawCenterText( cxt, cxt.red, rc, L"これはテスト", 6, 0,0 );
+
+
+
+					mat.PopTransform();
+				}
+				break;
+			
+			
+			
+			
+			}	
+			return 0;
+
 		}
 
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
 
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
 
 };
 
-};
+
+
+
+
+DLLEXPORT void CreateD2DDesktop2( D2Ctrls  ctrls)
+{
+	D2DControls* pc = (D2DControls*)ctrls.ctrls;
+	
+	
+	MyBUtton* m = new MyBUtton();
+
+	FRectF rc(100,100,FSizeF(400,60));
+	m->CreateWindow( pc->parent_, pc, rc, VISIBLE, NONAME, 0);
+
+}

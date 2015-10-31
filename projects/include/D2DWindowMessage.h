@@ -17,7 +17,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#pragma once
+// for D2DWindow reserved range(from WM_APP to WM_APP+399)
 
 #define WM_D2D	WM_APP
 
@@ -62,7 +63,7 @@ SOFTWARE.
 #define WM_D2D_DRAGDROP							(WM_D2D+32)
 #define WM_D2D_DISPATCHER_DELEGATE				(WM_D2D+33)
 
-
+#define WM_D2D_MAINFRAME_GET_FLOAT_MENU			(WM_D2D+34) // float menu 回収
 
 
 #define WM_D2D_EVENT_FIRST						(WM_D2D+100)
@@ -108,3 +109,11 @@ SOFTWARE.
 #define WM_D2D_APP_USER							WM_D2D_APP_USER_FIRST
 
 
+struct FloatMenuItem
+{
+	MSG msg;	// event
+	short imgid;			// 0: noimage, -1:header
+	std::wstring text;
+	std::wstring keyboard;
+	bool enable;
+};

@@ -27,6 +27,8 @@ SOFTWARE.
 #include "D2DWindowMenu.h"
 using namespace V4;
 
+#define MENU_ITEM_HEIGHT 24
+
 #pragma region D2DControl
 D2DControl::D2DControl()
 {
@@ -112,6 +114,11 @@ void D2DControl::InnerCreateWindow(D2DWindow* parent, D2DControls* pacontrol, co
 
 		stat_ &= ~DROPACCEPTOR;
 	}
+
+	if (rc.Width())
+		stat_ |= STAT::WIDTH_FIX;
+	if (rc.Height())
+		stat_ |= STAT::HEIGHT_FIX;
 
 //	CHDL id = parent_->chandle_.CreateControlHandle( this );
 //	chdl_ = id;
@@ -268,14 +275,49 @@ LRESULT D2DControl::MousePropertyMenuProc(D2DControl* p, UINT message, WPARAM wP
 				d->SetCapture(p, &pt, &mat);
 				ret = 1;		
 				
-				// not implement yet	
+				
+				// collect FloatMenuItems by WM_D2D_MAINFRAME_GET_FLOAT_MENU message.
 
-				//D2DMenuItems* test = new D2DMenuItems();
-				//test->CreateWindow( d,  p->parent_control_, FRectF(pt.x,pt.y,FSizeF(100,300)), VISIBLE|BORDER,NONAME,true);
+				std::vector<FloatMenuItem> ar;
 
+				::SendMessage( d->hMainFrame_, WM_D2D_MAINFRAME_GET_FLOAT_MENU, 0, (LPARAM)&ar );
+
+				if ( ar.empty())
+				{
+					// sample
+					FloatMenuItem x;
+					x.enable= true;
+					x.imgid = -1;
+					x.keyboard = L"xxx";
+					x.text = L"here is menu text";
+
+					x.msg.message = WM_COMMAND;
+					x.msg.wParam = MAKEWPARAM(99,0);
+					x.msg.lParam = 0;
+				
+					for( int i = 0; i < 6; i++ )
+					{
+						WCHAR cb[256];
+						wsprintf(cb,L"menu %d", i );
+						x.text = cb;
+
+						x.enable = ( i != 1 );
+						x.msg.lParam = i;
+
+
+						ar.push_back(x);
+					}
+				}
+				
+				if ( !ar.empty())
+				{
+					D1::D2DMenuItems* test = new D1::D2DMenuItems();
+					test->CreateWindow( d,  p->parent_control_, pt, ar );
+				}
+				ret = 1;
 			}
 
-
+			
 		}
 		break;		
 		case WM_RBUTTONUP:
@@ -1926,7 +1968,7 @@ void D2DFRectFBM::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, const 
 	D2DControl::CreateWindow(parent,pacontrol,rc,stat,name,id);
 	typ_ = typ;
 
-	auto_resize_ = rc.IsZero();
+	auto_resize_ = !( stat_&STAT::WIDTH_FIX && stat_&STAT::HEIGHT_FIX );
 }
 
 FString DebugFRectFBM( const FRectFBM& rc, bool bCRLF )
@@ -1945,6 +1987,11 @@ LRESULT D2DFRectFBM::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 	if (!VISIBLE(stat_))
 		return ret;
 
+	if ( typ_ == 0 && message == WM_PAINT )
+	{
+		int a = 0;
+	}
+
 	switch (message)
 	{
 		case WM_PAINT:
@@ -1954,7 +2001,11 @@ LRESULT D2DFRectFBM::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM l
 			
 			D2DMatrix mat(cxt);
 			mat.PushTransform();
+			mat_ = mat;
+
 			mat.Offset( rc_ );
+
+			
 
 
 			DrawFill(cxt, rc_.GetContentRectZero(), (ID2D1Brush*) back_color_.br);
@@ -2014,7 +2065,12 @@ void V4::ParameterColor(D2DWindow* parent, SolidColor& clr, const std::map<std::
 	}
 }
 
+void D2DFRectFBM::BackColor( D2D1_COLOR_F clr)
+{
+	back_color_.color = clr;
+	back_color_.br = parent_->GetSolidColor(back_color_.color);
 
+}
 void D2DFRectFBM::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 {
 	D2DControl::SetParameters(prms);

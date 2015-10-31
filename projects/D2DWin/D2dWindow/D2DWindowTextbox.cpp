@@ -1021,7 +1021,7 @@ void D2DTextbox::SetParameters(const std::map<std::wstring, VARIANT>& prms)
 	for( auto& it : prms )
 	{
 		auto& key = it.first;
-		if ( key == L"settext" )
+		if ( key == L"text" )
 			SetText( it.second );	
 		else if ( key == L"maxlength" )
 		{

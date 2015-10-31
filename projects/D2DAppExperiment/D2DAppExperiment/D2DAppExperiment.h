@@ -19,64 +19,10 @@ SOFTWARE.
 */
 #pragma once
 
-namespace V4 {
+#include "d2dwin.h"
 
-template <typename T>
-class faststack
-{
-	public : 
-		faststack( int maxcnt )
-		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
 
-			_ASSERT( id_ >= -1 );
-		}
-		bool include( T t )
-		{
-			if ( empty()) 
-				return false;
+DLLEXPORT void CreateD2DDesktop( D2Ctrls );
+DLLEXPORT void CreateD2DDesktop2( D2Ctrls  ctrls);
 
-			for (int i = 0; i < size(); i++)
-			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
-		}
-
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
-
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
-
-};
-
-};
+DLLEXPORT void CreateD2DDesktop3(D2Ctrls  ctrls, float cx, float cy, int xcnt, int ycnt, LPCWSTR str);

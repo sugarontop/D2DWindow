@@ -17,66 +17,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-namespace V4 {
+#include "stdafx.h"
 
-template <typename T>
-class faststack
-{
-	public : 
-		faststack( int maxcnt )
-		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
+// TODO: このファイルではなく、STDAFX.H で必要な
+// 追加ヘッダーを参照してください。
+#pragma comment(lib,"dwrite.lib") 
+#pragma comment(lib,"d2d1.lib")
 
-			_ASSERT( id_ >= -1 );
-		}
-		bool include( T t )
-		{
-			if ( empty()) 
-				return false;
 
-			for (int i = 0; i < size(); i++)
-			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
-		}
+#ifdef USE_ID2D1DEVICECONTEXT
+#pragma comment(lib,"d3d11.lib")
+#endif
 
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
+#pragma comment(lib, "comsuppwd.lib")		// _variant_
+#pragma comment(lib, "Windowscodecs.lib")
 
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
 
-};
-
-};
+#pragma comment (lib,"d2dcommon.lib")
+#pragma comment (lib,"d2dwin.lib")

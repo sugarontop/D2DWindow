@@ -17,66 +17,51 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-namespace V4 {
+#include "stdafx.h"
 
-template <typename T>
-class faststack
+
+
+#include "D2DAppExperiment.h"
+
+
+using namespace V4;
+DLLEXPORT void CreateD2DDesktop( D2Ctrls  ctrls)
 {
-	public : 
-		faststack( int maxcnt )
-		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
+	
+	//DDMkFRectFBM(ctrls,FRectF(10,10,100,100),1,NONAME);
 
-			_ASSERT( id_ >= -1 );
-		}
-		bool include( T t )
+
+	FRectF rcb1( 20,20, FSizeF(200,30));
+	FRectF rcb2( 20,60, FSizeF(200,30));
+
+	FRectF rct1( 20,200, FSizeF(200,30));
+
+	FRectF rct2( 300,200, FSizeF(200,400));
+
+	DDMkButton(ctrls, rcb1, NONAME );
+	DDMkButton(ctrls, rcb2, NONAME );
+
+	DDMkTextbox(ctrls, rct1, 0, NONAME );
+	DDMkTextbox(ctrls, rct2, 1, NONAME );
+}
+
+DLLEXPORT void CreateD2DDesktop3(D2Ctrls  ctrls, float cx, float cy, int xcnt, int ycnt, LPCWSTR str)
+{
+	FRectFBM rc( 0,0,FSizeF(cx,cy));
+
+	rc.Margin_.Set(2);
+	
+	for (int y = 0; y < ycnt; y++)
+	{
+		auto rc1 = rc;
+		for( int x = 0; x < xcnt; x++ )
 		{
-			if ( empty()) 
-				return false;
-
-			for (int i = 0; i < size(); i++)
-			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
+			DDMkStatic( ctrls, rc, 0,str );
+			rc.Offset( cx, 0 );
 		}
+		rc = rc1;
+		rc.Offset(0, cy);
+	}
 
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
-
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
-
-};
-
-};
+}

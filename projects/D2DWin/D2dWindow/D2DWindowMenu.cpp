@@ -23,12 +23,12 @@ SOFTWARE.
 #include "D2DWindowControl_easy.h"
 #include "D2DCommon.h"
 #include "D2DWindowMenu.h"
-
+#include "D2DWindowTitle.h"
 #include "gdi32.h"
 
 using namespace V4;
 
-#define MENU_ITEM_HEIGHT 24
+
 
 #define FLOATING_COLOR D2RGBA(169,202,239,180)
 
@@ -513,8 +513,9 @@ LRESULT D2DMenuItems::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM 
 
 #pragma region D2DMenuItemEx
 //////////////////////////////////////////////////////////////
-void D2DMenuItemEx::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
+void D2DMenuItemEx::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, const FRectFBM& rc, int stat, LPCWSTR name, int id )
 {
+	
 	D2DControl::CreateWindow(parent,pacontrol,rc,stat,name,id);
 
 	strL = name;
@@ -560,7 +561,7 @@ LRESULT D2DMenuItemEx::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM
 					FillRectangle(cxt, rc2, br );
 				}
 
-				rc1.left += 30;
+				rc1.left += MENU_ITEM_HEIGHT;
 				rc1.right -= 5;
 
 				auto clr = cxt.black; 
@@ -700,3 +701,280 @@ void D2DMenuItemEx::CreateSubMenu()
 }
 
 #pragma endregion
+////////////////////////////////////////
+
+namespace V4 {
+namespace D1 {
+void D2DMenuItems::CreateWindow( D2DWindow* parent, D2DControls* pacontrol, FPointF pt, const std::vector<FloatMenuItem>& items ) 
+{
+	
+
+	int maxlen = 0;
+
+	for(auto& it : items )
+	{
+		maxlen = max(it.text.length(), maxlen );
+	}
+
+
+	float width;
+
+	if ( maxlen < 20 )
+		width = 200;
+	else if ( maxlen < 40 )
+		width = 300;
+	else 
+		width = 400;
+
+
+	
+	
+	FRectF rc(pt,FSizeF(width,MENU_ITEM_HEIGHT* items.size()));
+
+	D2DControls::CreateWindow(parent,pacontrol,rc,VISIBLE,NONAME,-1);
+
+	D2DVerticalStackControls* stack = new D2DVerticalStackControls();
+	stack->CreateWindow(parent,this,FRectF(0,0,0,0),VISIBLE,NONAME );
+
+	
+
+	
+	for(auto it : items )
+	{		
+		D2DMenuItem* item = new D2DMenuItem(it);
+		item->CreateWindow( parent, stack );
+	}
+
+
+
+	stack->WndProc(parent, WM_SIZE, 0, 0);
+
+	parent->SetCapture(this);
+}
+LRESULT D2DMenuItems::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT ret = 0;
+	
+	if ( !VISIBLE(stat_))
+		return ret;
+
+	
+	int md = 0;
+	switch( message )
+	{
+		//case WM_D2D_PAINT:
+		//case WM_PAINT:
+		//{
+		//	D2DContext& cxt = d->cxt_;
+		//	D2DMatrix mat(d->cxt_);		
+		//	mat.PushTransform();
+
+
+		//	if ( message == WM_D2D_PAINT )
+		//		mat.PushTransformInCaputre( mat_ );
+		//	else				
+		//		mat_ = mat.PushTransform();	
+
+	
+
+		//	mat.Offset( rc_.left, rc_.top );
+		//	
+		//	if ( stat_ & BORDER )
+		//		//DrawFillRect( d->cxt_, rc_.ZeroRect(), d->cxt_.gray, d->cxt_.ltgray, 1.0f );
+		//		FillRectangle( cxt, rc_.ZeroRect(), cxt.ltgray );
+
+		//	int k = 0;
+		//	/*if ( bVertical_ )
+		//	{
+		//		for(auto& it : controls_ )
+		//		{												
+		//			it->WndProc(d,message,wParam,lParam);
+		//			float offy = it->GetRect().Size().height;			
+		//			mat.Offset( 0, offy );
+		//			k++;
+		//		}			
+		//	}
+		//	else
+		//	{
+		//		for(auto& it : controls_ )
+		//		{					
+		//			it->WndProc(d,message,wParam,lParam);
+		//			float offw = it->GetRect().Size().width;
+		//			mat.Offset( offw, 0 );
+		//			k++;
+		//		}		
+		//	}*/
+		//	mat.PopTransform();
+		//	md = 1;
+		//}
+		//break;
+		case WM_MOUSEMOVE:
+		{
+			if ( d->GetCapture() == this )
+			{
+
+
+
+
+			}
+
+
+		}
+		break;
+		case WM_LBUTTONDOWN:
+		{
+			FPointF pt = mat_.DPtoLP( FPointF(lParam));
+			if ( rc_.PtInRect( pt ) )
+			{
+				
+
+			}
+			else
+			{
+				SendMessageAll(d,message,wParam,lParam);
+
+
+				if ( d->GetCapture() == this )
+				{
+					d->ReleaseCapture(true);
+					DestroyControl();
+					ret = 1;
+				}
+			}			
+		}
+		break;
+	
+	}
+
+	if ( message == WM_PAINT )
+	{
+		int a = 0;
+	}
+
+
+	if ( ret == 0 && md == 0)
+		ret = D2DControls::WndProc(d,message,wParam, lParam );
+		
+
+	return ret;
+
+}
+
+/////////////////////////////////////////////
+void D2DMenuItem::CreateWindow( D2DWindow* parent, D2DControls* pacontrol )
+{
+	D2DControl::CreateWindow(parent,pacontrol,FRectF(0,MENU_ITEM_HEIGHT),VISIBLE,NONAME,-1);
+
+	md_ = 0;
+
+}
+LRESULT D2DMenuItem::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT ret = 0;
+	switch( message )
+	{
+		case WM_PAINT:
+		{
+			D2DContext& cxt = d->cxt_;
+			D2DMatrix mat(d->cxt_);		
+			mat_ = mat.PushTransform();
+			mat.Offset( rc_.left, rc_.top );
+
+			DrawMenuItem(cxt);
+
+			mat.PopTransform();
+
+		}
+		break;
+		case WM_MOUSEMOVE:
+		{
+			int md = md_;
+			FPointF pt = mat_.DPtoLP(lParam);
+			if ( rc_.PtInRect( pt ) )
+			{
+				md = 1;
+			}
+			else
+			{
+				md = 0;
+			}
+
+			if ( md != md_ )
+			{
+				md_ = md;
+				d->redraw_ = 1;
+				ret = 1;
+			}
+		}
+		break;
+		case WM_SIZE:
+		{
+			auto p = dynamic_cast<IUpdatar*>( parent_control_ );
+			if ( p )
+				p->RequestUpdate(this, WM_SIZE );	
+		}
+		break;
+		case WM_LBUTTONDOWN:
+		{
+			FPointF pt = mat_.DPtoLP(lParam);
+			if ( rc_.PtInRect( pt ) && info_.enable )
+			{
+				
+				::SendMessage( d->hMainFrame_, info_.msg.message, info_.msg.wParam, info_.msg.lParam );
+
+			}
+		}
+		break;
+	}
+
+
+
+	return ret;
+}
+
+void D2DMenuItem::DrawMenuItem(D2DContext& cxt)
+{	
+	auto rc = rc_.ZeroRect();
+	const float iconw = 36;
+
+	FillRectangle( cxt, rc, cxt.ltgray );
+
+	bool enable = info_.enable;
+
+	auto clr = ( enable ? cxt.black : cxt.gray );
+
+	{
+		auto rc2 = rc; rc2.top--; rc2.bottom = rc2.top+1;
+		rc2.left += iconw;
+		FillRectangle( cxt, rc2, cxt.gray );
+	}
+	
+	if ( md_ > 0 && enable )
+	{
+		auto rc2 = rc;
+		rc2.InflateRect(0,-1);
+		FillRectangle( cxt, rc2, cxt.halftoneBlue );
+	}
+
+	
+	auto& text = info_.text;
+
+	// DrawIcon(cxt,... );
+
+
+	
+	rc.left += iconw;
+	
+	DrawCenterText( cxt, clr, rc, text.c_str(), text.length(), 0 );
+
+	// auto& key = info_.key;
+	// rc.Offset(xxx,0);
+	// DrawCenterText( cxt, cxt.black, rc, key.c_str(), key.length(), 0 );
+
+
+}
+
+}
+}
+
+

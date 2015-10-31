@@ -20,7 +20,7 @@ SOFTWARE.
 #pragma once
 
 #include "MsXml6.tlh"
-
+#include "D2DWindowMessage.h"
 //////////////////////////////////////////////////////////////////////////
 // menu.xmlで作成されるメインフレームメニュー　WM_D2D_COMMANDを送る
 //////////////////////////////////////////////////////////////////////////
@@ -78,6 +78,43 @@ class D2DMenuItemEx : public D2DControls
 		//Image xxxx
 		int md_;
 };
+
+
+
+
+namespace D1 {
+
+
+
+class D2DMenuItems : D2DControls
+{
+	public :
+		D2DMenuItems(){};
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol, FPointF pt, const std::vector<FloatMenuItem>& items ); 
+		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
+	private :
+		
+};
+
+
+
+class D2DMenuItem : D2DControl
+{
+	public :
+		D2DMenuItem(FloatMenuItem& info):info_(info){};
+		void CreateWindow( D2DWindow* parent, D2DControls* pacontrol );
+		virtual LRESULT WndProc(D2DWindow* parent, UINT message, WPARAM wParam, LPARAM lParam);
+
+		void DrawMenuItem(D2DContext& cxt);
+	private :
+		FloatMenuItem info_;
+		int md_;
+};
+
+
+}
+
+
 
 
 }; // V4

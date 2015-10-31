@@ -17,66 +17,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
+#define IDC_MYICON                      2
+#define IDD_D2DTEST1_DIALOG             102
+#define IDS_APP_TITLE                   103
+#define IDD_ABOUTBOX                    103
+#define IDM_ABOUT                       104
+#define IDM_EXIT                        105
+#define IDI_D2DTEST1                    107
+#define IDI_SMALL                       108
+#define IDC_D2DTEST1                    109
+#define IDR_MAINFRAME                   128
+#define ID_32771                        32771
+#define IDM_RES_DESTROY                 32772
+#define IDC_STATIC                      -1
 
-namespace V4 {
-
-template <typename T>
-class faststack
-{
-	public : 
-		faststack( int maxcnt )
-		{
-			head_ = new T[maxcnt];
-			ZeroMemory( head_, sizeof(T)*maxcnt );
-			id_ = -1;
-			maxcnt_ = maxcnt;
-		}
-		~faststack()
-		{
-			delete [] head_;
-		}
-		void push( T t )
-		{
-			_ASSERT( id_+1 < maxcnt_ );
-			head_[++id_] = t;
-		}
-		T top()
-		{
-			return ( id_ > -1 ? head_[id_] : nullptr );
-		}
-		bool empty()
-		{
-			return ( id_ < 0 );
-		}
-		void pop()
-		{
-			head_[id_] = NULL;
-			--id_;
-
-			_ASSERT( id_ >= -1 );
-		}
-		bool include( T t )
-		{
-			if ( empty()) 
-				return false;
-
-			for (int i = 0; i < size(); i++)
-			{
-				if ( t == head_[i] )
-					return true;
-			}
-			return false;
-		}
-
-		int size(){ return id_+1; }
-		T* head(){ return head_; }
-
-	protected :
-		T* head_;
-		int id_;
-		int maxcnt_;
-
-};
-
-};
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NO_MFC                     1
+#define _APS_NEXT_RESOURCE_VALUE        129
+#define _APS_NEXT_COMMAND_VALUE         32773
+#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_SYMED_VALUE           110
+#endif
+#endif

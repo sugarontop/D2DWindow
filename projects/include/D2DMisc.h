@@ -27,8 +27,8 @@ using namespace D2D1;
 #pragma warning(disable: 4482)
 
 #define ROUND(x) ((int)(x+0.5f))
-#define D2RGBA(r,g,b,a) ColorF(r/255.0f, g/255.0f, b/255.0f, a/255.0f ) //  薄い(0) <- A <- 濃い(255)
-#define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
+//#define D2RGBA(r,g,b,a) ColorF(r/255.0f, g/255.0f, b/255.0f, a/255.0f ) //  薄い(0) <- A <- 濃い(255)
+//#define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
 
 //
 // D2DMisc.h helper library
@@ -151,12 +151,16 @@ class FRectF : public D2D1_RECT_F
 		{
 			SetRect(rc);
 		}
+		FRectF ( const FSizeF& sz )
+		{			
+			left=0; top=0; right= sz.width; bottom= sz.height;
+		}
 
-		FRectF ( const FPointF& pt, const FSizeF sz )
+		FRectF ( const FPointF& pt, const FSizeF& sz )
 		{			
 			left=pt.x; top=pt.y; right=pt.x + sz.width; bottom= pt.y + sz.height;
 		}
-		FRectF ( float l, float t, const FSizeF sz )
+		FRectF ( float l, float t, const FSizeF& sz )
 		{			
 			left=l; top=t; right=l + sz.width; bottom= t + sz.height;
 		}

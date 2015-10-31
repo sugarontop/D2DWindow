@@ -252,11 +252,22 @@ LRESULT D2DVerticalStackControls::WndProc(D2DWindow* d, UINT message, WPARAM wPa
 		{
 
 			int a = 0;
+			return SendMessageAll(d,message,wParam,lParam);		
+			
 		}
 		break;
+		/*case WM_LBUTTONDOWN :
+		{
+
+			int a = 0;
+			return SendMessageAll(d,message,wParam,lParam);		
+			
+		}
+		break;*/
+		
 	}
 
-	return D2DControls::WndProc(d,message,wParam, lParam);
+	return D2DControls::WndProc(d,message,wParam,lParam);		
 }
 
 

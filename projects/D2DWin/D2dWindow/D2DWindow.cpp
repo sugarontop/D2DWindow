@@ -611,19 +611,20 @@ void D2DWindow::SetCapture(D2DCaptureObject* p,  FPointF* pt, D2DMat* mat )
 	if ( mat )
 		capture_matrix_ = *mat;
 }
-D2DCaptureObject* D2DWindow::ReleaseCapture()
+D2DCaptureObject* D2DWindow::ReleaseCapture( bool all_layer )
 {
 	auto p = capture_obj_.top();
-
-	capture_obj_.pop();		
-
 	HWND hWnd = ::GetCapture();
 
-	if ( capture_obj_.empty())
-	{		
-		::ReleaseCapture();
+	while(p)
+	{
+		capture_obj_.pop();		
+		p = ( all_layer ? capture_obj_.top() : nullptr );
 	}
-
+		
+	if ( capture_obj_.empty())			
+		::ReleaseCapture();
+	
 	::SetFocus( hWnd );
 	redraw_ = 1;
 

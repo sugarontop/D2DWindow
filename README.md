@@ -28,6 +28,6 @@ Direct2D Windows Framework.(VS2015,C++)
 		2015/08/14	old_201504 へ移動
 		2015/08/16	projects/201508を追加(Datagrid,listbox,dropdownbox,textboxを実装)
 		2015/08/28  javascript
-		2015/10/31  0.2.4
+		2015/11/01  0.2.6
 		
 

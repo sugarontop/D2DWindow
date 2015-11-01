@@ -56,7 +56,7 @@ DLLEXPORT D2DWin WINAPI DDMkWindow(HWND hWndParent, D2DWinOnEntry entry, LPVOID 
 	// Resourceの作成はD2DWindow内にて実行、HWND単位でResourceを作成
 	GDI32::FRect rc(0,0,0,0);
 	D2DWindow* win = new D2DWindow();
-	win->CreateD2DWindow( 0, hWndParent, WS_CHILD|WS_VISIBLE, rc );
+	win->CreateD2DWindow( 0, hWndParent, WS_CHILD|WS_VISIBLE| WS_MAXIMIZE, rc );
 	
 	w.win = (HANDLE)win;
 
@@ -91,10 +91,15 @@ DLLEXPORT void WINAPI DDResizeWindow(D2DWin win, int cx, int cy )
 DLLEXPORT HWND WINAPI D2HWND( D2Ctrl ctrl )
 {
 	D2DControl* x = (D2DControl*)ctrl.ctrl;
-
 	return x->parent_->hWnd_;
-
 }
+
+DLLEXPORT HWND WINAPI DDHWND(D2DWin win)
+{
+	D2DWindow* x = (D2DWindow*) win.win;
+	return x->hWnd_;
+}
+
 
 DLLEXPORT void WINAPI DDRedraw( D2Ctrl ctrl )
 {

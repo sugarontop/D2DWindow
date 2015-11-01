@@ -183,7 +183,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		break;
 		case WM_SIZE :
 		{		
-			// CComPtrの参照数にきをくばること
 			auto bl = ( d->cxt_.cxt != NULL );		
 			if ( bl )
 			{
@@ -477,9 +476,12 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 
 	auto children = children_.get();
 
+	if ( !children ) 
+		return ret;
+
 	// WM_PAINT, WM_SIZE はCAPTUREに関わらず、すべてにSENDすること
 
-	if ( message == WM_PAINT  && children)
+	if ( message == WM_PAINT )
 	{		
 		children->WndProc(this,WM_PAINT,wParam,lParam);
 
@@ -488,7 +490,7 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 
 		return ret;
 	}
-	else if (message == WM_SIZE && children)
+	else if (message == WM_SIZE )
 	{
 		children->WndProc(this,WM_SIZE,wParam,lParam);
 		return ret;
@@ -497,18 +499,16 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		// WM_D2D_RESTRUCT_RENDERTARGETは裏から処理する
 		if ( wParam == 0 )
-		{
-			if ( children )
-				children->OnResutructRnderTarget(false); //ResourceRelease
+		{		
+			children->OnResutructRnderTarget(false); //ResourceRelease
 		}					
 		else if ( wParam == 1 )
 		{
-			if ( children )
-				children->OnResutructRnderTarget(true); //CreateResource
+			children->OnResutructRnderTarget(true); //CreateResource
 		}
 		return ret;
 	}
-	else if ( !capture_obj_.empty() && message < WM_D2D_EVENT_FIRST )
+	else if ( !capture_obj_.empty() && ((WM_MOUSEFIRST <= message && message <= WM_MOUSELAST)  || (WM_KEYFIRST <= message && message <= WM_KEYLAST) )) //&& message < WM_D2D_EVENT_FIRST)
 	{
 		auto obj1 = capture_obj_.top();
 	
@@ -536,20 +536,17 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	else if (WM_D2D_IDLE == message && capture_obj_.empty() && death_objects_.size())
-	{
-		//_ASSERT(L"death object removed cnt=%d\n", death_objects_.size());
-
+	{		
+		// Clear dead control from memory.
 		for( auto& it : death_objects_ )
 		{
 			if ( it.is_alive_in_parentControl )
-			{
 				it.target->parent_control_->Detach( it.target.get() );
-			}
 		}
 		
 		death_objects_.clear();
 	}	
-	else if (children )
+	else
 	{		
 		children->WndProc(this,message,wParam,lParam);
 	}

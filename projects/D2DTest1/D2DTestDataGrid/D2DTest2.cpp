@@ -229,6 +229,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
+		case WM_SIZE:
+		{			
+			HWND hwnd = DDHWND(global.g_handle);
+
+			int cx = LOWORD(lParam);
+			int cy = HIWORD(lParam);
+
+			MoveWindow(hwnd,0,0,cx,cy, FALSE );				
+			
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
 		
 		case WM_DESTROY:
 			PostQuitMessage(0);

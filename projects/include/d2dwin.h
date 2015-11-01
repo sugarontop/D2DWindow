@@ -76,6 +76,7 @@ using DDContext = LPVOID;
 
 DLLEXPORT D2Ctrl WINAPI Ctrl(D2Ctrls ctrl);
 DLLEXPORT HWND WINAPI D2HWND( D2Ctrl ctrl );
+DLLEXPORT HWND WINAPI DDHWND(D2DWin win);
 DLLEXPORT void WINAPI DDRedraw( D2Ctrl ctrl );
 
 

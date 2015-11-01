@@ -850,7 +850,7 @@ LRESULT D2DTopControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARA
 		{			
 			D2DContext& cxt = d->cxt_;
 
-			cxt.cxt->FillRectangle(rc_,	(ID2D1Brush*)back_color_.br );
+			cxt.cxt->FillRectangle(rc_,	(ID2D1Brush*) back_color_.br );
 			
 			SendMessageReverseAll(d,message,wParam,lParam);	
 
@@ -2392,7 +2392,14 @@ LRESULT D2DGroupControls::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPA
 			}			
 		}
 		break;
+		case WM_SIZE:
+		{
+			
 
+
+
+		}
+		break;
 
 	}
 

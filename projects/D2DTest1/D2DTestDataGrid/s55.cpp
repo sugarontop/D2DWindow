@@ -55,7 +55,7 @@ bool LoadResourceFromRC(UINT id, LPCWSTR Section, DDImage& r)
 void CreatePage0(D2Ctrls t0)
 {
 	std::map<std::wstring, VARIANT> m;
-	auto t1 = DDMkControls(t0, FRectF(0,0,9000,1000), L"group", NONAME);
+	auto t1 = t0; // DDMkControls(t0, FRectF(0,0,9000,1000), L"group", NONAME);
 	
 
 	auto tab = DDMkTabControls(t1,FRectF(),NONAME);

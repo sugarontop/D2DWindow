@@ -4,6 +4,7 @@
 Direct2D Windows Framework.(VS2015,C++11, no ATL, no MFC, no BOOST)
 
 <pre>
+[source]
  projects
     /D2DTest1
         /D2DTestDataGrid <-- main
@@ -12,11 +13,20 @@ Direct2D Windows Framework.(VS2015,C++11, no ATL, no MFC, no BOOST)
                 D2DCommon.dll
                 D2DWin.dll
     /D2DWin
-        コントロールクラス、C++をC関数へ変換
+        コントロールクラス、C++クラスをC関数へ変換
     /D2DCommon
         簡単なAPI群
     /include
         共通のヘッダファイル
+
+
+[outline]
+WinMain
+     MainFrameWindow(HWND)
+          TopChildWindow(HWND) --D2DWindow
+               TopControls --D2DTopControls
+                    Controls
+	                    Control
 
 </pre>
 

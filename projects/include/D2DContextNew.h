@@ -56,6 +56,15 @@ namespace V4
 			{
 				return DPtoLP( *this, FPointF(lp) );
 			}
+			FPointF DPtoLP(LPARAM lp, const FRectF& rclog) const
+			{
+				FPointF pt1(lp);
+				pt1.x -= rclog.left;
+				pt1.y -= rclog.top;
+				return DPtoLP(*this, pt1);
+			}
+
+
 			FPointF DPtoLP( const FPointF& ptdev ) const 
 			{
 				return DPtoLP( *this, ptdev );

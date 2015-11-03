@@ -31,6 +31,7 @@ SOFTWARE.
 #include "D2DWindow\D2DWindowImageButtons.h"
 #include "D2DWindow\D2DWindowTitle.h"
 #include "D2DWindow\D2DWindowBlockControls.h"
+#include "D2DWindow\D2DWindowTagTicket.h"
 using namespace V4;
 
 void AppInit()
@@ -181,11 +182,22 @@ DLLEXPORT D2Ctrl WINAPI DDMkFRectFBM(D2Ctrls ctrls, const FRectFBM& rc, int typ,
 {
 	auto parent = (D2DControls*) ctrls.ctrls;
 
-	D2DFRectFBM* tx = new D2DFRectFBM();
-
-	tx->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, name, typ );
 	D2Ctrl r;
-	r.ctrl = tx;
+
+	if ( typ < 100 )
+	{
+		D2DFRectFBM* tx = new D2DFRectFBM();
+
+		tx->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, name, typ );
+		r.ctrl = tx;
+	}
+	else if ( typ == 999 )
+	{
+		D2DTagTicket* tx = new D2DTagTicket();
+		tx->CreateWindow(parent->parent_, parent, rc, VISIBLE | BORDER, name, typ);
+		r.ctrl = tx;
+	}
+	
 	return r;
 }
 

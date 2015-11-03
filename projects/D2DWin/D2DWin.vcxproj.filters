@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ソース ファイル\D2dWindow">
-      <UniqueIdentifier>{7ea859b5-8d87-40c8-bf57-069511f691f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\TSF">
       <UniqueIdentifier>{0db0626c-5d11-4332-9171-5c6f40c68382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\D2DWindow">
+      <UniqueIdentifier>{7ea859b5-8d87-40c8-bf57-069511f691f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,13 +42,13 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindow.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2DWin.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DContextEx_Easy.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\TSF\DisplayAttribute.cpp">
       <Filter>ソース ファイル\TSF</Filter>
@@ -69,49 +69,52 @@
       <Filter>ソース ファイル\TSF</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowTextbox.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowListbox.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowControl_easy.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowControlsEx.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DwindowControlsExOpt1.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowTabControl.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowDataGrid.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2DWinDraw.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DControlsWithScrollbar.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowStatic.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowCell.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowImageButtons.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowTitle.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowBlockControls.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dWindow\D2DWindowMenu.cpp">
-      <Filter>ソース ファイル\D2dWindow</Filter>
+      <Filter>ソース ファイル\D2DWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="D2dWindow\D2DWindowTagTicket.cpp">
+      <Filter>ソース ファイル\D2DWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

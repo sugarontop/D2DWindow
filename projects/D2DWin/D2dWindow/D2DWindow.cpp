@@ -93,14 +93,16 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 
 			// for anime
-			for(auto it = d->mts_.begin(); it!=d->mts_.end(); )
-			{					
+			for (auto it = d->mts_.begin(); it != d->mts_.end(); )
+			{
 				bool isend;
-				MoveTarget* mtx = (MoveTarget*)it->first;
+				MoveTarget* mtx = (MoveTarget*) it->first;
 				mtx->UIFire(d, isend);
 
 				if (isend)
-					d->mts_.erase(it++);
+				{
+					it = d->mts_.erase(it);
+				}
 				else
 					it++;
 			}

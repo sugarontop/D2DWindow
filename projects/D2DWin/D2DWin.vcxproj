@@ -109,6 +109,7 @@
     <ClCompile Include="D2dWindow\D2DWindowMenu.cpp" />
     <ClCompile Include="D2dWindow\D2DWindowStatic.cpp" />
     <ClCompile Include="D2dWindow\D2DWindowTabControl.cpp" />
+    <ClCompile Include="D2dWindow\D2DWindowTagTicket.cpp" />
     <ClCompile Include="D2dWindow\D2DWindowTextbox.cpp" />
     <ClCompile Include="D2dWindow\D2DWindowDataGrid.cpp" />
     <ClCompile Include="D2dWindow\D2DWindowBlockControls.cpp" />

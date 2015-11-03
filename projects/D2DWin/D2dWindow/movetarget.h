@@ -163,8 +163,9 @@ public:
 	}
 	bool IsEnd(float x, float y)
 	{
-		if ((inix_ != endx_) && ((x != 0) && ((inix_ <= endx_ && endx_ <= x) || (inix_ > endx_ && endx_ >= x)))) return true;
-		if ((iniy_ != endy_) && ((y != 0) && ((iniy_ <= endy_ && endy_ <= y) || (iniy_ > endy_ && endy_ >= y)))) return true;
+		//if ((inix_ != endx_) && ((x != 0) && ((inix_ <= endx_ && endx_ <= x) || (inix_ > endx_ && endx_ >= x)))) return true;
+		if ((inix_ != endx_) && ((inix_ <= endx_ && endx_ <= x) || (inix_ > endx_ && endx_ >= x))) return true;
+		if ((iniy_ != endy_) && ((iniy_ <= endy_ && endy_ <= y) || (iniy_ > endy_ && endy_ >= y))) return true;
 		return false;
 	}
 	void Cancel()

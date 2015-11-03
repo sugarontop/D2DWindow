@@ -1,12 +1,13 @@
-﻿D2Dwindow
+﻿D2DWindow
 =========
 
 Direct2D Windows Framework.(VS2015,C++11, no ATL, no MFC, no BOOST)
 
-projects
+<pre>
+ projects
     /D2DTest1
         /D2DTestDataGrid <-- main
-            /Debug
+          /Debug
                 D2DTestDataGrid.exe <-- sample exe
                 D2DCommon.dll
                 D2DWin.dll
@@ -17,10 +18,9 @@ projects
     /include
         共通のヘッダファイル
 
+</pre>
 
 履歴
-	2015/08     start
-	2015/11/03  0.2.7
 
-		
-
+- 2015/08     start
+- 2015/11/03  0.2.7

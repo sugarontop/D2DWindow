@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,13 +17,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #pragma once
 
 #include "D2DContextEx.h"
 #include "D2Dcontextnew.h"
 #include "D2DWindowMessage.h"
 #include "gdi32.h"
-#include "faststack.h"
+
 
 #undef CreateWindow
 
@@ -89,7 +90,7 @@ class D2DWindow
 		}
 		D2DMat CaptureMat(){ return capture_matrix_; }
 
-		bool CaptureIsInclude(D2DCaptureObject* p){ return capture_obj_.include( p ); }
+		bool CaptureIsInclude(D2DCaptureObject* p);
 		static int SecurityId(bool bNew);
 		
 		void Clear();
@@ -110,7 +111,8 @@ class D2DWindow
 		std::function<void(D2DWindow*)> OnDestroy;
 		std::map<MoveTarget*, int> mts_;
 		std::shared_ptr<D2DControls> children_;
-		faststack<D2DCaptureObject*> capture_obj_;
+		std::stack<D2DCaptureObject*> capture_obj_;
+
 		std::vector<D2DControl*> drag_accepters_;
 
 

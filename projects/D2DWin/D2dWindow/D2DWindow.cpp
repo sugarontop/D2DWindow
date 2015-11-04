@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,12 +17,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #include "stdafx.h"
 #include "D2DWindow.h"
 #include "D2DWindowControl_easy.h"
 #include "gdi32.h"
 #include <Shellapi.h>
 #include "MoveTarget.h"
+#include "D2DWindowTextbox.h"
 
 #define CLASSNAME L"D2DWindow"
 
@@ -83,12 +85,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			// captureされたものをもう一度トップで描画			
 			if (!d->capture_obj_.empty())
 			{
-				int cap_cnt = d->capture_obj_.size();
-				auto p = d->capture_obj_.head();
-				for( int i = 0; i < cap_cnt; i++ )
-				{
-					p[i]->WndProc( d, WM_D2D_PAINT, wParam, lParam );
-				}
+				//int cap_cnt = d->capture_obj_.size();
+				//auto p = d->capture_obj_.top(); //.head();
+				//for( int i = 0; i < cap_cnt; i++ )
+				//{
+				//	p[i]->WndProc( d, WM_D2D_PAINT, wParam, lParam );
+				//}
+
+				d->capture_obj_.top()->WndProc( d, WM_D2D_PAINT, wParam, lParam );
 			}
 
 
@@ -385,8 +389,20 @@ int D2DWindow::SecurityId(bool bNew)
 				
 	return sec_id;
 }
-
-D2DWindow::D2DWindow():capture_obj_(256),capture_pt_(256)
+bool D2DWindow::CaptureIsInclude(D2DCaptureObject* p)
+{ 
+	std::stack<D2DCaptureObject*> temp = capture_obj_;
+	
+	while( !temp.empty())
+	{	
+		if ( temp.top() == p )
+			return true;
+		temp.pop();
+	}
+		
+	return false; 
+}
+D2DWindow::D2DWindow():capture_pt_(256)
 {
 	
 	WNDCLASSEX wcx;
@@ -510,10 +526,12 @@ LRESULT D2DWindow::WndProc( UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return ret;
 	}
-	else if ( !capture_obj_.empty() && ((WM_MOUSEFIRST <= message && message <= WM_MOUSELAST)  || (WM_KEYFIRST <= message && message <= WM_KEYLAST) )) //&& message < WM_D2D_EVENT_FIRST)
+	else if ( !capture_obj_.empty() && ((WM_MOUSEFIRST <= message && message <= WM_MOUSELAST) || (WM_KEYFIRST <= message && message <= WM_KEYLAST) )) //&& message < WM_D2D_EVENT_FIRST)
 	{
-		auto obj1 = capture_obj_.top();
-	
+		D2DCaptureObject* obj1 = capture_obj_.top();
+
+		//TRACE( L"captured obj=%x msg = %d, wp=%d, objcnt=%d\n", obj1, message, wParam, capture_obj_.size() );
+		
 		auto r = obj1->WndProc( this, message, wParam, lParam ); 
 
 		if ( r == LRESULT_SEND_MESSAGE_TO_OTHER_OBJECTS && message == WM_LBUTTONDOWN && children_)
@@ -618,6 +636,10 @@ D2DCaptureObject* D2DWindow::ReleaseCapture( bool all_layer )
 	while(p)
 	{
 		capture_obj_.pop();		
+
+		if ( capture_obj_.empty())
+			break;
+
 		p = ( all_layer ? capture_obj_.top() : nullptr );
 	}
 		

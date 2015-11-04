@@ -30,6 +30,8 @@
 *.la
 *.a
 #*.lib
+*.tlh
+*.tli
 
 # Executables
 *.exp

@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,6 +17,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #pragma once
 
 // DX12
@@ -37,6 +38,7 @@ SOFTWARE.
 #include <vector>
 #include <map>
 #include <list>
+#include <stack>
 #include <set>
 #include <comutil.h>
 #include <random>
@@ -49,6 +51,8 @@ SOFTWARE.
 #include "d2dcontextnew.h"
 #include "fstring.h"
 #include "binary.h"
+
+
 
 #ifdef _DEBUG
 	#define TRACE FString::debug_trace
@@ -85,6 +89,7 @@ using namespace std::placeholders;
 
 #define MENU_ITEM_HEIGHT 24
 
+#pragma warning (disable: 4192)
 
-
+#import <msxml6.dll>
 

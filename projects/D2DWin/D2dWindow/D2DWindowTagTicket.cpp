@@ -1,6 +1,6 @@
 ﻿/*
 The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
+Copyright (c) 2015 sugarontop@icloud.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -17,10 +17,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #include "stdafx.h"
 #include "D2DWindowControl_Easy.h"
 #include "D2DWindowTagTicket.h"
 #include "movetarget.h"
+#include "D2DWindowTextbox.h"
 using namespace V4;
 
 #define YOFF 26
@@ -54,9 +56,23 @@ void D2DTagTicket::OnCreate()
 
 	rc.Offset( rc.Width(), 0 );
 
-	D2DFRectFBM* rc2 = new D2DFRectFBM();
-	rc2->CreateWindow( parent_, this, rc,VISIBLE,NONAME,0);
-	rc2->BackColor( D2RGBA(0,128,64,150));
+	rc.SetSize( 200, 30);
+
+	//D2DFRectFBM* rc2 = new D2DFRectFBM();
+	//rc2->CreateWindow( parent_, this, rc,VISIBLE,NONAME,0);
+	//rc2->BackColor( D2RGBA(0,128,64,150));
+
+
+	rc.Offset(20,0 );
+	D2DTextbox* tx2 = new D2DTextbox( (D2DTextbox::TYP::SINGLELINE), NULL );
+	tx2->CreateWindow( parent_, this, rc,VISIBLE,NONAME,0);
+
+
+
+
+
+
+
 
 	xoffw_ = 0;
 	
@@ -64,6 +80,8 @@ void D2DTagTicket::OnCreate()
 	innerbtn1.SetRect(0,0,40,YOFF);
 	innerbtn2.SetRect(40,0,rc_.right,YOFF);
 	
+	md_ = 0;
+	vidx_ = 0;
 }
 void D2DTagTicket::CreateWindow(D2DWindow* parent, D2DControls* pacontrol, const FRectFBoxModel& rc, int stat, LPCWSTR name, int id )
 {
@@ -107,6 +125,7 @@ LRESULT D2DTagTicket::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM 
 
 
 			mat.PopTransform();
+			return 0;
 		}
 		break;
 		case WM_SIZE:
@@ -123,28 +142,62 @@ LRESULT D2DTagTicket::WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM 
 		case WM_MOUSEMOVE:
 		case WM_LBUTTONUP:
 		{
-			FPointF pt; // = mat_.DPtoLP(lParam, rc_);
+			FPointF pt;
 
-			if ( DPtoLP( mat_,lParam,rc_,pt))
+			if (DPtoLP(mat_, lParam, rc_, pt) )
 			{
-
-				if ( innerbtn2.PtInRect(pt))
-					ret = MouseSelectedMoveProc( this,message,wParam,lParam);
-			
-				if ( ret == 0 && message == WM_LBUTTONDOWN && innerbtn1.PtInRect(pt) )
+				if (innerbtn2.PtInRect(pt) )
 				{
-					SlideView();
+					ret = MouseSelectedMoveProc(this, message, wParam, lParam);
+					
+					if (message == WM_LBUTTONUP || message == WM_LBUTTONDOWN)
+					{
+						md_ = 3;
+					}
+				}
+			
+				if (message == WM_LBUTTONDOWN)
+				{
+					if (ret == 0 && innerbtn1.PtInRect(pt))
+					{
+						SlideView();
+						ret = 1;
+						md_ = 3;
+					}
+					else
+					{
+						ret = D2DControls::WndProc(d,message,wParam,lParam);
+						return ret;
+					}
+				}
+
+			}
+
+			if ( md_ > 0 && message == WM_LBUTTONUP )
+			{
+				if ( this == d->GetCapture() )
+				{
+					d->ReleaseCapture();
 					ret = 1;
 				}
+				md_ = 0;
+				
 			}
+
 		}
 		break;
+		
 		case WM_RBUTTONDOWN:
 		case WM_RBUTTONUP:
 			//if ( typ_ > 0 )
 				ret = MousePropertyMenuProc(this,message,wParam,lParam);
 		break;
 	}
+
+
+	if ( ret == 0 && md_ == 0 )
+		ret = D2DControls::WndProc(d,message,wParam,lParam);
+
 	return ret;
 }
 
@@ -171,12 +224,12 @@ void D2DTagTicket::SlideView()
 	if ( xoffw_ == 0 )
 	{
 		xo = prv_xoff + rc_.Width();
-		md_ = 0;
+		vidx_ = 1;
 	}
 	else 
 	{
 		xo = prv_xoff - rc_.Width();
-		md_ = 1;
+		vidx_ = 2;
 	}
 	
 
@@ -194,7 +247,7 @@ void D2DTagTicket::SlideView()
 	m->End_ = [this](MoveTarget* p, float offa, float offb)
 	{
 		
-		xoffw_ = ( md_ == 0 ? rc_.Width() : 0 );
+		xoffw_ = ( vidx_ == 1 ? rc_.Width() : 0 );
 		
 		parent_->redraw_ = 1;
 

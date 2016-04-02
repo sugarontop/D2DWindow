@@ -16,6 +16,11 @@
 using namespace GDI32;
 
 #define MAX_LOADSTRING 100
+#define st __s_d2dmainframe
+
+
+
+static HWND ghMainFrameWnd;
 
 // グローバル変数:
 static HINSTANCE __hInst;						// 現在のインターフェイス
@@ -72,18 +77,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-//Exit:
 	ExitInstance();
 	return (int) msg.wParam;
 }
 
 
-
-//
-//  関数: MyRegisterClass()
-//
-//  目的: ウィンドウ クラスを登録します。
-//
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
@@ -106,22 +104,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 
-static HWND ghMainFrameWnd;
+
 HWND AfxMainFrameWindow()
 {
 	return ghMainFrameWnd;
 }
 
-//
-//   関数: InitInstance(HINSTANCE, int)
-//
-//   目的: インスタンス ハンドルを保存して、メイン ウィンドウを作成します。
-//
-//   コメント:
-//
-//        この関数で、グローバル変数でインスタンス ハンドルを保存し、
-//        メイン プログラム ウィンドウを作成および表示します。
-//
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	D2DTextbox::AppTSFInit();
@@ -196,8 +184,6 @@ struct D2DMainFrame
 };
 
 static D2DMainFrame __s_d2dmainframe;
-#define st __s_d2dmainframe
-
 void D2DInitial(HWND hWnd1)
 {
 	HRESULT hr;
@@ -284,8 +270,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 		::SetTimer( hWnd, IDLE_TIMER_ID, IDLE_TIME, IdleMessage );
-
-		//window.WndProc( WM_APP_INITIAL_UPDATE, 0,0 );
 	}
 	break;
 	case WM_D2D_JS_ERROR :
@@ -342,10 +326,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			st.cxt->SetTransform(mat);
 		}
-//TRACE( L"GetSystemMetrics %d,%d,%d,%d,%d\n", GetSystemMetrics( SM_CXFRAME ),GetSystemMetrics(SM_CXEDGE),GetSystemMetrics(SM_CXBORDER), rc.right-rc.left, rc.bottom-rc.top);
-//TRACE( L"GetSystemMetrics2 %d,%d,%d,%d,%d\n", GetSystemMetrics( SM_CXFULLSCREEN ),GetSystemMetrics(SM_CXMAXIMIZED),GetSystemMetrics(SM_CXMAXTRACK), xx.rcNormalPosition.right-xx.rcNormalPosition.left, xx.rcNormalPosition.bottom-xx.rcNormalPosition.top );
-//TRACE( L"GetSystemMetrics3 %d,%d,%d\n", xx.ptMaxPosition.x, xx.ptMaxPosition.y, xx.showCmd );
-
 
 		const RECT rcClient = rc;
 
@@ -368,8 +348,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		FRectF rctext(1,1,rcwaku.right,CAPTION_HEIGHT); 
 				
 		st.cxt->DrawText( st.title, lstrlen(st.title), st.textformat, &rctext, st.black );
-
-//DrawDebugCross( st.cxt, st.black );
 
 		mat._31 += (float)( rcClient.right - (26+27+45+CLIENT_SPCCX));	// X ZeroPoint
 		mat._32 += 1;													// Y ZeroPoint
@@ -527,9 +505,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow( hWnd );
 	}
 	break;
-//	case WM_NCACTIVATE:
-//		return 0;
-//	break;
 	case WM_ERASEBKGND :
 	{			
 		InvalidateRect(window.hWnd_,NULL,FALSE); 

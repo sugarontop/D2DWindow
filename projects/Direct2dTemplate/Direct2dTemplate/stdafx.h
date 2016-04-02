@@ -20,5 +20,3 @@
 
 
 #define BS(a)	_bstr_t(L##a)
-
-//#include "bstr.h"

@@ -7,8 +7,7 @@ using namespace V4;
 TSF::CTextEditorCtrl* GetTextEditorCtrl();
 
 namespace V4 {
-Selection g_selection;
-
+	Selection g_selection;
 };
 
 
@@ -19,38 +18,32 @@ class Test : public D2DControl
 
 		virtual LRESULT WndProc(D2DWindow* d, UINT message, WPARAM wParam, LPARAM lParam)
 		{
-			if ( message == WM_PAINT )
+			switch(message )
 			{
-				auto cxt = d->cxt_;
-				D2DMatrix mat(cxt);
-				mat.PushTransform();
+				case WM_PAINT:
+				{
+					auto& cxt = d->cxt_;
+					D2DMatrix mat(cxt);
+					mat.PushTransform();
+					{
+						mat.Offset( rc_ );
 
-				FRectFBoxModel rc( 10,10,510,310 );
-				rc.Margin_.Set(1);
-				rc.BoderWidth_ = 1;
-				rc.Padding_.Set(0);
 
-				mat.Offset( rc );
+						FRectF rc(0,0,rc_.GetContentRect().Size());
+						FString str = L"Hello World";
+						
+						DrawFillRect( cxt, rc, cxt.black, cxt.ltgray, 1 );
+						DrawCenterText( cxt, cxt.black, rc, str, str.length(), 1 );
 
-				// BorderRectを黒で塗りつぶす、
-				FRectF rc2 = rc.GetBorderRectZero(); // <-- GetBorderRectZero()
-				cxt.cxt->FillRectangle(rc2, cxt.black ); // 枠になる
+
+
+
+					}
+					mat.PopTransform();
 				
-
-				// 下位レベルで描画領域を制限
-				FRectF rcContent = rc.GetContentRectZero(); // <-- GetContentRectZero
-				D2DRectFilter fil(cxt, rcContent);
-				{					
-					// 全面を白、しかし領域内のみ描画されない
-					cxt.cxt->FillRectangle( FRectF(0,0,600,600), cxt.white);
-
 				}
-
-
-				mat.PopTransform();
-				
+				break;
 			}
-
 
 			return 0;
 		}
@@ -61,16 +54,20 @@ class Test : public D2DControl
 
 void EntryMain(V4::D2DWindow* parent)
 {
+	// craete tsf tool
 	D2DTextbox::CreateInputControl(parent);	
+
+	// create top control
 	D2DTopControls* cs = new D2DTopControls();
+	cs->CreateWindow(parent, VISIBLE, L"first layer");
 
-	g_selection.ctrls = cs;
-
-	
-	//cs->CreateWindow(parent, VISIBLE, L"1 layer");
+	g_selection.ctrls = cs; // do nothing
 
 
-	//TRopeMainFramePanelA* t = new TRopeMainFramePanelA();
-	//t->CreateWindow(parent, cs, FRectF(100,100,300,500),VISIBLE,NONAME);
+
+	// create sample control
+	FRectF rc( 50,50,FSizeF(300,300));
+	Test* t = new Test();
+	t->CreateWindow( parent, cs, rc, VISIBLE, NONAME );
 	
 }

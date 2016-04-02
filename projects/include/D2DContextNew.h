@@ -1,22 +1,3 @@
-ï»¿/*
-The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 #pragma once
 
 #include "D2DMisc.h"
@@ -56,15 +37,6 @@ namespace V4
 			{
 				return DPtoLP( *this, FPointF(lp) );
 			}
-			FPointF DPtoLP(LPARAM lp, const FRectF& rclog) const
-			{
-				FPointF pt1(lp);
-				pt1.x -= rclog.left;
-				pt1.y -= rclog.top;
-				return DPtoLP(*this, pt1);
-			}
-
-
 			FPointF DPtoLP( const FPointF& ptdev ) const 
 			{
 				return DPtoLP( *this, ptdev );
@@ -163,8 +135,8 @@ namespace V4
 				}
 				else if ( typ == 2 )
 				{
-					// matãŒè¡¨ç¤ºå‰ã«PtInRectã§trueã‚’ã‹ãˆã•ãªã„ã‚ˆã†ã«ã€å­˜åœ¨ã—ãªã„ã§ã‚ã‚ã†åº§æ¨™ã‚’_31,_32ã¸è¨­å®šã™ã‚‹ã€‚
-					// è¡¨ç¤ºæ™‚ã«matã¯æ­£ç¢ºã«è¨­å®šã•ã‚Œã‚‹
+					// mat‚ª•\¦‘O‚ÉPtInRect‚Åtrue‚ğ‚©‚¦‚³‚È‚¢‚æ‚¤‚ÉA‘¶İ‚µ‚È‚¢‚Å‚ ‚ë‚¤À•W‚ğ_31,_32‚Öİ’è‚·‚éB
+					// •\¦‚Émat‚Í³Šm‚Éİ’è‚³‚ê‚é
 					_11 = _22 = 0;	
 					_31 = _32 = 100000;		
 				}
@@ -240,11 +212,11 @@ namespace V4
 			}
 			D2DMatrix& Offset( float cx, float cy )
 			{
-				// _31,_32ã«å°æ•°ç‚¹ã‚’ä»˜ã‘ãªã„ã€‚96DPIæ™‚ã«ç·šãŒå¤ªããªã‚‹å ´åˆãŒã‚ã‚‹ãŸã‚ã€‚
-				int cx1 = static_cast<int>(cx);
-				int cy1 = static_cast<int>(cy);
+				// _31,_32‚É¬”“_‚ğ•t‚¯‚È‚¢B96DPI‚Éü‚ª‘¾‚­‚È‚éê‡‚ª‚ ‚é‚½‚ßB
+				float cx1 = static_cast<int>(cx);
+				float cy1 = static_cast<int>(cy);
 								
-				D2DMat::Offset((float)cx1,(float)cy1);
+				D2DMat::Offset(cx1,cy1);
 				g_->SetTransform( *this );
 				return *this;
 			}
@@ -278,31 +250,31 @@ namespace V4
 
 		protected :
 			int st_i_;
-			D2D1_MATRIX_3X2_F stack_[4]; // 4å€‹ã‚ã‚Œã°ååˆ†ã ã¨æ€ã†ã€‚
+			D2D1_MATRIX_3X2_F stack_[4]; // 4ŒÂ‚ ‚ê‚Î\•ª‚¾‚Æv‚¤B
 			ID2D1RenderTarget* g_;
 	};
 };
 
 namespace V4
 {
-	// å‡ç­‰é…ç½®ã‚’ã‚µãƒãƒ¼ãƒˆã™ã‚‹
+	// ‹Ï“™”z’u‚ğƒTƒ|[ƒg‚·‚é
 	class NBunkatu
 	{
 		public :
 			NBunkatu( const FRectF& rc, int Ny, int Nx=1 ):rc_(rc),Ny_(Ny),Nx_(Nx)
 			{
-				_ASSERT( Ny_ >= 1 );
-				_ASSERT( Nx_ >= 1 );
+				xassert( Ny_ >= 1 );
+				xassert( Nx_ >= 1 );
 			}
-			// outerã®ä¸­ã«ã‚»ãƒ³ã‚¿ãƒ¼é…ç½®ã®innerã‚’è¨ˆç®—
+			// outer‚Ì’†‚ÉƒZƒ“ƒ^[”z’u‚Ìinner‚ğŒvZ
 			void CalcPosition( int posY, int posX, const FSizeF& innerSize, FRectF& outer, FRectF& inner )
 			{
-				CalcPosition(posY,posX,innerSize,1,outer,inner ); // æ¨ªï¼šã‚»ãƒ³ã‚¿ãƒ¼é…ç½®
+				CalcPosition(posY,posX,innerSize,1,outer,inner ); // ‰¡FƒZƒ“ƒ^[”z’u
 			}
 			void CalcPosition( int posY, int posX, const FSizeF& innerSize,int align, FRectF& outer, FRectF& inner )
 			{
-				_ASSERT( 0 <=posY && posY < Ny_ );
-				_ASSERT( 0 <=posX && posX < Nx_ );
+				xassert( 0 <=posY && posY < Ny_ );
+				xassert( 0 <=posX && posX < Nx_ );
 								
 						
 				float height = rc_.Height();
@@ -340,13 +312,13 @@ namespace V4
 			}
 		private :
 			FRectF rc_;
-			int Ny_;	// ç¸¦ã«Nåˆ†å‰²
-			int Nx_;	// æ¨ªã«Nåˆ†å‰²
+			int Ny_;	// c‚ÉN•ªŠ„
+			int Nx_;	// ‰¡‚ÉN•ªŠ„
 
 	};
 	
 	//
-	// å¢ƒç•Œç·šã‚’å¤šç”¨ã™ã‚‹å ´åˆã«1:1ã®æ¡ä»¶ä¸‹ã§aliasã‚’è‡ªå‹•ã§åˆ‡ã‚‹
+	// ‹«ŠEü‚ğ‘½—p‚·‚éê‡‚É1:1‚ÌğŒ‰º‚Åalias‚ğ©“®‚ÅØ‚é
 	//
 	//class D2DAntialias
 	//{

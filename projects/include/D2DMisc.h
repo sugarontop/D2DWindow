@@ -1,34 +1,35 @@
-﻿/*
-The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+﻿///////////////////////////////////////////////////////////////////////
+//
+// (C) Copyright 2014, Yukihiro Furuya.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #include <d2d1.h>
+#include <d2d1helper.h>
+
 
 using namespace D2D1;
 
 #pragma warning(disable: 4482)
 
 #define ROUND(x) ((int)(x+0.5f))
-//#define D2RGBA(r,g,b,a) ColorF(r/255.0f, g/255.0f, b/255.0f, a/255.0f ) //  薄い(0) <- A <- 濃い(255)
-//#define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
+//#define HWND2HINSTANCE(hwnd)	((HINSTANCE)::GetWindowLongPtr( hwnd, GWL_HINSTANCE ))
+#define D2RGBA(r,g,b,a) ColorF(r/255.0f, g/255.0f, b/255.0f, a/255.0f ) //  薄い(0) <- A <- 濃い(255)
+#define D2RGB(r,g,b) ColorF(r/255.0f, g/255.0f, b/255.0f, 1.0f )
+
+#define D2DRGBADWORD(R,G,B,A) (DWORD)((R<<24)+(G<<16)+(B<<8)+A)
+#define D2DRGBA(dw) ColorF(((dw&0xFF000000)>>24)/255.0f, ((dw&0x00FF0000)>>16)/255.0f, ((dw&0xFF00)>>8)/255.0f, (dw&0xFF)/255.0f )
 
 //
 // D2DMisc.h helper library
@@ -151,16 +152,12 @@ class FRectF : public D2D1_RECT_F
 		{
 			SetRect(rc);
 		}
-		FRectF ( const FSizeF& sz )
-		{			
-			left=0; top=0; right= sz.width; bottom= sz.height;
-		}
 
-		FRectF ( const FPointF& pt, const FSizeF& sz )
+		FRectF ( const FPointF& pt, const FSizeF sz )
 		{			
 			left=pt.x; top=pt.y; right=pt.x + sz.width; bottom= pt.y + sz.height;
 		}
-		FRectF ( float l, float t, const FSizeF& sz )
+		FRectF ( float l, float t, const FSizeF sz )
 		{			
 			left=l; top=t; right=l + sz.width; bottom= t + sz.height;
 		}
@@ -196,9 +193,9 @@ class FRectF : public D2D1_RECT_F
 			}
 			return *this;
 		}
-		FRectF& operator=(const FRectF& rc)
+		FRectF& operator=(const FRectF& rc ) // 必要か？
 		{
-			if (this != &rc)
+			if ( this != &rc )
 			{
 				left = rc.left;
 				right = rc.right;
@@ -207,7 +204,6 @@ class FRectF : public D2D1_RECT_F
 			}
 			return *this;
 		}
-
 		
 		
 		float Width()  const{ return right-left; }
@@ -367,15 +363,12 @@ class FRectF : public D2D1_RECT_F
 			return FSizeF( right-left, bottom-top );
 		}
 
-		void CenterRect( const FRectF& rc )
+		void SetCenter( const FRectF& rc )
 		{	
 			FPointF pt = rc.CenterPt();
-			FSizeF sz = Size();
+			FPointF xpt = CenterPt();
 
-			left = pt.x - sz.width/2;
-			right= pt.x + sz.width/2;
-			top = pt.y - sz.height/2;
-			bottom= pt.y + sz.height/2;
+			Offset( pt.x - xpt.x, pt.y - xpt.y );
 		}
 
 		FRectF CenterRect() const
@@ -429,10 +422,6 @@ class FRectF : public D2D1_RECT_F
 			bottom=0;
 			top=0;
 		}
-		bool IsZero() const
-		{
-			return (left == right && bottom == top );
-		}
 };
 
 
@@ -442,34 +431,38 @@ class FRectFBoxModel : public FRectF
 	public :
 		FRectFBoxModel():FRectF((float)0,(float)0,(float)0,(float)0)
 		{
-			BorderWidth_ = 0;
+			BoderWidth_ = 0;			
 		}
 		FRectFBoxModel( float l,float t,float r,float b ):FRectF(l,t,r,b)
 		{
-			BorderWidth_ = 0;
+			BoderWidth_ = 0;
 		}
 		FRectFBoxModel(const FRectF& rc)
 		{
-			BorderWidth_ = 0;
+			BoderWidth_ = 0;
 			SetFRectF(rc);
 		}
 		FRectFBoxModel(float l, float t, const FSizeF& sz) :FRectF(l, t, l+sz.width, t+sz.height)
 		{
-			BorderWidth_ = 0;
+			BoderWidth_ = 0;
+		}
+		FRectFBoxModel(FRectFBoxModel&& rc)
+		{
+			*this = std::move(rc);
 		}
 		FRectFBoxModel(const FRectFBoxModel& rc)
 		{
 			*this = rc;
 		}
 		FRectFBoxModel& operator=(FRectFBoxModel&& rc )
-		{
+		{			
 			left = rc.left;
 			right = rc.right;
 			top = rc.top;
 			bottom = rc.bottom;
 			Padding_ = rc.Padding_;
 			Margin_ = rc.Margin_;
-			BorderWidth_ = rc.BorderWidth_;
+			BoderWidth_ = rc.BoderWidth_;
 			
 			return *this;
 		}
@@ -483,10 +476,11 @@ class FRectFBoxModel : public FRectF
 				bottom = rc.bottom;
 				Padding_ = rc.Padding_;
 				Margin_ = rc.Margin_;
-				BorderWidth_ = rc.BorderWidth_;
+				BoderWidth_ = rc.BoderWidth_;
 			}
 			return *this;
 		}
+
 		void SetFRectF(const FRectF& rc )
 		{
 			left = rc.left;
@@ -514,19 +508,19 @@ class FRectFBoxModel : public FRectF
 		FRectF GetContentRect() const
 		{
 			FRectF rc;
-			rc.left = left+Margin_.l+ BorderWidth_ +Padding_.l;
-			rc.top = top+Margin_.t+ BorderWidth_ +Padding_.t;
-			rc.right = right-Margin_.r- BorderWidth_ -Padding_.r;
-			rc.bottom = bottom-Margin_.b- BorderWidth_ -Padding_.b;
+			rc.left = left+Margin_.l+BoderWidth_+Padding_.l;
+			rc.top = top+Margin_.t+BoderWidth_+Padding_.t;
+			rc.right = right-Margin_.r-BoderWidth_-Padding_.r;
+			rc.bottom = bottom-Margin_.b-BoderWidth_-Padding_.b;
 			return rc;
 		}
 		FRectF GetPaddingRect() const
 		{
 			FRectF rc;
-			rc.left = left+Margin_.l+ BorderWidth_;
-			rc.top = top+Margin_.t+ BorderWidth_;
-			rc.right = right-Margin_.r- BorderWidth_;
-			rc.bottom = bottom-Margin_.b- BorderWidth_;
+			rc.left = left+Margin_.l+BoderWidth_;
+			rc.top = top+Margin_.t+BoderWidth_;
+			rc.right = right-Margin_.r-BoderWidth_;
+			rc.bottom = bottom-Margin_.b-BoderWidth_;
 			return rc;
 		}
 		FRectF GetBorderRect() const
@@ -546,19 +540,19 @@ class FRectFBoxModel : public FRectF
 		FRectF GetContentRectZero() const
 		{
 			FRectF rc;
-			rc.left = Margin_.l+ BorderWidth_ +Padding_.l;
-			rc.top = Margin_.t+ BorderWidth_ +Padding_.t;
-			rc.right = (right-left)-Margin_.r- BorderWidth_ -Padding_.r;
-			rc.bottom = (bottom-top)-Margin_.b- BorderWidth_ -Padding_.b;
+			rc.left = Margin_.l+BoderWidth_+Padding_.l;
+			rc.top = Margin_.t+BoderWidth_+Padding_.t;
+			rc.right = (right-left)-Margin_.r-BoderWidth_-Padding_.r;
+			rc.bottom = (bottom-top)-Margin_.b-BoderWidth_-Padding_.b;
 			return rc;
 		}
 		FRectF GetPaddingRectZero() const
 		{
 			FRectF rc;
-			rc.left = Margin_.l+ BorderWidth_;
-			rc.top = Margin_.t+ BorderWidth_;
-			rc.right = (right-left)-Margin_.r- BorderWidth_;
-			rc.bottom = (bottom-top)-Margin_.b- BorderWidth_;
+			rc.left = Margin_.l+BoderWidth_;
+			rc.top = Margin_.t+BoderWidth_;
+			rc.right = (right-left)-Margin_.r-BoderWidth_;
+			rc.bottom = (bottom-top)-Margin_.b-BoderWidth_;
 			return rc;
 		}
 		FRectF GetBorderRectZero() const
@@ -578,8 +572,8 @@ class FRectFBoxModel : public FRectF
 		}
 		void SetContentSize( const FSizeF& sz )
 		{					
-			float width = Padding_.l + BorderWidth_ + Margin_.l + sz.width + Padding_.r + BorderWidth_ + Margin_.r;
-			float height = Padding_.t + BorderWidth_ + Margin_.t + sz.height + Padding_.b + BorderWidth_ + Margin_.b;
+			float width = Padding_.l + BoderWidth_ + Margin_.l + sz.width + Padding_.r + BoderWidth_ + Margin_.r;
+			float height = Padding_.t + BoderWidth_ + Margin_.t + sz.height + Padding_.b + BoderWidth_ + Margin_.b;
 
 						
 			right = left + width;
@@ -588,33 +582,9 @@ class FRectFBoxModel : public FRectF
 		
 		dif Padding_;
 		dif Margin_;
-		float BorderWidth_;
+		float BoderWidth_;
 };
 
 
-class FRect :public D2D1_RECT_U
-{
-	public :
-		FRect( UINT l, UINT t,UINT r,UINT b )
-		{
-			SetRect(l,t,r,b);
-		}
-
-		void SetRect(UINT l, UINT t, UINT r, UINT b)
-		{
-			left = l;
-			top = t;
-			right = r;
-			bottom = b;
-		}
-
-		void Offset( int w, int h )
-		{
-			left += w; right += w;
-			top += h; bottom += h;
-		}
 };
 
-};
-
-typedef V4::FRectFBoxModel FRectFBM;

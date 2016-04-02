@@ -1,22 +1,3 @@
-ï»¿/*
-The MIT License (MIT)
-Copyright (c) 2015 admin@sugarontop.net
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
 #pragma once
 #include <string>
 #include <sstream>
@@ -39,7 +20,7 @@ class FString : public std::wstring
 		}
 		FString( BSTR s ):std::wstring((LPCWSTR)s){}
 
-		// && å³è¾ºå‚ç…§å€¤
+		// && ‰E•ÓQÆ’l
 		FString( std::wstring&& s ){ swap(s); }
 		FString& operator=(std::wstring&& s ){ swap(s);	return *this;}
 
@@ -133,7 +114,7 @@ class FString : public std::wstring
 			auto e = _wcsupr_s( (WCHAR*)c_str(), length() + 1);
 		}
 
-		// lengthã«ã¯nullæ–‡å­—åˆ†ãŒå«ã¾ã‚Œã‚‹ã€‚deleteãŒå¿…è¦
+		// length‚É‚Ínull•¶š•ª‚ªŠÜ‚Ü‚ê‚éBdelete‚ª•K—v
 		LPSTR ToUtf8( int *length )		
 		{
 			LPCWSTR vs = (LPCWSTR)c_str();
@@ -147,7 +128,7 @@ class FString : public std::wstring
 			
 		}
 
-		// encryptã®å ´åˆã€cchãŒnullã§çµ‚ã‚ã‚‰ãªã„å ´åˆãŒã‚ã‚‹ãŸã‚lenæŒ‡å®šã‚’è¿½åŠ 
+		// encrypt‚Ìê‡Acch‚ªnull‚ÅI‚í‚ç‚È‚¢ê‡‚ª‚ ‚é‚½‚ßlenw’è‚ğ’Ç‰Á
 		void FromUtf8( LPCSTR cch, int len=-1 )
 		{
 			if ( len == -1 )

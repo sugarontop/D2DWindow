@@ -19,6 +19,9 @@
     <Filter Include="ソース ファイル\TSF">
       <UniqueIdentifier>{09b15c59-9bb8-4675-b18c-e6c815bbd0f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{800df2df-bd30-43e5-9e66-438143a0bdde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -87,6 +90,15 @@
       <Filter>ソース ファイル\D2dwindow</Filter>
     </ClCompile>
     <ClCompile Include="D2dwindow\D2DWindow.cpp">
+      <Filter>ソース ファイル\D2dwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="D2dwindow\CJsValueRef.cpp">
+      <Filter>ソース ファイル\D2dwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Js.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DWindow\Higgsjson.cpp">
       <Filter>ソース ファイル\D2dwindow</Filter>
     </ClCompile>
   </ItemGroup>

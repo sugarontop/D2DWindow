@@ -26,8 +26,14 @@ static HWND ghMainFrameWnd;
 static HINSTANCE __hInst;						// 現在のインターフェイス
 TCHAR __szTitle[MAX_LOADSTRING];				// タイトル バーのテキスト
 TCHAR __szWindowClass[MAX_LOADSTRING];			// メイン ウィンドウ クラス名
+
 #define IDLE_TIME (5*1000)
 #define IDLE_TIMER_ID 99
+
+// javascript 
+bool JsAppInit(HWND hMainWnd);
+void JsAppClose();
+
 
 
 V4::D2DWindow window; 
@@ -252,6 +258,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		D2DInitial(hWnd);
 
+		JsAppInit(hWnd);
+
 		
 		window.OnCreate = EntryMain;
 
@@ -412,6 +420,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
+		JsAppClose();
 		PostQuitMessage(0);
 	break;
 	case WM_NCCALCSIZE:

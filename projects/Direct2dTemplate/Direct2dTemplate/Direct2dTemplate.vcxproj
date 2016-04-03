@@ -98,6 +98,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D2dwindow\CJsValueRef.cpp" />
     <ClCompile Include="D2dwindow\D2DContextEx.cpp" />
     <ClCompile Include="D2dwindow\D2DWindow.cpp" />
     <ClCompile Include="D2dwindow\D2DWindowControl.cpp" />
@@ -105,7 +106,9 @@
     <ClCompile Include="D2dwindow\D2DWindowDeveloping.cpp" />
     <ClCompile Include="D2dwindow\D2DWindowListbox.cpp" />
     <ClCompile Include="D2dwindow\D2DWindowTextboxTSF.cpp" />
+    <ClCompile Include="D2DWindow\Higgsjson.cpp" />
     <ClCompile Include="EntryD2D.cpp" />
+    <ClCompile Include="Js.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
